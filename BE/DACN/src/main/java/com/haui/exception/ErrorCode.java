@@ -10,7 +10,9 @@ public enum ErrorCode {
     ROLE_NOT_FOUND("ROLE_404", "Role not found", HttpStatus.NOT_FOUND),
     USERNAME_ALREADY_EXISTS("USER_409", "Username already exists",  HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("USER_409", "Email already exists", HttpStatus.CONFLICT),
+    USER_PASSWORD_INCORRECT("AUTH_401", "Password is incorrect", HttpStatus.UNAUTHORIZED),
     INVALID_REQUEST("REQ_400", "Invalid request", HttpStatus.BAD_REQUEST);
+
 
     private final String code;
     private final String message;
