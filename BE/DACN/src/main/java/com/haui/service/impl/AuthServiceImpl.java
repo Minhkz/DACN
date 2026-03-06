@@ -1,11 +1,15 @@
 package com.haui.service.impl;
 
 import com.haui.dto.auth.LoginDto;
+import com.haui.dto.auth.RefreshTokenDto;
 import com.haui.dto.auth.RegisterDto;
+import com.haui.dto.response.jwt.JwtResponse;
+import com.haui.entity.RefreshToken;
 import com.haui.entity.Role;
 import com.haui.entity.User;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
+import com.haui.repository.RefreshTokenRepository;
 import com.haui.repository.RoleRepository;
 import com.haui.repository.UserRepository;
 import com.haui.security.JwtTokenProvider;
@@ -14,12 +18,14 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -30,21 +36,34 @@ public class AuthServiceImpl implements AuthService {
     AuthenticationManager authenticationManager;
     JwtTokenProvider jwtTokenProvider;
     RoleRepository roleRepository;
+    RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public String login(LoginDto loginDto) {
-        User user = userRepository.findByUsername(loginDto.getUsername()).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
-        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.USER_PASSWORD_INCORRECT);
-        }
+    public JwtResponse login(LoginDto loginDto) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDto.getUsername(),
+                        loginDto.getPassword()
+                )
+        );
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsername(),
-                loginDto.getPassword()
-        ));
+        User user = userRepository
+                .findByUsername(loginDto.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        String token = jwtTokenProvider.generateToken(authentication, user.getId());
-        return token;
+        String accessToken = jwtTokenProvider.generateToken(authentication, user.getId());
+
+        String refreshToken = UUID.randomUUID().toString();
+
+        RefreshToken entity = RefreshToken.builder()
+                .token(refreshToken)
+                .expiryDate(LocalDateTime.now().plusDays(7))
+                .user(user)
+                .build();
+
+        refreshTokenRepository.save(entity);
+
+        return new JwtResponse(accessToken, refreshToken);
     }
 
     @Override
@@ -67,5 +86,39 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(role);
         userRepository.save(user);
         return "User registered successfully";
+    }
+
+    @Override
+    @Transactional
+    public JwtResponse refreshToken(RefreshTokenDto request) {
+
+        RefreshToken token = refreshTokenRepository
+                .findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        User user = token.getUser();
+
+        String accessToken = jwtTokenProvider.generateTokenFromUsername(
+                user.getUsername(),
+                user.getId()
+        );
+
+        String newRefreshToken = UUID.randomUUID().toString();
+
+        refreshTokenRepository.delete(token);
+
+        RefreshToken entity = RefreshToken.builder()
+                .token(newRefreshToken)
+                .expiryDate(LocalDateTime.now().plusDays(7))
+                .user(user)
+                .build();
+
+        refreshTokenRepository.save(entity);
+
+        return new JwtResponse(accessToken, newRefreshToken);
     }
 }

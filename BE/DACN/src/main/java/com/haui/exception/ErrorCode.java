@@ -11,6 +11,10 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS("USER_409", "Username already exists",  HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("USER_409", "Email already exists", HttpStatus.CONFLICT),
     USER_PASSWORD_INCORRECT("AUTH_401", "Password is incorrect", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_NOT_FOUND("AUTH_404", "Refresh token not found", HttpStatus.NOT_FOUND),
+    REFRESH_TOKEN_EXPIRED("AUTH_401", "Refresh token expired", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("AUTH_400", "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_REVOKED("AUTH_401", "Refresh token has been revoked", HttpStatus.UNAUTHORIZED),
     INVALID_REQUEST("REQ_400", "Invalid request", HttpStatus.BAD_REQUEST);
 
 

@@ -2,9 +2,11 @@ package com.haui.controller.auth;
 
 
 import com.haui.dto.auth.LoginDto;
+import com.haui.dto.auth.RefreshTokenDto;
 import com.haui.dto.auth.RegisterDto;
 import com.haui.dto.response.jwt.JwtResponse;
 import com.haui.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,13 +22,18 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginDto loginDto) {
-        return ResponseEntity.ok(new JwtResponse(authService.login(loginDto)));
+    public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginDto request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterDto registerDto) {
         return ResponseEntity.ok(authService.register(registerDto));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenDto request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 
 
