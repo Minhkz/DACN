@@ -4,6 +4,9 @@ import com.haui.dto.response.user.UserDetailDto;
 import com.haui.dto.response.user.UserDto;
 import com.haui.dto.request.user.UserRequest;
 import com.haui.dto.request.user.UserUpdateRequest;
+import com.haui.dto.thread.user.DeleteUserAvatarEvent;
+import com.haui.dto.thread.user.UpdateUserAvatarEvent;
+import com.haui.dto.thread.user.UploadUserAvatarEvent;
 import com.haui.entity.Role;
 import com.haui.entity.User;
 import com.haui.exception.AppException;
@@ -12,12 +15,15 @@ import com.haui.mapper.UserMapper;
 import com.haui.repository.RoleRepository;
 import com.haui.repository.UserRepository;
 import com.haui.service.UserService;
-import jakarta.transaction.Transactional;
+import com.haui.service.cloudinary.user.HandleUserImg;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,12 +32,14 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "users")
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     RoleRepository roleRepository;
-    HandleImg handleImg;
+    HandleUserImg handleImg;
+    ApplicationEventPublisher eventPublisher;
 
     private void validateLogic(UserRequest request) {
         if(userRepository.existsByUsernameOrEmail(request.getUsername(), request.getEmail())) {
@@ -49,7 +57,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(key = "'list'")
     public UserDto create(UserRequest request) throws IOException {
 
         validateLogic(request);
@@ -67,7 +76,9 @@ public class UserServiceImpl implements UserService {
         if (file != null && !file.isEmpty()) {
             byte[] fileBytes = file.getBytes();
 
-            handleImg.uploadAvatarAsync(fileBytes, true, entity.getId());
+            eventPublisher.publishEvent(
+                    new UploadUserAvatarEvent(fileBytes, entity.getId())
+            );
         }
         UserDto dto = userMapper.toDto(entity);
         dto.setRoleId(role.getName());
@@ -75,7 +86,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
+    @Caching(
+            put = @CachePut(key = "#id"),
+            evict = @CacheEvict(key = "'list'")
+    )
     public UserDto update(Integer id, UserUpdateRequest request) throws IOException {
         request.setId(id);
         validateLogic(request);
@@ -88,7 +103,9 @@ public class UserServiceImpl implements UserService {
         if (file != null && !file.isEmpty()) {
             byte[] fileBytes = file.getBytes();
 
-            handleImg.updateAvatarAsync(fileBytes, true, entity.getId());
+            eventPublisher.publishEvent(
+                    new UpdateUserAvatarEvent(fileBytes, entity.getId())
+            );
         }
         UserDto dto = userMapper.toDto(entity);
         dto.setRoleId(entity.getRole().getName());
@@ -96,12 +113,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(allEntries = true)
     public void delete(Integer id) {
-        userRepository.deleteById(id);
-        handleImg.deleteAvatarAsync(true, id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        userRepository.delete(user);
+        eventPublisher.publishEvent(new DeleteUserAvatarEvent(user.getAvatar()));
     }
 
     @Override
+    @Cacheable(key="'list'")
     public List<UserDetailDto> getAllUser() {
         List<User> users = userRepository.findAll();
         List<UserDetailDto> dtos = users.stream()
@@ -111,6 +133,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public UserDetailDto getUserById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return transfer(user);

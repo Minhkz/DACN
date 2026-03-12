@@ -4,6 +4,7 @@ package com.haui.controller.auth;
 import com.haui.dto.auth.LoginDto;
 import com.haui.dto.auth.RefreshTokenDto;
 import com.haui.dto.auth.RegisterDto;
+import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.jwt.JwtResponse;
 import com.haui.service.AuthService;
 import jakarta.validation.Valid;
@@ -22,18 +23,18 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginDto request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseResult<JwtResponse> login(@RequestBody @Valid LoginDto request) {
+        return ResponseResult.success(authService.login(request));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterDto registerDto) {
-        return ResponseEntity.ok(authService.register(registerDto));
+    public ResponseResult<String> register(@RequestBody @Valid RegisterDto registerDto) {
+        return ResponseResult.success(authService.register(registerDto));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenDto request) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+    public ResponseResult<JwtResponse> refreshToken(@RequestBody RefreshTokenDto request) {
+        return ResponseResult.success(authService.refreshToken(request));
     }
 
 

@@ -63,20 +63,20 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .cors(org.springframework.security.config.Customizer.withDefaults())
 
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                )
-
-                .addFilterBefore(authenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
 //                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll()
-//                );
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//
+//                .exceptionHandling(ex -> ex
+//                        .authenticationEntryPoint(authenticationEntryPoint)
+//                )
+//
+//                .addFilterBefore(authenticationFilter,
+//                        UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }

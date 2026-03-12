@@ -5,17 +5,22 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
-    USER_NOT_FOUND("USER_404", "User not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXISTS("USER_409", "User already exists", HttpStatus.CONFLICT),
-    ROLE_NOT_FOUND("ROLE_404", "Role not found", HttpStatus.NOT_FOUND),
-    USERNAME_ALREADY_EXISTS("USER_409", "Username already exists",  HttpStatus.CONFLICT),
-    EMAIL_ALREADY_EXISTS("USER_409", "Email already exists", HttpStatus.CONFLICT),
-    USER_PASSWORD_INCORRECT("AUTH_401", "Password is incorrect", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_NOT_FOUND("AUTH_404", "Refresh token not found", HttpStatus.NOT_FOUND),
-    REFRESH_TOKEN_EXPIRED("AUTH_401", "Refresh token expired", HttpStatus.UNAUTHORIZED),
-    INVALID_REFRESH_TOKEN("AUTH_400", "Invalid refresh token", HttpStatus.BAD_REQUEST),
-    REFRESH_TOKEN_REVOKED("AUTH_401", "Refresh token has been revoked", HttpStatus.UNAUTHORIZED),
-    INVALID_REQUEST("REQ_400", "Invalid request", HttpStatus.BAD_REQUEST);
+    USER_NOT_FOUND("404", "User not found", HttpStatus.NOT_FOUND),
+    USER_ALREADY_EXISTS("409", "User already exists", HttpStatus.CONFLICT),
+    ROLE_NOT_FOUND("404", "Role not found", HttpStatus.NOT_FOUND),
+    USERNAME_ALREADY_EXISTS("409", "Username already exists",  HttpStatus.CONFLICT),
+    EMAIL_ALREADY_EXISTS("409", "Email already exists", HttpStatus.CONFLICT),
+    USER_PASSWORD_INCORRECT("401", "Password is incorrect", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_NOT_FOUND("404", "Refresh token not found", HttpStatus.NOT_FOUND),
+    REFRESH_TOKEN_EXPIRED("401", "Refresh token expired", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("400", "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_REVOKED("401", "Refresh token has been revoked", HttpStatus.UNAUTHORIZED),
+    FILTER_ALREADY_EXISTS("409", "Filter already exists", HttpStatus.CONFLICT),
+    FILTER_NOT_FOUND("404", "Filter not found", HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_FOUND("404", "Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_ALREADY_EXISTS("409", "Product already exists", HttpStatus.CONFLICT),
+    PRODUCT_FILTER_NOT_FOUND("404", "Some filters not found", HttpStatus.NOT_FOUND),
+    INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
 
 
     private final String code;
