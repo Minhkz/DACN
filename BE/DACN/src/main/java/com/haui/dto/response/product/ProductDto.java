@@ -1,26 +1,20 @@
-package com.haui.entity;
+package com.haui.dto.response.product;
 
-import jakarta.persistence.*;
+import com.haui.entity.Filter;
+import com.haui.entity.ProductImg;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-@Entity
-@Table(name = "products")
 @Data
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProductDto {
     private Integer id;
-
     private String name;
-
-    @Column(name = "des")
     private String description;
-
     private BigDecimal price;
     private Integer quantity;
     private Integer sold;
-    private String avatar;
     private Integer view;
 }

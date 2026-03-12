@@ -22,25 +22,15 @@ CREATE TABLE users (
 
 CREATE TABLE products (
     id 			INT PRIMARY KEY AUTO_INCREMENT,
-    name 		NVARCHAR(255),
+    `name` 		NVARCHAR(255) UNIQUE,
     des 		NVARCHAR(255),
     price 		DECIMAL(19,2),
     quantity 	INT,
     sold 		INT,
+    `view`		INT,
     avatar 		VARCHAR(255)
 );
 
-CREATE TABLE products_users (
-    id 				INT PRIMARY KEY AUTO_INCREMENT,
-    product_id 		INT NOT NULL,
-    user_id 		INT NOT NULL,
-    created_by 		INT,
-    created_date 	TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_by 		INT,
-    updated_date 	TIMESTAMP NULL,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
 
 CREATE TABLE product_img (
     id 			INT PRIMARY KEY AUTO_INCREMENT,
@@ -51,8 +41,8 @@ CREATE TABLE product_img (
 
 CREATE TABLE filters (
     id 			INT PRIMARY KEY AUTO_INCREMENT,
-    name 		VARCHAR(255),
-    type 		VARCHAR(255)
+    `name` 		VARCHAR(255),
+    `type` 		VARCHAR(255)
 );
 
 CREATE TABLE products_filters (
@@ -104,18 +94,6 @@ CREATE TABLE products_wishlists (
     FOREIGN KEY (wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE
 );
 
-CREATE TABLE dashboard (
-    id 				INT PRIMARY KEY AUTO_INCREMENT,
-    product_id 		INT NOT NULL,
-    user_id 		INT NOT NULL,
-    `view` 			INT DEFAULT 0,
-    sold 			INT DEFAULT 0,
-    bought 			INT DEFAULT 0,
-    bought_latest 	INT DEFAULT 0,
-    sold_latest 	INT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
 CREATE TABLE reviews (
     id 				INT PRIMARY KEY AUTO_INCREMENT,
     product_id 		INT NOT NULL,
@@ -139,6 +117,14 @@ CREATE TABLE products_carts (
 
     FOREIGN KEY (cart_id) REFERENCES carts(id)
         ON DELETE CASCADE
+);
+
+CREATE TABLE refresh_token(
+	id				INT PRIMARY KEY AUTO_INCREMENT,
+    user_id			INT NOT NULL,
+    token			VARCHAR(500) UNIQUE NOT NULL,
+    expiry_date		DATETIME,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 INSERT INTO roles 	(name) VALUES

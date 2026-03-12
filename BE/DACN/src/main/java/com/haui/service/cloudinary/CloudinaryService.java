@@ -4,9 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -14,9 +12,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CloudinaryService {
+
     private final Cloudinary cloudinary;
 
-    public String upload(byte[] fileBytes, Boolean isUser, Integer userId) {
+
+    public String uploadUserAvatar(byte[] fileBytes, Integer userId) {
 
         if (fileBytes == null || fileBytes.length == 0) {
             throw new RuntimeException("File is empty");
@@ -24,49 +24,52 @@ public class CloudinaryService {
 
         try {
 
-            String publicId = "users/" + userId + "_" + (isUser ? "user" : "product");
+            String publicId = "nhom6/users/" + userId + "/avatar";
 
             Map<String, Object> params = new HashMap<>();
             params.put("public_id", publicId);
             params.put("overwrite", true);
             params.put("resource_type", "auto");
 
-            Map<?, ?> data = cloudinary.uploader().upload(fileBytes, params);
+            Map<?, ?> result = cloudinary.uploader().upload(fileBytes, params);
 
-            return (String) data.get("secure_url");
+            return (String) result.get("public_id");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Image upload fail", e);
+            throw new RuntimeException("Upload avatar failed", e);
         }
     }
 
-    public String update(byte[] fileBytes, Boolean isUser, Integer userId) {
+
+    public String uploadProductImage(byte[] fileBytes, Integer productId) {
+
         if (fileBytes == null || fileBytes.length == 0) {
             throw new RuntimeException("File is empty");
         }
 
         try {
-            String publicId = "users/" + userId + "_" + (isUser ? "user" : "product");
+
+            String publicId = "nhom6/products/" + productId + "/" + UUID.randomUUID();
 
             Map<String, Object> params = new HashMap<>();
             params.put("public_id", publicId);
-            params.put("overwrite", true);
+            params.put("overwrite", false);
             params.put("resource_type", "auto");
 
-            Map<?, ?> data = cloudinary.uploader().upload(fileBytes, params);
+            Map<?, ?> result = cloudinary.uploader().upload(fileBytes, params);
 
-            return (String) data.get("secure_url");
+            return (String) result.get("public_id");
 
-        } catch (IOException e) {
-            throw new RuntimeException("Avatar update fail");
+        } catch (Exception e) {
+            throw new RuntimeException("Upload product image failed", e);
         }
     }
 
-    public void delete(Boolean isUser, Integer userId) {
-        try {
 
-            String publicId = "users/" + userId + "_" + (isUser ? "user" : "product");
+
+    public void deleteImage(String publicId) {
+
+        try {
 
             Map<?, ?> result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
 
@@ -77,16 +80,17 @@ public class CloudinaryService {
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Delete image fail", e);
+            throw new RuntimeException("Delete image failed", e);
         }
     }
 
-    public String getImageUrl(Boolean isUser, Integer userId) {
 
-        String publicId = "users/" + userId + "_" + (isUser ? "user" : "product");
+
+    public String getImageUrl(String publicId) {
 
         return cloudinary.url()
                 .secure(true)
                 .generate(publicId);
     }
+
 }

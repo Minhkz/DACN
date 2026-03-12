@@ -1,4 +1,4 @@
-package com.haui.service.impl;
+package com.haui.service.cloudinary.user;
 
 import com.haui.entity.User;
 import com.haui.exception.AppException;
@@ -8,19 +8,20 @@ import com.haui.service.cloudinary.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class HandleImg {
+public class HandleUserImg {
     private final CloudinaryService cloudinaryService;
     private final UserRepository userRepository;
 
     @Async
+    @Transactional(rollbackFor = Exception.class)
     public void uploadAvatarAsync(byte[] fileBytes,
-                                  Boolean isUser,
                                   Integer userId) {
         try {
-            String url = cloudinaryService.upload(fileBytes, isUser, userId);
+            String url = cloudinaryService.uploadUserAvatar(fileBytes, userId);
 
             User user = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
             user.setAvatar(url);
@@ -32,11 +33,11 @@ public class HandleImg {
     }
 
     @Async
+    @Transactional(rollbackFor = Exception.class)
     public void updateAvatarAsync(byte[] fileBytes,
-                                  Boolean isUser,
                                   Integer userId) {
         try {
-            String url = cloudinaryService.update(fileBytes, isUser, userId);
+            String url = cloudinaryService.uploadUserAvatar(fileBytes, userId);
 
             User user = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
             user.setAvatar(url);
@@ -48,10 +49,9 @@ public class HandleImg {
     }
 
     @Async
-    public void deleteAvatarAsync(Boolean isUser,
-                                  Integer userId) {
+    public void deleteAvatarAsync(String publicId) {
         try {
-            cloudinaryService.delete(isUser, userId);
+            cloudinaryService.deleteImage(publicId);
         } catch (Exception e) {
             e.printStackTrace();
         }
