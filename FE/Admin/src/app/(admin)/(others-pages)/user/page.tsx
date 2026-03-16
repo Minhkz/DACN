@@ -13,11 +13,9 @@ export const metadata: Metadata = {
 export default function Profile() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="Quản lý users" />
+      <PageBreadcrumb pageTitle="Quản lý người dùng" />
       <div className="space-y-6">
-        <ComponentCard title="Bảng users">
-          <User />
-        </ComponentCard>
+        <User />
       </div>
     </div>
   );

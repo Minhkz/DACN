@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: 'User',
+    name: 'Quản lý người dùng',
     path: '/user',
   },
 
@@ -48,11 +48,6 @@ const navItems: NavItem[] = [
     name: 'Tables',
     icon: <TableIcon />,
     subItems: [{ name: 'Basic Tables', path: '/basic-tables', pro: false }],
-  },
-  {
-    icon: <ShieldUser />,
-    name: 'Role',
-    path: '/role',
   },
   {
     name: 'Pages',
