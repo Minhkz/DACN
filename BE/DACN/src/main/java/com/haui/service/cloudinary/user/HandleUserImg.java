@@ -37,9 +37,8 @@ public class HandleUserImg {
     public void updateAvatarAsync(byte[] fileBytes,
                                   Integer userId) {
         try {
-            String url = cloudinaryService.uploadUserAvatar(fileBytes, userId);
-
             User user = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
+            String url = cloudinaryService.updateUserAvatar(fileBytes, userId,  user.getAvatar());
             user.setAvatar(url);
             userRepository.save(user);
 

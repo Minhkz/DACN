@@ -3,6 +3,7 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import User from '@/components/user/User';
 import { Metadata } from 'next';
 import React from 'react';
+import UserPageClient from './UserPageClient';
 
 export const metadata: Metadata = {
   title: 'Next.js Profile | TailAdmin - Next.js Dashboard Template',
@@ -11,12 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function Profile() {
-  return (
-    <div>
-      <PageBreadcrumb pageTitle="Quản lý người dùng" />
-      <div className="space-y-6">
-        <User />
-      </div>
-    </div>
-  );
+  return <UserPageClient />;
 }

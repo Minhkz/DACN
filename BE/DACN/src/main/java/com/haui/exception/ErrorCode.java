@@ -20,6 +20,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("404", "Product not found", HttpStatus.NOT_FOUND),
     PRODUCT_ALREADY_EXISTS("409", "Product already exists", HttpStatus.CONFLICT),
     PRODUCT_FILTER_NOT_FOUND("404", "Some filters not found", HttpStatus.NOT_FOUND),
+    AVATAR_ALREADY_EXISTS("400","Avatar already exists for this user", HttpStatus.CONFLICT),
     INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
 
 
