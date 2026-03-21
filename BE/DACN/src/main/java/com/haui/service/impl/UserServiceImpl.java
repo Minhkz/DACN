@@ -15,6 +15,7 @@ import com.haui.mapper.UserMapper;
 import com.haui.repository.RoleRepository;
 import com.haui.repository.UserRepository;
 import com.haui.service.UserService;
+import com.haui.service.cloudinary.CloudinaryService;
 import com.haui.service.cloudinary.user.HandleUserImg;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     RoleRepository roleRepository;
-    HandleUserImg handleImg;
+    CloudinaryService cloudinaryService;
     ApplicationEventPublisher eventPublisher;
 
     private void validateLogic(UserRequest request) {
@@ -87,10 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Caching(
-            put = @CachePut(key = "#id"),
-            evict = @CacheEvict(key = "'list'")
-    )
+    @CacheEvict(key = "'list'")
     public UserDto update(Integer id, UserUpdateRequest request) throws IOException {
         request.setId(id);
         validateLogic(request);
@@ -133,15 +131,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "#id")
     public UserDetailDto getUserById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return transfer(user);
     }
 
     private UserDetailDto transfer(User user) {
+        String img= cloudinaryService.getImageUrl(user.getAvatar());
+
         UserDetailDto dto = new UserDetailDto();
-        dto.setAvatar(user.getAvatar());
+        dto.setId(user.getId());
+        dto.setAvatar(img);
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setRoleId(user.getRole().getName());

@@ -3,7 +3,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import { CreateModel } from '@/types/common/CreateModel';
 
 interface ComponentCardProps {
-  title: string;
+  title?: string;
   children: React.ReactNode;
   className?: string;
   desc?: string;
