@@ -46,7 +46,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseResult<List<ProductDetailDto>> getListProduct(){
-        return null;
+        return ResponseResult.success(productService.getListProduct());
     }
 
 }

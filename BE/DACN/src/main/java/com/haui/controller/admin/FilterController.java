@@ -34,6 +34,7 @@ public class FilterController {
 
     @DeleteMapping("/{id}")
     public ResponseResult<String> delete(@PathVariable Integer id) {
+        filterService.delete(id);
         return ResponseResult.success("Successfully deleted filter");
     }
 
