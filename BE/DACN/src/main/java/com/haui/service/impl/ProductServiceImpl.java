@@ -22,6 +22,7 @@ import com.haui.repository.ProductFilterRepository;
 import com.haui.repository.ProductImgRepository;
 import com.haui.repository.ProductRepository;
 import com.haui.service.ProductService;
+import com.haui.service.cloudinary.CloudinaryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -50,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
     ProductFilterRepository productFilterRepository;
     ProductMapper productMapper;
     ApplicationEventPublisher eventPublisher;
-
+    CloudinaryService cloudinaryService;
     private void validateLogic(ProductRequest request, Boolean isCreated){
         if(isCreated){
             if(productRepository.existsByName(request.getName())){
@@ -239,13 +240,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(key="#id")
+    @Cacheable(key = "#id")
     public ProductDetailDto detail(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         List<ProductImg> images = productImgRepository.findByProductId(id);
-
         List<ProductFilter> filters = productFilterRepository.findByProductId(id);
+
         return convert(product, images, filters);
     }
 
@@ -261,15 +263,11 @@ public class ProductServiceImpl implements ProductService {
         List<ProductImg> images = productImgRepository.findByProductIdIn(ids);
         List<ProductFilter> filters = productFilterRepository.findByProductIdIn(ids);
 
-        Map<Integer, List<ProductImg>> imageMap =
-                images.stream().collect(Collectors.groupingBy(
-                        img -> img.getProduct().getId()
-                ));
+        Map<Integer, List<ProductImg>> imageMap = images.stream()
+                .collect(Collectors.groupingBy(img -> img.getProduct().getId()));
 
-        Map<Integer, List<ProductFilter>> filterMap =
-                filters.stream().collect(Collectors.groupingBy(
-                        filter -> filter.getProduct().getId()
-                ));
+        Map<Integer, List<ProductFilter>> filterMap = filters.stream()
+                .collect(Collectors.groupingBy(filter -> filter.getProduct().getId()));
 
         return products.stream()
                 .map(product -> convert(
@@ -281,18 +279,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDetailDto convert(Product product, List<ProductImg> images, List<ProductFilter> filters) {
-        ProductDetailDto productDetailDto = new ProductDetailDto();
-        productDetailDto.setId(product.getId());
-        productDetailDto.setName(product.getName());
-        productDetailDto.setDescription(product.getDescription());
-        productDetailDto.setPrice(product.getPrice());
-        productDetailDto.setQuantity(product.getQuantity());
-        productDetailDto.setView(product.getView());
-        productDetailDto.setSold(product.getSold());
-        productDetailDto.setAvatar(product.getAvatar());
-        productDetailDto.setImgs(images.stream().map(item -> item.getSrc()).toList());
-        productDetailDto.setFilters(filters.stream().map(item -> item.getFilter().getName()).toList());
-        return productDetailDto;
+        ProductDetailDto dto = new ProductDetailDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrice());
+        dto.setQuantity(product.getQuantity());
+        dto.setView(product.getView());
+        dto.setSold(product.getSold());
+        dto.setAvatar(cloudinaryService.getImageUrl(product.getAvatar()));
+        dto.setImgs(images.stream().map(ProductImg::getSrc).map(cloudinaryService::getImageUrl).toList());
+        dto.setFilters(filters.stream().map(f -> f.getFilter().getName()).toList());
+        return dto;
     }
 
 

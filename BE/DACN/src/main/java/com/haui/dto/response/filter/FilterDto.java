@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class FilterDto {
+    private Integer id;
     private String name;
     private String type;
 }

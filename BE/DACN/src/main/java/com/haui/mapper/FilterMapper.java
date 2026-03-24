@@ -10,6 +10,7 @@ import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public abstract class FilterMapper implements EntityMapper<FilterDto, Filter> {
+    @Mapping(target = "id",  ignore = true)
     public abstract Filter toCreate(FilterRequest request);
 
     @Mapping(target = "id",  ignore = true)

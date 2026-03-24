@@ -1,5 +1,8 @@
 import React from 'react';
-
+import Loading from '../common/Loading';
+import { CategoryType } from '@/types/category/CategoryType';
+import { getAll } from '@/api/category/CategoryApi';
+import { useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -7,25 +10,22 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import Loading from '../common/Loading';
-import { useQuery } from '@tanstack/react-query';
-import UserDetailType from '@/types/user/UserDetailType';
-import { getAll } from '@/api/user/UserApi';
-import Image from 'next/image';
-import UserAction from './action/UserAction';
-import { Spin } from 'antd';
+import CategoryAction from './action/CategoryAction';
 
-const User = () => {
-  const { data, isLoading, error, isError, isFetching } = useQuery<
-    UserDetailType[]
-  >({
-    queryKey: ['users'],
+const Category = () => {
+  const {
+    data = [],
+    isLoading,
+    error,
+    isError,
+  } = useQuery<CategoryType[], Error>({
+    queryKey: ['categories'],
     queryFn: getAll,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return <Loading />;
   }
 
@@ -50,19 +50,13 @@ const User = () => {
                   isHeader
                   className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  USERNAME
+                  NAME
                 </TableCell>
                 <TableCell
                   isHeader
                   className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  FULLNAME
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  ROLE
+                  TYPE
                 </TableCell>
                 <TableCell
                   isHeader
@@ -74,35 +68,28 @@ const User = () => {
             </TableHeader>
 
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {/* rows */}
-              {data?.length ? (
-                data.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="px-5 py-4">
-                      {data?.indexOf(user) + 1}
+              {data.length > 0 ? (
+                data.map((category, index) => (
+                  <TableRow key={category.id ?? `category-${index}`}>
+                    <TableCell className="px-5 py-4">{index + 1}</TableCell>
+
+                    <TableCell className="px-5 py-4 text-start">
+                      {category.name}
                     </TableCell>
 
                     <TableCell className="px-5 py-4 text-start">
-                      {user.username}
+                      {category.type}
                     </TableCell>
 
                     <TableCell className="px-5 py-4 text-start">
-                      {user.fullName}
-                    </TableCell>
-
-                    <TableCell className="px-5 py-4 text-start">
-                      {user.roleId}
-                    </TableCell>
-
-                    <TableCell className="px-5 py-4 text-start">
-                      <UserAction userId={user.id} />
+                      <CategoryAction categoryId={category.id} />
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell className="px-5 py-4 text-center" colSpan={5}>
-                    Không có dữ liệu người dùng nào.
+                  <TableCell className="px-5 py-4 text-center" colSpan={4}>
+                    Không có dữ liệu danh mục nào.
                   </TableCell>
                 </TableRow>
               )}
@@ -114,4 +101,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default Category;

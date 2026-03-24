@@ -1,5 +1,8 @@
 import React from 'react';
-
+import Loading from '../common/Loading';
+import { ProductDetailDto } from '@/types/product/ProductDetailDto';
+import { getAll } from '@/api/product/ProductApi';
+import { useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -7,19 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import Loading from '../common/Loading';
-import { useQuery } from '@tanstack/react-query';
-import UserDetailType from '@/types/user/UserDetailType';
-import { getAll } from '@/api/user/UserApi';
-import Image from 'next/image';
-import UserAction from './action/UserAction';
-import { Spin } from 'antd';
 
-const User = () => {
-  const { data, isLoading, error, isError, isFetching } = useQuery<
-    UserDetailType[]
+const Product = () => {
+  const { data, isLoading, isFetching, error, isError } = useQuery<
+    ProductDetailDto[],
+    Error
   >({
-    queryKey: ['users'],
+    queryKey: ['products'],
     queryFn: getAll,
     staleTime: 0,
     refetchOnWindowFocus: true,
@@ -50,19 +47,19 @@ const User = () => {
                   isHeader
                   className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  USERNAME
+                  NAME
                 </TableCell>
                 <TableCell
                   isHeader
                   className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  FULLNAME
+                  PRICE
                 </TableCell>
                 <TableCell
                   isHeader
                   className="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  ROLE
+                  QUANTITY
                 </TableCell>
                 <TableCell
                   isHeader
@@ -74,35 +71,30 @@ const User = () => {
             </TableHeader>
 
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {/* rows */}
-              {data?.length ? (
-                data.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="px-5 py-4">
-                      {data?.indexOf(user) + 1}
+              {data && data.length > 0 ? (
+                data.map((product, index) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="px-5 py-4">{index + 1}</TableCell>
+
+                    <TableCell className="px-5 py-4 text-start">
+                      {product.name}
                     </TableCell>
 
                     <TableCell className="px-5 py-4 text-start">
-                      {user.username}
+                      {product.price?.toLocaleString('vi-VN')} đ
                     </TableCell>
 
                     <TableCell className="px-5 py-4 text-start">
-                      {user.fullName}
+                      {product.quantity}
                     </TableCell>
 
-                    <TableCell className="px-5 py-4 text-start">
-                      {user.roleId}
-                    </TableCell>
-
-                    <TableCell className="px-5 py-4 text-start">
-                      <UserAction userId={user.id} />
-                    </TableCell>
+                    <TableCell className="px-5 py-4 text-start">hi</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell className="px-5 py-4 text-center" colSpan={5}>
-                    Không có dữ liệu người dùng nào.
+                    Không có dữ liệu sản phẩm nào.
                   </TableCell>
                 </TableRow>
               )}
@@ -114,4 +106,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default Product;
