@@ -37,9 +37,10 @@ public class HandleProductImg {
     @Async
     @Transactional(rollbackFor = Exception.class)
     public void updateAvatarAsync(byte[] fileBytes,
-                                  Integer productId) {
+                                  Integer productId,
+                                  String oldPublicId) {
         try {
-            String url = cloudinaryService.uploadProductImage(fileBytes, productId);
+            String url = cloudinaryService.updateProductImage(fileBytes, productId, oldPublicId);
 
             Product product = productRepository.findById(productId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
             product.setAvatar(url);

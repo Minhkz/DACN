@@ -7,6 +7,7 @@ import com.haui.dto.thread.product.DeleteProductAvatarEvent;
 import com.haui.dto.thread.product.UpdateProductAvatarEvent;
 import com.haui.dto.thread.product.UploadProductAvatarEvent;
 import com.haui.dto.thread.productImg.DeleteProductImagesAvatarEvent;
+import com.haui.dto.thread.productImg.UpdateProductImagesEvent;
 import com.haui.dto.thread.productImg.UploadProductImagesEvent;
 import com.haui.dto.thread.user.UpdateUserAvatarEvent;
 import com.haui.dto.thread.user.UploadUserAvatarEvent;
@@ -66,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
         validateFilters(request);
     }
 
+
     private void validateFilters(ProductRequest request){
         List<Filter> filters = filterRepository.findAllById(request.getFilters());
 
@@ -73,7 +75,6 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.PRODUCT_FILTER_NOT_FOUND);
         }
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -142,10 +143,10 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toDto(entity);
     }
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Caching(
-            put = @CachePut(key = "#id"),
             evict = @CacheEvict(key = "'list'")
     )
     public ProductDto update(ProductRequest request, Integer id) throws IOException {
@@ -184,12 +185,16 @@ public class ProductServiceImpl implements ProductService {
             eventPublisher.publishEvent(
                     new UpdateProductAvatarEvent(
                             avatar.getBytes(),
-                            id
+                            id,
+                            product.getAvatar()
                     )
             );
         }
 
         // update images
+        List<String> oldPublicIds = productImgRepository.findByProductId(id).stream()
+                                .map(ProductImg::getSrc)
+                                .toList();
         productImgRepository.deleteByProductId(id);
 
         if (request.getImages() != null && !request.getImages().isEmpty()) {
@@ -201,9 +206,10 @@ public class ProductServiceImpl implements ProductService {
             }
 
             eventPublisher.publishEvent(
-                    new UploadProductImagesEvent(
+                    new UpdateProductImagesEvent(
                             imageBytes,
-                            id
+                            id,
+                            oldPublicIds
                     )
             );
         }
@@ -240,7 +246,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(key = "#id")
     public ProductDetailDto detail(Integer id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));

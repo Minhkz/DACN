@@ -31,6 +31,6 @@ public class ProductAvatarEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUpdateAvatar(UpdateProductAvatarEvent event) {
-        productImg.updateAvatarAsync(event.fileBytes(), event.productId());
+        productImg.updateAvatarAsync(event.fileBytes(), event.productId(), event.oldPublicId());
     }
 }
