@@ -1,6 +1,7 @@
 package com.haui.service.cloudinary.productImg;
 
 import com.haui.dto.thread.productImg.DeleteProductImagesAvatarEvent;
+import com.haui.dto.thread.productImg.UpdateProductImagesEvent;
 import com.haui.dto.thread.productImg.UploadProductImagesEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,15 @@ public class ProductImagesAvatarEventListener {
     public void handleDeleteImages(DeleteProductImagesAvatarEvent event) {
 
         productImg.deleteImagesAsync(event.publicIds());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleUpdateImages(UpdateProductImagesEvent event) {
+        productImg.updateImagesAsync(
+                event.images(),
+                event.productId(),
+                event.oldPublicId()
+        );
     }
 
 }

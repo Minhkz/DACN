@@ -62,4 +62,41 @@ public class HandleProductImgs {
 
     }
 
+    @Async
+    @Transactional(rollbackFor = Exception.class)
+    public void updateImagesAsync(List<byte[]> files,
+                                  Integer productId,
+                                  List<String> oldPublicIds) {
+        try {
+            Product product = productRepository
+                    .findById(productId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+            if (oldPublicIds != null && !oldPublicIds.isEmpty()) {
+                for (String oldPublicId : oldPublicIds) {
+                    cloudinaryService.deleteImage(oldPublicId);
+                }
+            }
+
+            List<ProductImg> newImages = new ArrayList<>();
+
+            if (files != null && !files.isEmpty()) {
+                for (byte[] file : files) {
+                    String publicId = cloudinaryService.uploadProductImage(file, productId);
+
+                    ProductImg img = new ProductImg();
+                    img.setProduct(product);
+                    img.setSrc(publicId);
+
+                    newImages.add(img);
+                }
+
+                productImgRepository.saveAll(newImages);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
+import ProductAction from './action/ProductAction';
 
 const Product = () => {
   const { data, isLoading, isFetching, error, isError } = useQuery<
@@ -88,7 +89,9 @@ const Product = () => {
                       {product.quantity}
                     </TableCell>
 
-                    <TableCell className="px-5 py-4 text-start">hi</TableCell>
+                    <TableCell className="px-5 py-4 text-start">
+                      <ProductAction productId={product.id} />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

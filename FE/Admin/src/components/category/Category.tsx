@@ -18,6 +18,7 @@ const Category = () => {
     isLoading,
     error,
     isError,
+    isFetching,
   } = useQuery<CategoryType[], Error>({
     queryKey: ['categories'],
     queryFn: getAll,
@@ -25,7 +26,7 @@ const Category = () => {
     refetchOnWindowFocus: true,
   });
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <Loading />;
   }
 
