@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Boolean existsByName(String name);
+
     Boolean existsByNameAndIdNot(String name, Integer id);
+
 }
