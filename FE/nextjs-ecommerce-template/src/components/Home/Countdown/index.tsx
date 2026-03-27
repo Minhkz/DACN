@@ -20,9 +20,7 @@ const CounDown = () => {
   };
 
   useEffect(() => {
-    // @ts-ignore
-    const interval = setInterval(() => getTime(deadline), 1000);
-
+    const interval = setInterval(() => getTime(), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -32,96 +30,80 @@ const CounDown = () => {
         <div className="relative overflow-hidden z-1 rounded-lg bg-[#D0E9F3] p-4 sm:p-7.5 lg:p-10 xl:p-15">
           <div className="max-w-[422px] w-full">
             <span className="block font-medium text-custom-1 text-blue mb-2.5">
-              Don’t Miss!!
+              Đừng bỏ lỡ!!
             </span>
 
             <h2 className="font-bold text-dark text-xl lg:text-heading-4 xl:text-heading-3 mb-3">
-              Enhance Your Music Experience
+              Nâng cao trải nghiệm âm nhạc của bạn
             </h2>
 
-            <p>The Havit H206d is a wired PC headphone.</p>
+            <p>Tai nghe Havit H206d là tai nghe có dây dành cho máy tính.</p>
 
-            {/* <!-- Countdown timer --> */}
-            <div
-              className="flex flex-wrap gap-6 mt-6"
-              x-data="timer()"
-              x-init="countdown()"
-            >
-              {/* <!-- timer day --> */}
+            {/* Countdown timer */}
+            <div className="flex flex-wrap gap-6 mt-6">
+              
+              {/* ngày */}
               <div>
-                <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
-                  x-text="days"
-                >
-                  {" "}
-                  {days < 10 ? "0" + days : days}{" "}
+                <span className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2">
+                  {days < 10 ? "0" + days : days}
                 </span>
                 <span className="block text-custom-sm text-dark text-center">
-                  Days
+                  Ngày
                 </span>
               </div>
 
-              {/* <!-- timer hours --> */}
+              {/* giờ */}
               <div>
-                <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
-                  x-text="hours"
-                >
-                  {" "}
-                  {hours < 10 ? "0" + hours : hours}{" "}
+                <span className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2">
+                  {hours < 10 ? "0" + hours : hours}
                 </span>
                 <span className="block text-custom-sm text-dark text-center">
-                  Hours
+                  Giờ
                 </span>
               </div>
 
-              {/* <!-- timer minutes --> */}
+              {/* phút */}
               <div>
-                <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
-                  x-text="minutes"
-                >
-                  {minutes < 10 ? "0" + minutes : minutes}{" "}
+                <span className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2">
+                  {minutes < 10 ? "0" + minutes : minutes}
                 </span>
                 <span className="block text-custom-sm text-dark text-center">
-                  Minutes
+                  Phút
                 </span>
               </div>
 
-              {/* <!-- timer seconds --> */}
+              {/* giây */}
               <div>
-                <span
-                  className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2"
-                  x-text="seconds"
-                >
-                  {seconds < 10 ? "0" + seconds : seconds}{" "}
+                <span className="min-w-[64px] h-14.5 font-semibold text-xl lg:text-3xl text-dark rounded-lg flex items-center justify-center bg-white shadow-2 px-4 mb-2">
+                  {seconds < 10 ? "0" + seconds : seconds}
                 </span>
                 <span className="block text-custom-sm text-dark text-center">
-                  Seconds
+                  Giây
                 </span>
               </div>
+
             </div>
-            {/* <!-- Countdown timer ends --> */}
 
             <a
               href="#"
               className="inline-flex font-medium text-custom-sm text-white bg-blue py-3 px-9.5 rounded-md ease-out duration-200 hover:bg-blue-dark mt-7.5"
             >
-              Check it Out!
+              Xem ngay
             </a>
           </div>
 
-          {/* <!-- bg shapes --> */}
+          {/* hình nền */}
           <Image
             src="/images/countdown/countdown-bg.png"
-            alt="bg shapes"
+            alt="hình nền"
             className="hidden sm:block absolute right-0 bottom-0 -z-1"
             width={737}
             height={482}
           />
+
           <Image
             src="/images/countdown/countdown-01.png"
-            alt="product"
+            alt="sản phẩm"
             className="hidden lg:block absolute right-4 xl:right-33 bottom-4 xl:bottom-10 -z-1"
             width={411}
             height={376}

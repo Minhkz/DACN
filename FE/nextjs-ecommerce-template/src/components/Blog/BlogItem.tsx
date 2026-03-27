@@ -32,7 +32,7 @@ const BlogItem = ({ blog }: { blog: BlogItem }) => {
             href="#"
             className="text-custom-sm ease-out duration-200 hover:text-blue"
           >
-            {blog.views} Views
+            {blog.views} Lượt xem
           </a>
         </span>
 

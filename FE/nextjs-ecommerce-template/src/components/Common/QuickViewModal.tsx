@@ -152,7 +152,7 @@ const QuickViewModal = () => {
 
             <div className="max-w-[445px] w-full">
               <span className="inline-block text-custom-xs font-medium text-white py-1 px-3 bg-green mb-6.5">
-                SALE 20% OFF
+                GIẢM GIÁ 20%
               </span>
 
               <h3 className="font-semibold text-xl xl:text-heading-5 text-dark mb-4">
@@ -270,8 +270,8 @@ const QuickViewModal = () => {
                   </div>
 
                   <span>
-                    <span className="font-medium text-dark"> 4.7 Rating </span>
-                    <span className="text-dark-2"> (5 reviews) </span>
+                    <span className="font-medium text-dark"> 4.7 Sao </span>
+                    <span className="text-dark-2"> (5 đánh giá) </span>
                   </span>
                 </div>
 
@@ -327,7 +327,7 @@ const QuickViewModal = () => {
 
                 <div>
                   <h4 className="font-semibold text-lg text-dark mb-3.5">
-                    Quantity
+                    Số lượng
                   </h4>
 
                   <div className="flex items-center gap-3">
@@ -399,7 +399,7 @@ const QuickViewModal = () => {
                   className={`inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark
                   `}
                 >
-                  Add to Cart
+                  Thêm vào giỏ
                 </button>
 
                 <button
@@ -420,7 +420,7 @@ const QuickViewModal = () => {
                       fill=""
                     />
                   </svg>
-                  Add to Wishlist
+                  Thêm vào danh mục yêu thích
                 </button>
               </div>
             </div>

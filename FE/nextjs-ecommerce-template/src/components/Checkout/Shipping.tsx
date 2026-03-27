@@ -9,7 +9,7 @@ const Shipping = () => {
         onClick={() => setDropdown(!dropdown)}
         className="cursor-pointer flex items-center gap-2.5 font-medium text-lg text-dark py-5 px-5.5"
       >
-        Ship to a different address?
+        Gửi đến địa chỉ khác?
         <svg
           className={`fill-current ease-out duration-200 ${
             dropdown && "rotate-180"
@@ -33,15 +33,15 @@ const Shipping = () => {
       <div className={`p-4 sm:p-8.5 ${dropdown ? "block" : "hidden"}`}>
         <div className="mb-5">
           <label htmlFor="countryName" className="block mb-2.5">
-            Country/ Region
+            Quốc gia/Vùng
             <span className="text-red">*</span>
           </label>
 
           <div className="relative">
             <select className="w-full bg-gray-1 rounded-md border border-gray-3 text-dark-4 py-3 pl-5 pr-9 duration-200 appearance-none outline-none focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20">
               <option value="0">Australia</option>
-              <option value="1">America</option>
-              <option value="2">England</option>
+              <option value="1">Mỹ</option>
+              <option value="2">Anh</option>
             </select>
 
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-4">
@@ -66,7 +66,7 @@ const Shipping = () => {
 
         <div className="mb-5">
           <label htmlFor="address" className="block mb-2.5">
-            Street Address
+            Địa chỉ
             <span className="text-red">*</span>
           </label>
 
@@ -89,7 +89,7 @@ const Shipping = () => {
 
         <div className="mb-5">
           <label htmlFor="town" className="block mb-2.5">
-            Town/ City <span className="text-red">*</span>
+            Thị trấn/Thành phố <span className="text-red">*</span>
           </label>
 
           <input
@@ -101,7 +101,7 @@ const Shipping = () => {
 
         <div className="mb-5">
           <label htmlFor="country" className="block mb-2.5">
-            Country
+            Đất nước
           </label>
 
           <input
@@ -113,7 +113,7 @@ const Shipping = () => {
 
         <div className="mb-5">
           <label htmlFor="phone" className="block mb-2.5">
-            Phone <span className="text-red">*</span>
+            Điện thoại <span className="text-red">*</span>
           </label>
 
           <input
@@ -125,7 +125,7 @@ const Shipping = () => {
 
         <div>
           <label htmlFor="email" className="block mb-2.5">
-            Email Address <span className="text-red">*</span>
+            Địa chỉ Email <span className="text-red">*</span>
           </label>
 
           <input

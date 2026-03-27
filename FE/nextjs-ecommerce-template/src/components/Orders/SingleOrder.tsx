@@ -23,37 +23,51 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
     <>
       {!smallView && (
         <div className="items-center justify-between border-t border-gray-3 py-5 px-7.5 hidden md:flex">
+          
           <div className="min-w-[111px]">
             <p className="text-custom-sm text-red">
               #{orderItem.orderId.slice(-8)}
             </p>
           </div>
+
           <div className="min-w-[175px]">
-            <p className="text-custom-sm text-dark">{orderItem.createdAt}</p>
+            <p className="text-custom-sm text-dark">
+              {orderItem.createdAt}
+            </p>
           </div>
 
           <div className="min-w-[128px]">
             <p
-              className={`inline-block text-custom-sm  py-0.5 px-2.5 rounded-[30px] capitalize ${
+              className={`inline-block text-custom-sm py-0.5 px-2.5 rounded-[30px] capitalize ${
                 orderItem.status === "delivered"
                   ? "text-green bg-green-light-6"
                   : orderItem.status === "on-hold"
                   ? "text-red bg-red-light-6"
                   : orderItem.status === "processing"
                   ? "text-yellow bg-yellow-light-4"
-                  : "Unknown Status"
+                  : ""
               }`}
             >
-              {orderItem.status}
+              {orderItem.status === "delivered"
+                ? "Đã giao"
+                : orderItem.status === "processing"
+                ? "Đang xử lý"
+                : orderItem.status === "on-hold"
+                ? "Tạm giữ"
+                : "Không xác định"}
             </p>
           </div>
 
           <div className="min-w-[213px]">
-            <p className="text-custom-sm text-dark">{orderItem.title}</p>
+            <p className="text-custom-sm text-dark">
+              {orderItem.title}
+            </p>
           </div>
 
           <div className="min-w-[113px]">
-            <p className="text-custom-sm text-dark">{orderItem.total}</p>
+            <p className="text-custom-sm text-dark">
+              {orderItem.total}
+            </p>
           </div>
 
           <div className="flex gap-5 items-center">
@@ -62,66 +76,65 @@ const SingleOrder = ({ orderItem, smallView }: any) => {
               toggleEdit={toggleEdit}
             />
           </div>
+
         </div>
       )}
 
       {smallView && (
         <div className="block md:hidden">
           <div className="py-4.5 px-7.5">
-            <div className="">
-              <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2"> Order:</span> #
-                {orderItem.orderId.slice(-8)}
-              </p>
-            </div>
-            <div className="">
-              <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Date:</span>{" "}
-                {orderItem.createdAt}
-              </p>
-            </div>
 
-            <div className="">
-              <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Status:</span>{" "}
-                <span
-                  className={`inline-block text-custom-sm  py-0.5 px-2.5 rounded-[30px] capitalize ${
-                    orderItem.status === "delivered"
-                      ? "text-green bg-green-light-6"
-                      : orderItem.status === "on-hold"
-                      ? "text-red bg-red-light-6"
-                      : orderItem.status === "processing"
-                      ? "text-yellow bg-yellow-light-4"
-                      : "Unknown Status"
-                  }`}
-                >
-                  {orderItem.status}
-                </span>
-              </p>
-            </div>
+            <p className="text-custom-sm text-dark">
+              <span className="font-bold pr-2">Mã đơn:</span>
+              #{orderItem.orderId.slice(-8)}
+            </p>
 
-            <div className="">
-              <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Title:</span> {orderItem.title}
-              </p>
-            </div>
+            <p className="text-custom-sm text-dark">
+              <span className="font-bold pr-2">Ngày đặt:</span>
+              {orderItem.createdAt}
+            </p>
 
-            <div className="">
-              <p className="text-custom-sm text-dark">
-                <span className="font-bold pr-2">Total:</span> $
-                {orderItem.total}
-              </p>
-            </div>
+            <p className="text-custom-sm text-dark">
+              <span className="font-bold pr-2">Trạng thái:</span>
+              <span
+                className={`inline-block text-custom-sm py-0.5 px-2.5 rounded-[30px] capitalize ${
+                  orderItem.status === "delivered"
+                    ? "text-green bg-green-light-6"
+                    : orderItem.status === "on-hold"
+                    ? "text-red bg-red-light-6"
+                    : orderItem.status === "processing"
+                    ? "text-yellow bg-yellow-light-4"
+                    : ""
+                }`}
+              >
+                {orderItem.status === "delivered"
+                  ? "Đã giao"
+                  : orderItem.status === "processing"
+                  ? "Đang xử lý"
+                  : orderItem.status === "on-hold"
+                  ? "Tạm giữ"
+                  : "Không xác định"}
+              </span>
+            </p>
 
-            <div className="">
-              <p className="text-custom-sm text-dark flex items-center">
-                <span className="font-bold pr-2">Actions:</span>{" "}
-                <OrderActions
-                  toggleDetails={toggleDetails}
-                  toggleEdit={toggleEdit}
-                />
-              </p>
-            </div>
+            <p className="text-custom-sm text-dark">
+              <span className="font-bold pr-2">Sản phẩm:</span>
+              {orderItem.title}
+            </p>
+
+            <p className="text-custom-sm text-dark">
+              <span className="font-bold pr-2">Tổng tiền:</span>
+              {orderItem.total}
+            </p>
+
+            <p className="text-custom-sm text-dark flex items-center">
+              <span className="font-bold pr-2">Thao tác:</span>
+              <OrderActions
+                toggleDetails={toggleDetails}
+                toggleEdit={toggleEdit}
+              />
+            </p>
+
           </div>
         </div>
       )}

@@ -12,7 +12,7 @@ const Contact = () => {
             <div className="xl:max-w-[370px] w-full bg-white rounded-xl shadow-1">
               <div className="py-5 px-4 sm:px-7.5 border-b border-gray-3">
                 <p className="font-medium text-xl text-dark">
-                  Contact Information
+                  Thông tin liên lạc
                 </p>
               </div>
 
@@ -33,7 +33,7 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Name: James Septimus
+                    Tên: James Septimus
                   </p>
 
                   <p className="flex items-center gap-4">
@@ -61,7 +61,7 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Phone: 1234 567890
+                    Số điện thoại: 1234 567890
                   </p>
 
                   <p className="flex gap-4">
@@ -80,7 +80,7 @@ const Contact = () => {
                         fill="#3C50E0"
                       />
                     </svg>
-                    Address: 7398 Smoke Ranch RoadLas Vegas, Nevada 89128
+                    Địa chỉ: 7398 Smoke Ranch RoadLas Vegas, Nevada 89128
                   </p>
                 </div>
               </div>
@@ -91,7 +91,7 @@ const Contact = () => {
                 <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 mb-5">
                   <div className="w-full">
                     <label htmlFor="firstName" className="block mb-2.5">
-                      First Name <span className="text-red">*</span>
+                      Tên <span className="text-red">*</span>
                     </label>
 
                     <input
@@ -105,7 +105,7 @@ const Contact = () => {
 
                   <div className="w-full">
                     <label htmlFor="lastName" className="block mb-2.5">
-                      Last Name <span className="text-red">*</span>
+                      Họ <span className="text-red">*</span>
                     </label>
 
                     <input
@@ -135,7 +135,7 @@ const Contact = () => {
 
                   <div className="w-full">
                     <label htmlFor="phone" className="block mb-2.5">
-                      Phone
+                      Điện thoại
                     </label>
 
                     <input
@@ -150,7 +150,7 @@ const Contact = () => {
 
                 <div className="mb-7.5">
                   <label htmlFor="message" className="block mb-2.5">
-                    Message
+                    Tin nhắn
                   </label>
 
                   <textarea
@@ -166,7 +166,7 @@ const Contact = () => {
                   type="submit"
                   className="inline-flex font-medium text-white bg-blue py-3 px-7 rounded-md ease-out duration-200 hover:bg-blue-dark"
                 >
-                  Send Message
+                  Gửi tin nhắn
                 </button>
               </form>
             </div>

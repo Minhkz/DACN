@@ -37,16 +37,15 @@ const Header = () => {
   });
 
   const options = [
-    { label: "All Categories", value: "0" },
-    { label: "Desktop", value: "1" },
-    { label: "Laptop", value: "2" },
-    { label: "Monitor", value: "3" },
-    { label: "Phone", value: "4" },
-    { label: "Watch", value: "5" },
-    { label: "Mouse", value: "6" },
-    { label: "Tablet", value: "7" },
-  ];
-
+  { label: "Tất cả danh mục", value: "0" },
+  { label: "Máy tính bàn", value: "1" },
+  { label: "Laptop", value: "2" },
+  { label: "Màn hình", value: "3" },
+  { label: "Điện thoại", value: "4" },
+  { label: "Đồng hồ", value: "5" },
+  { label: "Chuột", value: "6" },
+  { label: "Máy tính bảng", value: "7" },
+];
   return (
     <header
       className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
@@ -86,7 +85,7 @@ const Header = () => {
                       type="search"
                       name="search"
                       id="search"
-                      placeholder="I am shopping for..."
+                      placeholder="Tìm sản phẩm..."
                       autoComplete="off"
                       className="custom-search w-full rounded-r-[5px] bg-gray-1 !border-l-0 border border-gray-3 py-2.5 pl-4 pr-10 outline-none ease-in duration-200"
                     />
@@ -146,7 +145,7 @@ const Header = () => {
 
               <div>
                 <span className="block text-2xs text-dark-4 uppercase">
-                  24/7 SUPPORT
+                  Hỗ trợ 24/7
                 </span>
                 <p className="font-medium text-custom-sm text-dark">
                   (+965) 7492-3477
@@ -183,11 +182,11 @@ const Header = () => {
 
                   <div>
                     <span className="block text-2xs text-dark-4 uppercase">
-                      account
-                    </span>
-                    <p className="font-medium text-custom-sm text-dark">
-                      Sign In
-                    </p>
+  Tài khoản
+</span>
+<p className="font-medium text-custom-sm text-dark">
+  Đăng nhập
+</p>
                   </div>
                 </Link>
 
@@ -234,8 +233,8 @@ const Header = () => {
 
                   <div>
                     <span className="block text-2xs text-dark-4 uppercase">
-                      cart
-                    </span>
+  Giỏ hàng
+</span>
                     <p className="font-medium text-custom-sm text-dark">
                       ${totalPrice}
                     </p>
@@ -357,7 +356,7 @@ const Header = () => {
                         fill=""
                       />
                     </svg>
-                    Recently Viewed
+                    Đã xem gần đây
                   </a>
                 </li>
 
@@ -379,7 +378,7 @@ const Header = () => {
                         fill=""
                       />
                     </svg>
-                    Wishlist
+                    Danh sách yêu thích
                   </Link>
                 </li>
               </ul>

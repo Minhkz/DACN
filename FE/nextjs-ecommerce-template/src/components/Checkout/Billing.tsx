@@ -4,14 +4,14 @@ const Billing = () => {
   return (
     <div className="mt-9">
       <h2 className="font-medium text-dark text-xl sm:text-2xl mb-5.5">
-        Billing details
+        Chi tiết thanh toán
       </h2>
 
       <div className="bg-white shadow-1 rounded-[10px] p-4 sm:p-8.5">
         <div className="flex flex-col lg:flex-row gap-5 sm:gap-8 mb-5">
           <div className="w-full">
             <label htmlFor="firstName" className="block mb-2.5">
-              First Name <span className="text-red">*</span>
+              Tên <span className="text-red">*</span>
             </label>
 
             <input
@@ -25,7 +25,7 @@ const Billing = () => {
 
           <div className="w-full">
             <label htmlFor="lastName" className="block mb-2.5">
-              Last Name <span className="text-red">*</span>
+              Họ <span className="text-red">*</span>
             </label>
 
             <input
@@ -40,7 +40,7 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="companyName" className="block mb-2.5">
-            Company Name
+            Tên công ty
           </label>
 
           <input
@@ -53,15 +53,15 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="countryName" className="block mb-2.5">
-            Country/ Region
+            Quốc gia/Vùng
             <span className="text-red">*</span>
           </label>
 
           <div className="relative">
             <select className="w-full bg-gray-1 rounded-md border border-gray-3 text-dark-4 py-3 pl-5 pr-9 duration-200 appearance-none outline-none focus:border-transparent focus:shadow-input focus:ring-2 focus:ring-blue/20">
               <option value="0">Australia</option>
-              <option value="1">America</option>
-              <option value="2">England</option>
+              <option value="1">Mỹ</option>
+              <option value="2">Anh</option>
             </select>
 
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-4">
@@ -86,7 +86,7 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="address" className="block mb-2.5">
-            Street Address
+            Địa chỉ
             <span className="text-red">*</span>
           </label>
 
@@ -111,7 +111,7 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="town" className="block mb-2.5">
-            Town/ City <span className="text-red">*</span>
+            Thị trấn/Thành phố <span className="text-red">*</span>
           </label>
 
           <input
@@ -124,7 +124,7 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="country" className="block mb-2.5">
-            Country
+            Đất nước
           </label>
 
           <input
@@ -137,7 +137,7 @@ const Billing = () => {
 
         <div className="mb-5">
           <label htmlFor="phone" className="block mb-2.5">
-            Phone <span className="text-red">*</span>
+            Điện thoại <span className="text-red">*</span>
           </label>
 
           <input
@@ -150,7 +150,7 @@ const Billing = () => {
 
         <div className="mb-5.5">
           <label htmlFor="email" className="block mb-2.5">
-            Email Address <span className="text-red">*</span>
+            Địa chỉ Email <span className="text-red">*</span>
           </label>
 
           <input
@@ -199,7 +199,7 @@ const Billing = () => {
                 </span>
               </div>
             </div>
-            Create an Account
+            Tạo tài khoản
           </label>
         </div>
       </div>

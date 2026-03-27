@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import SingleOrder from "./SingleOrder";
-import ordersData from "./ordersData";
 
 const Orders = () => {
   const [orders, setOrders] = useState<any>([]);
@@ -20,46 +19,49 @@ const Orders = () => {
     <>
       <div className="w-full overflow-x-auto">
         <div className="min-w-[770px]">
-          {/* <!-- order item --> */}
-          {ordersData.length > 0 && (
-            <div className="items-center justify-between py-4.5 px-7.5 hidden md:flex ">
+
+          {/* tiêu đề bảng */}
+          {orders.length > 0 && (
+            <div className="items-center justify-between py-4.5 px-7.5 hidden md:flex">
               <div className="min-w-[111px]">
-                <p className="text-custom-sm text-dark">Order</p>
+                <p className="text-custom-sm text-dark">Mã đơn</p>
               </div>
+
               <div className="min-w-[175px]">
-                <p className="text-custom-sm text-dark">Date</p>
+                <p className="text-custom-sm text-dark">Ngày đặt</p>
               </div>
 
               <div className="min-w-[128px]">
-                <p className="text-custom-sm text-dark">Status</p>
+                <p className="text-custom-sm text-dark">Trạng thái</p>
               </div>
 
               <div className="min-w-[213px]">
-                <p className="text-custom-sm text-dark">Title</p>
+                <p className="text-custom-sm text-dark">Sản phẩm</p>
               </div>
 
               <div className="min-w-[113px]">
-                <p className="text-custom-sm text-dark">Total</p>
+                <p className="text-custom-sm text-dark">Tổng tiền</p>
               </div>
 
               <div className="min-w-[113px]">
-                <p className="text-custom-sm text-dark">Action</p>
+                <p className="text-custom-sm text-dark">Thao tác</p>
               </div>
             </div>
           )}
-          {ordersData.length > 0 ? (
-            ordersData.map((orderItem, key) => (
+
+          {orders.length > 0 ? (
+            orders.map((orderItem: any, key: number) => (
               <SingleOrder key={key} orderItem={orderItem} smallView={false} />
             ))
           ) : (
             <p className="py-9.5 px-4 sm:px-7.5 xl:px-10">
-              You don&apos;t have any orders!
+              Bạn chưa có đơn hàng nào!
             </p>
           )}
         </div>
 
-        {ordersData.length > 0 &&
-          ordersData.map((orderItem, key) => (
+        {orders.length > 0 &&
+          orders.map((orderItem: any, key: number) => (
             <SingleOrder key={key} orderItem={orderItem} smallView={true} />
           ))}
       </div>
