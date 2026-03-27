@@ -1,4 +1,5 @@
-package com.haui.dto.response.payment;
+package com.haui.dto.response;
+
 import lombok.Builder;
 import lombok.Data;
 

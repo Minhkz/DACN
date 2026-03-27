@@ -1,7 +1,7 @@
 package com.haui.controller.admin;
 
 import com.haui.dto.response.ResponseResult;
-import com.haui.dto.response.payment.PaymentDto;
+import com.haui.dto.response.PaymentDto;
 import com.haui.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

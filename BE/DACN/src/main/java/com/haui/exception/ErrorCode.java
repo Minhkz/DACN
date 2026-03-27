@@ -8,7 +8,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("404", "User not found", HttpStatus.NOT_FOUND),
     USER_ALREADY_EXISTS("409", "User already exists", HttpStatus.CONFLICT),
     ROLE_NOT_FOUND("404", "Role not found", HttpStatus.NOT_FOUND),
-    USERNAME_ALREADY_EXISTS("409", "Username already exists",  HttpStatus.CONFLICT),
+    USERNAME_ALREADY_EXISTS("409", "Username already exists", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("409", "Email already exists", HttpStatus.CONFLICT),
     USER_PASSWORD_INCORRECT("401", "Password is incorrect", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_NOT_FOUND("404", "Refresh token not found", HttpStatus.NOT_FOUND),
@@ -20,9 +20,9 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("404", "Product not found", HttpStatus.NOT_FOUND),
     PRODUCT_ALREADY_EXISTS("409", "Product already exists", HttpStatus.CONFLICT),
     PRODUCT_FILTER_NOT_FOUND("404", "Some filters not found", HttpStatus.NOT_FOUND),
-    AVATAR_ALREADY_EXISTS("400","Avatar already exists for this user", HttpStatus.CONFLICT),
+    AVATAR_ALREADY_EXISTS("400", "Avatar already exists for this user", HttpStatus.CONFLICT),
+    MISSING_FIELD("400", "Missing required field", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
-
 
     private final String code;
     private final String message;
