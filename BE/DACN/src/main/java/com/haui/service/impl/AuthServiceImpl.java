@@ -14,7 +14,7 @@ import com.haui.repository.RoleRepository;
 import com.haui.repository.UserRepository;
 import com.haui.security.JwtTokenProvider;
 import com.haui.service.AuthService;
-import jakarta.transaction.Transactional;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -67,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public String register(RegisterDto registerDto) {
         if (userRepository.existsByUsername(registerDto.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_ALREADY_EXISTS);
@@ -89,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public JwtResponse refreshToken(RefreshTokenDto request) {
 
         RefreshToken token = refreshTokenRepository
@@ -120,5 +121,17 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(entity);
 
         return new JwtResponse(accessToken, newRefreshToken);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String logout(RefreshTokenDto request) {
+        RefreshToken token = refreshTokenRepository
+                .findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+        refreshTokenRepository.delete(token);
+
+        return "Logout successful";
     }
 }

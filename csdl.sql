@@ -14,7 +14,7 @@ CREATE TABLE users (
     email 		VARCHAR(255) UNIQUE,
     full_name 	NVARCHAR(255),
     address 	NVARCHAR(255),
-    phone 		VARCHAR(255) UNIQUE,
+    phone 		VARCHAR(255),
     avatar 		VARCHAR(255),
     role_id 	INT,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL

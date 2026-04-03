@@ -136,6 +136,7 @@ public class UserServiceImpl implements UserService {
         return transfer(user);
     }
 
+
     private UserDetailDto transfer(User user) {
         String img= cloudinaryService.getImageUrl(user.getAvatar());
 

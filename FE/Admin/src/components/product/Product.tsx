@@ -1,7 +1,7 @@
 import React from 'react';
 import Loading from '../common/Loading';
 import { ProductDetailDto } from '@/types/product/ProductDetailDto';
-import { getAll } from '@/api/product/ProductApi';
+import { getAll } from '@/services/product/ProductApi';
 import { useQuery } from '@tanstack/react-query';
 import {
   Table,
