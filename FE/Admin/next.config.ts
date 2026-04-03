@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
+
   images: {
     remotePatterns: [
       {
@@ -25,6 +26,15 @@ const nextConfig: NextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/api/proxy/:path*',
+        destination: 'http://localhost:8080/api/v1/:path*',
+      },
+    ];
   },
 };
 

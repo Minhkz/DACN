@@ -1,12 +1,12 @@
 'use client';
 
-import { getAll } from '@/api/category/CategoryApi';
-import { create } from '@/api/product/ProductApi';
 import ComponentCard from '@/components/common/ComponentCard';
 import Loading from '@/components/common/Loading';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import Product from '@/components/product/Product';
 import { Modal } from '@/components/ui/modal';
+import { getAll } from '@/services/category/CategoryApi';
+import { create } from '@/services/product/ProductApi';
 import { notify } from '@/util/notify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Spin } from 'antd';

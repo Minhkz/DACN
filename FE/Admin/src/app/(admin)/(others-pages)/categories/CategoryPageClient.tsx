@@ -1,9 +1,10 @@
 'use client';
-import { create } from '@/api/category/CategoryApi';
+
 import Category from '@/components/category/Category';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { Modal } from '@/components/ui/modal';
+import { create } from '@/services/category/CategoryApi';
 import { notify } from '@/util/notify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spin } from 'antd';

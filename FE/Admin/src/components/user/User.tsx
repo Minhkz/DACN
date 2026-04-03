@@ -10,10 +10,11 @@ import {
 import Loading from '../common/Loading';
 import { useQuery } from '@tanstack/react-query';
 import UserDetailType from '@/types/user/UserDetailType';
-import { getAll } from '@/api/user/UserApi';
+
 import Image from 'next/image';
 import UserAction from './action/UserAction';
 import { Spin } from 'antd';
+import { getAll } from '@/services/user/UserApi';
 
 const User = () => {
   const { data, isLoading, error, isError, isFetching } = useQuery<

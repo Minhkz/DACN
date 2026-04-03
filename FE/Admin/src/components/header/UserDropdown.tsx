@@ -1,12 +1,20 @@
 'use client';
+
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dropdown } from '../ui/dropdown/Dropdown';
 import { DropdownItem } from '../ui/dropdown/DropdownItem';
+import { clientApi } from '@/lib/axios/client';
+import axios from 'axios';
+import { Spin } from 'antd';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import { me } from '@/services/user/UserApi';
 
 export default function UserDropdown() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -16,6 +24,31 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  async function handleSignOut() {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      await axios.post('api/auth/logout');
+    } catch (error) {
+      console.error('API Logout failed, clearing local state anyway:', error);
+    } finally {
+      closeDropdown();
+      router.replace('/signin');
+      router.refresh();
+      setIsLoggingOut(false);
+    }
+  }
+
+  const { data, isLoading, error, isError } = useQuery({
+    queryKey: ['user'],
+    queryFn: me,
+    staleTime: 0,
+  });
+  console.log(data);
+
   return (
     <div className="relative">
       <button
@@ -26,12 +59,15 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src="/images/user/owner.jpg"
+            // Nếu có avatar thì dùng, không thì dùng ảnh mặc định
+            src={data?.avatar || '/images/logo/logo-icon.png'}
             alt="User"
           />
         </span>
 
-        <span className="text-theme-sm mr-1 block font-medium">Musharof</span>
+        <span className="text-theme-sm mr-1 block font-medium">
+          {data?.username || 'Admin'}
+        </span>
 
         <svg
           className={`stroke-gray-500 transition-transform duration-200 dark:stroke-gray-400 ${
@@ -60,10 +96,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="text-theme-sm block font-medium text-gray-700 dark:text-gray-400">
-            Musharof Chowdhury
+            {data?.fullName || 'Admin'}
           </span>
           <span className="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
+            {data?.email || 'mikz@gmail.com'}
           </span>
         </div>
 
@@ -93,6 +129,7 @@ export default function UserDropdown() {
               Edit profile
             </DropdownItem>
           </li>
+
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -118,6 +155,7 @@ export default function UserDropdown() {
               Account settings
             </DropdownItem>
           </li>
+
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -144,9 +182,12 @@ export default function UserDropdown() {
             </DropdownItem>
           </li>
         </ul>
-        <Link
-          href="/signin"
-          className="group text-theme-sm mt-3 flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={isLoggingOut}
+          className="group text-theme-sm mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-60 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg
             className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
@@ -163,8 +204,8 @@ export default function UserDropdown() {
               fill=""
             />
           </svg>
-          Sign out
-        </Link>
+          {isLoggingOut ? <Spin size="small" /> : 'Sign out'}
+        </button>
       </Dropdown>
     </div>
   );

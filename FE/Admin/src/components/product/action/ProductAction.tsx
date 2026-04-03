@@ -1,7 +1,7 @@
 'use client';
 
-import { detail, remove, update } from '@/api/product/ProductApi';
-import { getAll } from '@/api/category/CategoryApi';
+import { getAll, detail, remove, update } from '@/services/product/ProductApi';
+import { getAll as getAllFilters } from '@/services/category/CategoryApi';
 import { Modal } from '@/components/ui/modal';
 import { ModalProduct } from '@/components/ui/modal/ModalProduct';
 import { notify } from '@/util/notify';

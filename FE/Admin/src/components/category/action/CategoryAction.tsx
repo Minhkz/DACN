@@ -1,6 +1,11 @@
 'use client';
 
-import { remove, detail, update } from '@/api/category/CategoryApi';
+import {
+  create,
+  detail,
+  remove,
+  update,
+} from '@/services/category/CategoryApi';
 import { Modal } from '@/components/ui/modal';
 import { notify } from '@/util/notify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

@@ -1,7 +1,7 @@
 import React from 'react';
 import Loading from '../common/Loading';
 import { CategoryType } from '@/types/category/CategoryType';
-import { getAll } from '@/api/category/CategoryApi';
+import { getAll } from '@/services/category/CategoryApi';
 import { useQuery } from '@tanstack/react-query';
 import {
   Table,

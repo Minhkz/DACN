@@ -1,6 +1,6 @@
 'use client';
 
-import { detail, remove, update } from '@/api/user/UserApi';
+import { create, detail, remove, update } from '@/services/user/UserApi';
 import { Modal } from '@/components/ui/modal';
 import UserDetailType from '@/types/user/UserDetailType';
 import UserUpdateRequest from '@/types/user/UserUpdateRequest';

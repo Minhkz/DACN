@@ -5,7 +5,7 @@ import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { Modal } from '@/components/ui/modal';
 import User from '@/components/user/User';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { create } from '@/api/user/UserApi';
+import { create } from '@/services/user/UserApi';
 import { notify } from '@/util/notify';
 import { Spin } from 'antd';
 
