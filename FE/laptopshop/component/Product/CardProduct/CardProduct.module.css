@@ -1,0 +1,104 @@
+.product {
+  width: 234px;
+  position: relative;
+  background-color: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.product:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.content {
+  padding-left: 24px;
+  padding-bottom: 5px;
+}
+
+.review {
+  color: #8c8c8c;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 100%;
+}
+
+.addCart {
+  border: 2px solid #0156ff;
+  color: #0156ff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 37px;
+  width: 160px;
+  margin-bottom: 17px;
+  cursor: pointer;
+
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product:hover .addCart {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0.12s;
+}
+
+.addCart:hover {
+  background: #a2a6b0;
+}
+
+.icon {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product:hover .icon {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  transition-delay: 0.05s;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.oldPrice {
+  color: #666666;
+  font-size: 14px;
+  text-decoration: line-through;
+}
+
+.currentPrice {
+  color: #000000;
+  font-size: 18px;
+  font-weight: 600;
+}

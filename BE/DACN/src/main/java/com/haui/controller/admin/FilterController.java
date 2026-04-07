@@ -19,20 +19,22 @@ import java.util.List;
 @RequestMapping("/api/v1/filters")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class FilterController {
     FilterService filterService;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseResult<FilterDto> filter(@RequestBody @Valid FilterRequest request) {
         return ResponseResult.success(filterService.create(request));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseResult<FilterDto> update(@PathVariable Integer id, @RequestBody @Valid FilterRequest request) {
         return ResponseResult.success(filterService.update(id, request));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseResult<String> delete(@PathVariable Integer id) {
         filterService.delete(id);

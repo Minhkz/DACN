@@ -4,29 +4,29 @@ import { CategoryType } from '@/types/category/CategoryType';
 import axios from 'axios';
 
 const getAll = async (): Promise<CategoryType[]> => {
-  const res = await clientApi.get('/categories');
+  const res = await clientApi.get('/filters');
   return res.data.data;
 };
 
 const create = async (category: CategoryRequest): Promise<CategoryType> => {
-  const res = await clientApi.post('/categories', category);
+  const res = await clientApi.post('/filters', category);
   return res.data.data;
 };
 
 const remove = async (categoryId: number): Promise<void> => {
-  await clientApi.delete(`/categories/${categoryId}`);
+  await clientApi.delete(`/filters/${categoryId}`);
 };
 
 const update = async (
   categoryId: number,
   category: CategoryRequest
 ): Promise<CategoryType> => {
-  const res = await clientApi.put(`/categories/${categoryId}`, category);
+  const res = await clientApi.put(`/filters/${categoryId}`, category);
   return res.data.data;
 };
 
 const detail = async (categoryId: number): Promise<CategoryType> => {
-  const res = await clientApi.get(`/categories/${categoryId}`);
+  const res = await clientApi.get(`/filters/${categoryId}`);
   return res.data.data;
 };
 

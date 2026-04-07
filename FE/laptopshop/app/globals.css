@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* Reset cơ bản */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+.container-global {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+
+  /* padding 2 bên (mobile) */
+  padding-left: 16px;
+  padding-right: 16px;
+
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* sm ≥ 640px */
+@media (min-width: 640px) {
+  .container-global {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* md ≥ 768px */
+@media (min-width: 768px) {
+  .container-global {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* lg ≥ 1024px */
+@media (min-width: 1024px) {
+  .container-global {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* xl ≥ 1280px */
+@media (min-width: 1280px) {
+  .container-global {
+    max-width: 1398px;
+  }
+}
