@@ -1,0 +1,93 @@
+.megaOverlay {
+  position: absolute;
+  top: 68px;
+  left: -160px;
+  width: 100%;
+  z-index: 40;
+
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.megaOverlay.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* CONTENT BÊN TRONG CONTAINER */
+.wrapper {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  height: 543px;
+  width: 1337px;
+  transition: all 0.3s ease;
+}
+
+/* MAIN CONTENT */
+.content {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  padding: 28px 0;
+}
+
+.category {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.categoryItem {
+  padding: 10px 16px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.categoryItem:hover {
+  background-color: #f3f4f6;
+}
+
+.categoryItem.active {
+  background-color: #eef2ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.products {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 16px;
+}
+
+/* brand dưới cùng */
+.brand {
+  width: 100%;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fafafa;
+  padding: 12px 5px;
+}

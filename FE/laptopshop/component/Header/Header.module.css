@@ -1,0 +1,130 @@
+.topbar {
+  background: #020202;
+  height: 44px;
+  color: #fff;
+}
+
+.address {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 520px;
+}
+
+/* Tablet: ẩn address cho gọn */
+@media (max-width: 1023.98px) {
+  .address {
+    display: none;
+  }
+}
+
+/* Mobile: topbar xuống 2 dòng */
+@media (max-width: 639.98px) {
+  .topbarInner {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .time {
+    order: 1;
+    width: 50%;
+  }
+
+  .contact {
+    order: 2;
+    width: 50%;
+    justify-content: flex-end;
+  }
+}
+
+/* ===== NAV ===== */
+.navbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.desktopMenu {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.hamburger {
+  display: none;
+}
+
+/* Tablet & Mobile: ẩn desktop menu, hiện hamburger */
+@media (max-width: 1023.98px) {
+  .desktopMenu {
+    display: none;
+  }
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ===== MOBILE MENU ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 60;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(88vw, 360px);
+  background: #fff;
+  z-index: 61;
+  padding: 16px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.menuItem {
+  display: block;
+  padding: 12px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.menuItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 1);
+}
+
+.activeItem {
+  color: #000;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dealBtn {
+  display: inline-block;
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.dealBtn:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.menuItemWrapper {
+  height: 68px;
+  display: flex;
+  align-items: center;
+}
+.navHoverZone {
+  position: relative;
+}

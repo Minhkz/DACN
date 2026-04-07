@@ -1,0 +1,21 @@
+.addCart {
+  border: 2px solid #0156ff;
+  color: #0156ff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 37px;
+  width: 160px;
+  margin-bottom: 17px;
+  cursor: pointer;
+}
+
+.addCart:hover {
+  background: #a2a6b0;
+}

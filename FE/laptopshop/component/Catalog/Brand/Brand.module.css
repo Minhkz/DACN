@@ -1,0 +1,62 @@
+.wrapper {
+  margin-top: 0px;
+  margin-bottom: 7px;
+}
+
+.sidebar {
+  padding: 24px;
+  background: #f5f7ff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 7px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.clearBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 30px;
+  border: 1px solid #cfd4dc;
+  background: transparent;
+  color: #7a7a7a;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: #cfd4dc;
+  color: white;
+}
+
+.brandGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.brandItem {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.brandItem:hover {
+  border-color: #2563eb;
+}
+
+.active {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}

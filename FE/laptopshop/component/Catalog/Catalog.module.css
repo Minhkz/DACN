@@ -1,0 +1,197 @@
+.breadcrumb {
+  margin: 20px 0;
+}
+
+.main {
+  display: flex;
+  gap: 8px;
+}
+
+.left {
+  width: 250px;
+}
+.sidebar {
+  padding: 24px;
+  background: #f5f7ff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 7px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.clearBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 30px;
+  border: 1px solid #cfd4dc;
+  background: transparent;
+  color: #7a7a7a;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: #cfd4dc;
+  color: white;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+.list li:hover {
+  color: #2563eb;
+}
+
+.colors {
+  display: flex;
+  gap: 12px;
+}
+
+.color {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.black {
+  background: black;
+}
+
+.red {
+  background: red;
+}
+
+.applyBtn {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+.toolbarLeft {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.toolbarRight {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Select box */
+.selectBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.selectBox:hover {
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.selectBox span {
+  color: #475569;
+  font-weight: 500;
+}
+
+.selectBox select {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-weight: 500;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+/* View toggle */
+.viewToggle {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.viewToggle button {
+  border: none;
+  background: #ffffff;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.viewToggle button:hover {
+  background: #f1f5f9;
+}
+
+.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .toolbarRight {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
