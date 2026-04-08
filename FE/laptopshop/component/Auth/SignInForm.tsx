@@ -232,7 +232,7 @@ export default function SignInForm() {
         <p className="text-center text-[13px] text-[#999]">
           Chưa có tài khoản?{" "}
           <Link
-            href="/register"
+            href="/signup"
             className="border-b border-[#1A1A1A] pb-px font-medium text-[#1A1A1A] transition hover:border-[#555] hover:text-[#555]"
           >
             Tạo tài khoản
