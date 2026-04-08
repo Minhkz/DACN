@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 
   // 3. Nếu không có token, chuyển hướng người dùng về trang đăng nhập
   if (!token) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/signin", request.url);
     // Bạn có thể lưu lại trang người dùng đang muốn vào để redirect lại sau khi login thành công
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
