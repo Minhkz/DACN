@@ -1,22 +1,60 @@
 "use client";
-import React, { Children, useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import styles from "./Header.module.css";
 import { NavItem } from "@/types/header/menu/MenuType";
 import MegaMenu from "./menu/MegaMenu";
+import axios from "axios";
+import { me } from "@/services/user/UserApi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const TimeClock = dynamic(() => import("./TimeClock"), { ssr: false });
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const [open, setOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(true);
   const [activeMega, setActiveMega] = useState<NavItem | null>(null);
   const [infoCart, setInfoCart] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["user"],
+    queryFn: me,
+    staleTime: 0,
+    retry: false,
+  });
+
+  const isLoggedIn = !!data && !isError;
+
+  async function handleSignOut() {
+    if (isSigningOut) return;
+
+    setIsSigningOut(true);
+
+    try {
+      await axios.post("/api/auth/logout");
+
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.setQueryData(["user"], null);
+
+      setAccountOpen(false);
+      router.replace("/signin");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   const navItems: NavItem[] = [
     {
@@ -99,7 +137,6 @@ const Header = () => {
               setActiveMega(null);
             }}
           >
-            {/* NAVBAR */}
             <div className={styles.navbar}>
               <div className="container-global flex items-center justify-between h-[68px]">
                 <nav className={styles.desktopMenu}>
@@ -128,9 +165,9 @@ const Header = () => {
               </div>
             </div>
 
-            {/* MEGA MENU */}
             <MegaMenu item={activeMega} open={megaOpen} />
           </div>
+
           {/* Right icons + hamburger */}
           <div className="flex items-center gap-2 sm:gap-4">
             <button className="p-2 hover:bg-black/5 rounded-full">
@@ -147,7 +184,6 @@ const Header = () => {
               onMouseEnter={() => setInfoCart(true)}
               onMouseLeave={() => setInfoCart(false)}
             >
-              {/* CART ICON */}
               <Link
                 href="/cart"
                 className="relative p-2 hover:bg-black/5 rounded-full block"
@@ -163,46 +199,39 @@ const Header = () => {
                 </span>
               </Link>
 
-              {/* MINI CART */}
               <div
                 className={`
-                    absolute right-[-10px] top-[35px] mt-3 z-50
-                    transition-all duration-200 ease-out
-                    ${
-                      infoCart
-                        ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 -translate-y-2 pointer-events-none"
-                    }
-                  `}
+                  absolute right-[-10px] top-[35px] mt-3 z-50
+                  transition-all duration-200 ease-out
+                  ${
+                    infoCart
+                      ? "opacity-100 translate-y-0 pointer-events-auto"
+                      : "opacity-0 -translate-y-2 pointer-events-none"
+                  }
+                `}
               >
-                {/* ARROW */}
                 <div
                   className="absolute -top-2 right-4
-                    h-0 w-0
-                    border-l-8 border-r-8 border-b-8
-                    border-l-transparent border-r-transparent border-b-white
-                    drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)]"
+                  h-0 w-0
+                  border-l-8 border-r-8 border-b-8
+                  border-l-transparent border-r-transparent border-b-white
+                  drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)]"
                 />
 
-                {/* CART BOX */}
                 <div className="w-[310px] rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)] overflow-hidden font-sans">
-                  {/* HEADER */}
                   <div className="px-5 pt-5 pb-3 text-center">
                     <h3 className="text-lg font-semibold">My Cart</h3>
                     <p className="mt-1 text-sm text-gray-500">2 item in cart</p>
                   </div>
 
-                  {/* VIEW CART BUTTON */}
                   <div className="px-5 pb-4">
                     <button className="w-full rounded-full border-2 border-blue-600 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition">
                       View or Edit Your Cart
                     </button>
                   </div>
 
-                  {/* ITEMS */}
                   <div className="border-y border-gray-200"></div>
 
-                  {/* FOOTER */}
                   <div className="px-5 py-4">
                     <div className="mb-4 flex items-center justify-between text-sm">
                       <span className="text-gray-500">Subtotal:</span>
@@ -228,9 +257,9 @@ const Header = () => {
               onMouseEnter={() => setAccountOpen(true)}
               onMouseLeave={() => setAccountOpen(false)}
             >
-              <Link href="/account">
+              <Link href={isLoggedIn ? "/profile" : "/signin"}>
                 <Image
-                  src="/icon/Ellipse.png"
+                  src={data?.avatar || "/icon/Ellipse.png"}
                   alt="User"
                   width={36}
                   height={36}
@@ -249,7 +278,6 @@ const Header = () => {
                   }
                 `}
               >
-                {/* BOX (arrow gắn trực tiếp vào đây) */}
                 <div
                   className="
                     relative
@@ -260,7 +288,6 @@ const Header = () => {
                     text-[18px]
                   "
                 >
-                  {/* ARROW – LIỀN */}
                   <div
                     className="
                       absolute -top-[9px] right-6
@@ -271,30 +298,78 @@ const Header = () => {
                     "
                   />
 
-                  <ul>
-                    <li className="px-6 py-4 hover:bg-gray-100 cursor-pointer">
-                      My Account
+                  <ul className="w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden p-1">
+                    <li className="group flex items-center px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
+                      <Link
+                        href="/account"
+                        className="w-full text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                      >
+                        My Account
+                      </Link>
                     </li>
-                    <li className="px-6 py-4 hover:bg-gray-100 cursor-pointer">
-                      My Wish List (0)
+
+                    <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
+                      <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        My Wish List
+                      </span>
+                      <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
+                        0
+                      </span>
                     </li>
-                    <li className="px-6 py-4 hover:bg-gray-100 cursor-pointer">
-                      Compare (0)
+
+                    <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
+                      <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        Compare
+                      </span>
+                      <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
+                        0
+                      </span>
                     </li>
-                    <li className="px-6 py-4 hover:bg-gray-100 cursor-pointer">
-                      Create an Account
-                    </li>
-                    <li className="px-6 py-4 hover:bg-gray-100 cursor-pointer">
-                      Sign In
-                    </li>
+
+                    {isLoading ? (
+                      <li className="px-6 py-4 text-gray-500 border-b border-gray-50 dark:border-gray-700">
+                        Đang tải...
+                      </li>
+                    ) : !isLoggedIn ? (
+                      <li className="group flex items-center px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all cursor-pointer border-b border-gray-50 dark:border-gray-700">
+                        <Link
+                          href="/signin"
+                          className="flex items-center w-full h-full"
+                        >
+                          <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600">
+                            Đăng nhập
+                          </span>
+                        </Link>
+                      </li>
+                    ) : (
+                      <li className="border-b border-gray-50 dark:border-gray-700">
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          disabled={isSigningOut}
+                          className="group flex items-center w-full px-6 py-4 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          <svg
+                            className="mr-3 fill-gray-500 group-hover:fill-red-500 transition-colors"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M15.1007 19.247C14.6865 19.247 14.3507 18.9112 14.3507 18.497L14.3507 14.245H12.8507V18.497C12.8507 19.7396 13.8581 20.747 15.1007 20.747H18.5007C19.7434 20.747 20.7507 19.7396 20.7507 18.497L20.7507 5.49609C20.7507 4.25345 19.7433 3.24609 18.5007 3.24609H15.1007C13.8581 3.24609 12.8507 4.25345 12.8507 5.49609V9.74501L14.3507 9.74501V5.49609C14.3507 5.08188 14.6865 4.74609 15.1007 4.74609L18.5007 4.74609C18.9149 4.74609 19.2507 5.08188 19.2507 5.49609L19.2507 18.497C19.2507 18.9112 18.9149 19.247 18.5007 19.247H15.1007ZM3.25073 11.9984C3.25073 12.2144 3.34204 12.4091 3.48817 12.546L8.09483 17.1556C8.38763 17.4485 8.86251 17.4487 9.15549 17.1559C9.44848 16.8631 9.44863 16.3882 9.15583 16.0952L5.81116 12.7484L16.0007 12.7484C16.4149 12.7484 16.7507 12.4127 16.7507 11.9984C16.7507 11.5842 16.4149 11.2484 16.0007 11.2484L5.81528 11.2484L9.15585 7.90554C9.44864 7.61255 9.44847 7.13767 9.15547 6.84488C8.86248 6.55209 8.3876 6.55226 8.09481 6.84525L3.52309 11.4202C3.35673 11.5577 3.25073 11.7657 3.25073 11.9984Z" />
+                          </svg>
+                          <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-red-600">
+                            {isSigningOut ? "Đang đăng xuất..." : "Đăng xuất"}
+                          </span>
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
             </div>
 
-            {/* Hamburger */}
             <button
-              className={`p-2 hover:bg-black/5 rounded-full ${styles.hamburger} `}
+              className={`p-2 hover:bg-black/5 rounded-full ${styles.hamburger}`}
               aria-label="Open menu"
               onClick={() => setOpen(true)}
             >
@@ -330,7 +405,9 @@ const Header = () => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${styles.menuItem} ${isActive ? styles.activeItem : ""}`}
+                    className={`${styles.menuItem} ${
+                      isActive ? styles.activeItem : ""
+                    }`}
                   >
                     {item.label}
                   </Link>
