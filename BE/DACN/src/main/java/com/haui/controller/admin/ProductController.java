@@ -24,19 +24,19 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseResult<ProductDto> create(@ModelAttribute @Valid ProductRequest request) throws IOException {
         return ResponseResult.success(productService.create(request));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseResult<ProductDto> update(@PathVariable Integer id, @ModelAttribute @Valid ProductRequest request) throws IOException {
         return ResponseResult.success(productService.update(request, id));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseResult<String> delete(@PathVariable Integer id) {
         productService.delete(id);
         return ResponseResult.success("Successfully deleted product");

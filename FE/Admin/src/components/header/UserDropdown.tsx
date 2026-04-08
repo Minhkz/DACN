@@ -47,7 +47,6 @@ export default function UserDropdown() {
     queryFn: me,
     staleTime: 0,
   });
-  console.log(data);
 
   return (
     <div className="relative">
