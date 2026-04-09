@@ -8,6 +8,13 @@ import DetailProduct from "@/component/DetailProduct/DetailProduct";
 
 const CardProduct = () => {
   const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+  };
+
   return (
     <>
       <div className={style.product} onClick={() => setOpenDetail(true)}>
@@ -46,8 +53,13 @@ const CardProduct = () => {
             </div>
           </div>
           <div className={style.icon}>
-            <div className="">
-              <Image src="/icon/heart.png" alt="logo" width={30} height={30} />
+             
+             <div className="cursor-pointer" onClick={handleLike}>
+              <Image src="/icon/heart.png" alt="logo" width={30} height={30} style={{
+                  // Mã Hex #ff0000 (Đỏ) được tạo ra từ filter này
+                  filter: isLiked ? "invert(24%) sepia(99%) saturate(7404%) hue-rotate(355deg) brightness(97%) contrast(114%)" : "none",
+                  transition: "filter 0.3s ease"
+                }}/>
             </div>
             <div className="">
               <Image
@@ -55,6 +67,7 @@ const CardProduct = () => {
                 alt="logo"
                 width={30}
                 height={30}
+                
               />
             </div>
           </div>

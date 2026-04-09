@@ -310,11 +310,14 @@ const Header = () => {
 
                     <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
                       <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        My Wish List
+                        <Link href="/wishlist" className="block w-full h-full text-black">
+                            My Wish List 
+                         </Link>
                       </span>
                       <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
                         0
                       </span>
+                      
                     </li>
 
                     <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
