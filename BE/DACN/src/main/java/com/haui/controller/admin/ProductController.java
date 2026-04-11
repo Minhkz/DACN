@@ -1,6 +1,7 @@
 package com.haui.controller.admin;
 
 import com.haui.dto.request.product.ProductRequest;
+import com.haui.dto.request.product.ProductUpdateRequest;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.product.ProductDto;
@@ -31,7 +32,7 @@ public class ProductController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseResult<ProductDto> update(@PathVariable Integer id, @ModelAttribute @Valid ProductRequest request) throws IOException {
+    public ResponseResult<ProductDto> update(@PathVariable Integer id, @ModelAttribute @Valid ProductUpdateRequest request) throws IOException {
         return ResponseResult.success(productService.update(request, id));
     }
 

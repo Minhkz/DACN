@@ -283,10 +283,6 @@ const ProductAction = ({ productId }: ProductActionProps) => {
       newErrors.images = 'Tối đa 10 ảnh';
     }
 
-    if (filterIds.length === 0) {
-      newErrors.filters = 'Vui lòng chọn ít nhất 1 filter';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -426,10 +422,6 @@ const ProductAction = ({ productId }: ProductActionProps) => {
       if (file) {
         formData.append('images', file);
       }
-    });
-
-    getSelectedFilterIds().forEach((filterId) => {
-      formData.append('filters', String(filterId));
     });
 
     updateProduct.mutate(formData);
@@ -803,51 +795,6 @@ const ProductAction = ({ productId }: ProductActionProps) => {
 
                 {errors.images && (
                   <p className="mt-1 text-sm text-red-500">{errors.images}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Filters
-                </label>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {Object.entries(groupedFilters).map(([type, items]) => (
-                    <div key={type}>
-                      <label className="mb-1 block text-sm font-medium capitalize">
-                        {type}
-                      </label>
-
-                      <select
-                        className={getInputClass(errors.filters)}
-                        value={selectedFilters[type] || ''}
-                        onChange={(e) => {
-                          setSelectedFilters((prev) => ({
-                            ...prev,
-                            [type]: e.target.value
-                              ? Number(e.target.value)
-                              : '',
-                          }));
-
-                          setErrors((prev) => ({
-                            ...prev,
-                            filters: '',
-                          }));
-                        }}
-                      >
-                        <option value="">Chọn {type}</option>
-                        {items.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-
-                {errors.filters && (
-                  <p className="mt-1 text-sm text-red-500">{errors.filters}</p>
                 )}
               </div>
 

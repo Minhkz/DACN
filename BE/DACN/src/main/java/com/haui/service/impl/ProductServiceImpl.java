@@ -1,6 +1,7 @@
 package com.haui.service.impl;
 
 import com.haui.dto.request.product.ProductRequest;
+import com.haui.dto.request.product.ProductUpdateRequest;
 import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.product.ProductDto;
 import com.haui.dto.thread.product.DeleteProductAvatarEvent;
@@ -59,12 +60,15 @@ public class ProductServiceImpl implements ProductService {
                 throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
             }
         }
-        else {
+        validateFilters(request);
+    }
+
+    private void validateLogicUpdate(ProductUpdateRequest request, Boolean isUpdated){
+        if(isUpdated){
             if(productRepository.existsByNameAndIdNot(request.getName(), request.getId())){
                 throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
             }
         }
-        validateFilters(request);
     }
 
 
@@ -149,70 +153,62 @@ public class ProductServiceImpl implements ProductService {
     @Caching(
             evict = @CacheEvict(key = "'list'")
     )
-    public ProductDto update(ProductRequest request, Integer id) throws IOException {
+    public ProductDto update(ProductUpdateRequest request, Integer id) throws IOException {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         request.setId(id);
 
-        validateLogic(request, false);
+        validateLogicUpdate(request, true);
 
         productMapper.partialUpdate(product, request);
 
         productRepository.save(product);
 
-        // update filters
-        productFilterRepository.deleteByProductId(id);
-
-        List<Filter> filters = filterRepository.findAllById(request.getFilters());
-
-        List<ProductFilter> productFilters = new ArrayList<>();
-
-        for(Filter filter : filters){
-            ProductFilter pf = new ProductFilter();
-            pf.setProduct(product);
-            pf.setFilter(filter);
-            productFilters.add(pf);
-        }
-
-        productFilterRepository.saveAll(productFilters);
 
         // update avatar
-        MultipartFile avatar = request.getAvatar();
-        if (avatar != null && !avatar.isEmpty()) {
+        if (request.getAvatar() != null) {
+            MultipartFile avatar = request.getAvatar();
+            if (avatar != null && !avatar.isEmpty()) {
 
-            eventPublisher.publishEvent(
-                    new UpdateProductAvatarEvent(
-                            avatar.getBytes(),
-                            id,
-                            product.getAvatar()
-                    )
-            );
+                eventPublisher.publishEvent(
+                        new UpdateProductAvatarEvent(
+                                avatar.getBytes(),
+                                id,
+                                product.getAvatar()
+                        )
+                );
+            }
         }
+
 
         // update images
-        List<String> oldPublicIds = productImgRepository.findByProductId(id).stream()
-                                .map(ProductImg::getSrc)
-                                .toList();
-        productImgRepository.deleteByProductId(id);
-
         if (request.getImages() != null && !request.getImages().isEmpty()) {
+            List<String> oldPublicIds = productImgRepository.findByProductId(id).stream()
+                    .map(ProductImg::getSrc)
+                    .toList();
+            productImgRepository.deleteByProductId(id);
 
-            List<byte[]> imageBytes = new ArrayList<>();
+            if (request.getImages() != null && !request.getImages().isEmpty()) {
 
-            for (MultipartFile img : request.getImages()) {
-                imageBytes.add(img.getBytes());
+                List<byte[]> imageBytes = new ArrayList<>();
+
+                for (MultipartFile img : request.getImages()) {
+                    imageBytes.add(img.getBytes());
+                }
+
+                eventPublisher.publishEvent(
+                        new UpdateProductImagesEvent(
+                                imageBytes,
+                                id,
+                                oldPublicIds
+                        )
+                );
             }
-
-            eventPublisher.publishEvent(
-                    new UpdateProductImagesEvent(
-                            imageBytes,
-                            id,
-                            oldPublicIds
-                    )
-            );
         }
+
+
 
         return productMapper.toDto(product);
     }
