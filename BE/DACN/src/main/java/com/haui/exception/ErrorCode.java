@@ -27,6 +27,9 @@ public enum ErrorCode {
     ORDER_NOT_FOUND("404", "Order not found", HttpStatus.NOT_FOUND),
     AVATAR_ALREADY_EXISTS("400", "Avatar already exists for this user", HttpStatus.CONFLICT),
     MISSING_FIELD("400", "Missing required field", HttpStatus.BAD_REQUEST),
+    REVIEW_NOT_FOUND("404", "Review not found", HttpStatus.NOT_FOUND),
+    WISHLIST_NOT_FOUND("404", "Wishlist not found", HttpStatus.NOT_FOUND),
+    WISHLIST_ALREADY_EXISTS("409", "Wishlist already exists", HttpStatus.CONFLICT),
     INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
 
     private final String code;
