@@ -6,9 +6,12 @@ import lombok.Data;
 
 @Data
 public class ReviewDto {
-    private Long id;
-    private String reviewContent;
-    private Integer rating;
-    private LocalDateTime createdDate;
 
+    private Integer id;
+
+    private String reviewContent;
+
+    private Integer rating;
+
+    private LocalDateTime createdDate;
 }
