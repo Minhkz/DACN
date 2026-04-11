@@ -53,23 +53,39 @@ const CardProduct = () => {
             </div>
           </div>
           <div className={style.icon}>
-             
-             <div className="cursor-pointer" onClick={handleLike}>
-              <Image src="/icon/heart.png" alt="logo" width={30} height={30} style={{
-                  // Mã Hex #ff0000 (Đỏ) được tạo ra từ filter này
-                  filter: isLiked ? "invert(24%) sepia(99%) saturate(7404%) hue-rotate(355deg) brightness(97%) contrast(114%)" : "none",
-                  transition: "filter 0.3s ease"
-                }}/>
+            
+            {/* Nút thả tim (Đã thêm thủ thuật nền đỏ - tim trắng) */}
+            <div 
+              className={`cursor-pointer flex items-center justify-center rounded-full transition-all duration-300 ${
+                isLiked ? "bg-red-500 shadow-md shadow-red-500/40 scale-110" : "bg-transparent scale-100"
+              }`}
+              style={{ width: 30, height: 30 }}
+              onClick={handleLike}
+            >
+              <Image 
+                src="/icon/heart.png" 
+                alt="logo" 
+                width={30} 
+                height={30} 
+                style={{
+                
+                  filter: isLiked ? "brightness(0) invert(1)" : "none",
+                  transition: "all 0.3s ease"
+                }}
+                className={`${isLiked ? "scale-75" : "scale-100"} transition-transform duration-300`}
+              />
             </div>
+
+            
             <div className="">
               <Image
                 src="/icon/compare.png"
                 alt="logo"
                 width={30}
                 height={30}
-                
               />
             </div>
+
           </div>
           <div className={style.addCart}>
             <Image
