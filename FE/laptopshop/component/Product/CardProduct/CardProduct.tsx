@@ -8,6 +8,13 @@ import DetailProduct from "@/component/DetailProduct/DetailProduct";
 
 const CardProduct = () => {
   const [openDetail, setOpenDetail] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+  };
+
   return (
     <>
       <div className={style.product} onClick={() => setOpenDetail(true)}>
@@ -46,9 +53,30 @@ const CardProduct = () => {
             </div>
           </div>
           <div className={style.icon}>
-            <div className="">
-              <Image src="/icon/heart.png" alt="logo" width={30} height={30} />
+            
+            {/* Nút thả tim (Đã thêm thủ thuật nền đỏ - tim trắng) */}
+            <div 
+              className={`cursor-pointer flex items-center justify-center rounded-full transition-all duration-300 ${
+                isLiked ? "bg-red-500 shadow-md shadow-red-500/40 scale-110" : "bg-transparent scale-100"
+              }`}
+              style={{ width: 30, height: 30 }}
+              onClick={handleLike}
+            >
+              <Image 
+                src="/icon/heart.png" 
+                alt="logo" 
+                width={30} 
+                height={30} 
+                style={{
+                
+                  filter: isLiked ? "brightness(0) invert(1)" : "none",
+                  transition: "all 0.3s ease"
+                }}
+                className={`${isLiked ? "scale-75" : "scale-100"} transition-transform duration-300`}
+              />
             </div>
+
+            
             <div className="">
               <Image
                 src="/icon/compare.png"
@@ -57,6 +85,7 @@ const CardProduct = () => {
                 height={30}
               />
             </div>
+
           </div>
           <div className={style.addCart}>
             <Image
