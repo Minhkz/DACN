@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-DacnApplication<DACN>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.haui.DacnApplication",
+            "projectName": "DACN",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
