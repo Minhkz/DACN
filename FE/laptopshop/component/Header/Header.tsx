@@ -25,6 +25,7 @@ const Header = () => {
   const [infoCart, setInfoCart] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [cartTimeout, setCartTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["user"],
@@ -181,11 +182,15 @@ const Header = () => {
 
             <div
               className="relative"
-              onMouseEnter={() => setInfoCart(true)}
-              onMouseLeave={() => setInfoCart(false)}
+              onMouseEnter={() => {
+                if (cartTimeout) clearTimeout(cartTimeout);
+                setInfoCart(true);
+              }}
+              onMouseLeave={() => setCartTimeout(setTimeout(() => setInfoCart(false), 200))}
             >
               <Link
                 href="/cart"
+                onClick={() => router.push('/cart')}
                 className="relative p-2 hover:bg-black/5 rounded-full block"
               >
                 <Image
@@ -218,33 +223,45 @@ const Header = () => {
                   drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)]"
                 />
 
-                <div className="w-[310px] rounded-2xl bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)] overflow-hidden font-sans">
-                  <div className="px-5 pt-5 pb-3 text-center">
-                    <h3 className="text-lg font-semibold">My Cart</h3>
-                    <p className="mt-1 text-sm text-gray-500">2 item in cart</p>
+                <div 
+                  onMouseEnter={() => {
+                    if (cartTimeout) clearTimeout(cartTimeout);
+                    setInfoCart(true);
+                  }}
+                  className="w-[200px] rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-2xl border border-gray-100 overflow-hidden font-sans transform transition-all duration-300 ease-out hover:shadow-3xl"
+                >
+                  <div className="px-5 pt-5 pb-3 text-center bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <h3 className="text-lg font-bold text-gray-800 mb-1">My Cart</h3>
+                    <p className="text-sm text-gray-600">2 items in cart</p>
                   </div>
 
                   <div className="px-5 pb-4">
-                    <button className="w-full rounded-full border-2 border-blue-600 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition">
+                    <button 
+                      onClick={() => {
+                        router.push('/cart');
+                        setInfoCart(false);
+                      }}
+                      className="w-full rounded-full border-2 border-blue-500 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                    >
                       View or Edit Your Cart
                     </button>
                   </div>
 
-                  <div className="border-y border-gray-200"></div>
+                  <div className="border-y border-gray-200 bg-gray-50"></div>
 
                   <div className="px-5 py-4">
                     <div className="mb-4 flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Subtotal:</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-gray-600 font-medium">Subtotal:</span>
+                      <span className="font-bold text-gray-900 text-base">
                         $499.00
                       </span>
                     </div>
 
-                    <button className="mb-3 w-full rounded-full bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition">
+                    <button className="mb-3 w-full rounded-full bg-gradient-to-r from-blue-600 to-blue-700 py-2.5 text-sm font-semibold text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                       Go to Checkout
                     </button>
 
-                    <button className="w-full rounded-full bg-yellow-400 py-2.5 text-sm font-semibold hover:bg-yellow-500 transition">
+                    <button className="w-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 py-2.5 text-sm font-semibold text-gray-800 hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                       Check out with PayPal
                     </button>
                   </div>

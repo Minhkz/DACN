@@ -23,5 +23,5 @@ export function proxy(request: NextRequest) {
 
 // Xác định các route mà middleware này sẽ chạy
 export const config = {
-  matcher: ["/cart/:path*", "/wishlist/:path*", "/checkout/:path*"],
+  matcher: ["/wishlist/:path*", "/checkout/:path*"],
 };
