@@ -20,6 +20,11 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("404", "Product not found", HttpStatus.NOT_FOUND),
     PRODUCT_ALREADY_EXISTS("409", "Product already exists", HttpStatus.CONFLICT),
     PRODUCT_FILTER_NOT_FOUND("404", "Some filters not found", HttpStatus.NOT_FOUND),
+    PRODUCT_OUT_OF_STOCK("400", "Product is out of stock or quantity is not enough", HttpStatus.BAD_REQUEST),
+    CART_NOT_FOUND("404", "Cart not found", HttpStatus.NOT_FOUND),
+    CART_ALREADY_EXISTS("409", "Cart already exists for this user", HttpStatus.CONFLICT),
+    CART_ITEM_NOT_FOUND("404", "Cart item not found", HttpStatus.NOT_FOUND),
+    ORDER_NOT_FOUND("404", "Order not found", HttpStatus.NOT_FOUND),
     AVATAR_ALREADY_EXISTS("400", "Avatar already exists for this user", HttpStatus.CONFLICT),
     MISSING_FIELD("400", "Missing required field", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
