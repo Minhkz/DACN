@@ -2,263 +2,356 @@
 
 import Header from "@/component/Header/Header";
 import Footer from "@/component/Footer/Footer";
-import { useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+type CartItem = {
+  id: number;
+  name: string;
+  price: number;
+  qty: number;
+  image: string;
+};
+
+const currency = (value: number) => `${value.toLocaleString("vi-VN")}₫`;
+
+const mutedTextStyle: React.CSSProperties = {
+  color: "#64748b",
+  fontSize: "14px",
+  lineHeight: 1.7,
+};
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
+  const [cartItems, setCartItems] = useState<CartItem[]>([
     { id: 1, name: "Laptop ABC", price: 12990000, qty: 1, image: "/product/msi-pro16.png" },
     { id: 2, name: "Chuột không dây", price: 350000, qty: 2, image: "/product/msi-white.png" },
-    { id: 3, name: "Chuột không dây", price: 350000, qty: 2, image: "/product/detail.png" },
-    { id: 4, name: "Chuột không dây", price: 350000, qty: 2, image: "/product/msi-pro16.png" },
-    { id: 5, name: "Chuột không dây", price: 350000, qty: 2, image: "/product/msi-white.png" },
+    { id: 3, name: "Bàn phím cơ", price: 1590000, qty: 1, image: "/product/detail.png" },
+    { id: 4, name: "Tai nghe gaming", price: 890000, qty: 1, image: "/product/msi-pro16.png" },
   ]);
 
   const updateQty = (id: number, newQty: number) => {
     if (newQty < 1) return;
-    setCartItems(items => items.map(item => item.id === id ? { ...item, qty: newQty } : item));
+    setCartItems((items) => items.map((item) => (item.id === id ? { ...item, qty: newQty } : item)));
   };
 
   const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+    setCartItems((items) => items.filter((item) => item.id !== id));
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const shipping = subtotal > 5000000 ? 0 : 30000; // Miễn phí nếu > 5tr
+  const subtotal = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.price * item.qty, 0),
+    [cartItems],
+  );
+  const shipping = subtotal > 5000000 ? 0 : 30000;
   const total = subtotal + shipping;
-
-  if (cartItems.length === 0) {
-    return (
-      <>
-        <Header />
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-20">
-          <div className="text-center max-w-lg mx-auto px-6">
-            <div className="relative mb-8">
-              <div className="w-40 h-40 mx-auto bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center shadow-lg">
-                <svg className="w-20 h-20 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-              </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">0</span>
-              </div>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Giỏ hàng của bạn đang trống</h2>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed">Khám phá các sản phẩm tuyệt vời và thêm vào giỏ hàng ngay!</p>
-            <a href="/" className="inline-flex items-center px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
-              <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Khám phá sản phẩm
-            </a>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
 
   return (
     <>
       <Header />
-
-      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 py-16">
-        <div className="max-w-7xl mx-auto px-8 sm:px-10 lg:px-16">
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-5xl font-bold text-gray-900 mb-3">Giỏ hàng của bạn</h1>
-                <p className="text-xl text-gray-600">{cartItems.length} sản phẩm trong giỏ</p>
-              </div>
-              <div className="hidden md:flex items-center space-x-4">
-                <div className="flex items-center text-green-600">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="font-medium">An toàn & Bảo mật</span>
-                </div>
-              </div>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-            </div>
+      <main style={{ minHeight: "100vh", background: "#F5F7FF" }}>
+        <section className="container-global" style={{ padding: "42px 0 64px" }}>
+          <div style={{ marginBottom: "20px", color: "#64748b", fontSize: "14px" }}>
+            <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>
+              Trang chủ
+            </Link>
+            <span style={{ margin: "0 8px" }}>/</span>
+            <span style={{ color: "#0156FF", fontWeight: 600 }}>Giỏ hàng</span>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-5 gap-12">
-            <div className="xl:col-span-3">
-              <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div className="p-10 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold text-gray-900">Sản phẩm đã chọn</h2>
-                    <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{cartItems.length} items</span>
-                  </div>
-                </div>
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #dbe7ff",
+              borderRadius: "18px",
+              padding: "28px",
+              marginBottom: "24px",
+              boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+            }}
+          >
+            <h1 style={{ margin: 0, color: "#0f172a", fontSize: "36px", fontWeight: 700 }}>
+              Giỏ hàng của bạn
+            </h1>
+            <p style={{ ...mutedTextStyle, margin: "10px 0 0" }}>
+              Bố cục được làm lại theo hướng đồng bộ với toàn website: sáng,
+              đầy đặn, dễ quan sát và bớt bo tròn hơn trước.
+            </p>
+          </div>
 
-                <div className="divide-y divide-gray-100">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="p-10 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-300 group">
-                      <div className="flex items-center space-x-10">
-                        <div className="relative w-28 h-28 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg group-hover:shadow-xl transition-shadow">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => {
-                              e.currentTarget.src = "/img/banner.png";
-                            }}
-                          />
+          {cartItems.length === 0 ? (
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid #dbe7ff",
+                borderRadius: "18px",
+                padding: "56px 28px",
+                textAlign: "center",
+                boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+              }}
+            >
+              <div
+                style={{
+                  width: "92px",
+                  height: "92px",
+                  margin: "0 auto 18px",
+                  borderRadius: "18px",
+                  background: "#eaf2ff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="42" height="42" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 6H21L19 15H8L6 6Z" stroke="#0156FF" strokeWidth="1.8" strokeLinejoin="round" />
+                  <path d="M6 6L5.2 4.3C5.04 3.97 4.71 3.75 4.34 3.75H2.5" stroke="#0156FF" strokeWidth="1.8" strokeLinecap="round" />
+                  <circle cx="9" cy="19" r="1.5" fill="#0156FF" />
+                  <circle cx="18" cy="19" r="1.5" fill="#0156FF" />
+                </svg>
+              </div>
+              <h2 style={{ margin: 0, color: "#0f172a", fontSize: "28px", fontWeight: 700 }}>
+                Giỏ hàng đang trống
+              </h2>
+              <p style={{ ...mutedTextStyle, maxWidth: "520px", margin: "12px auto 22px" }}>
+                Hãy tiếp tục khám phá sản phẩm để thêm vào giỏ và hoàn tất đơn hàng.
+              </p>
+              <Link
+                href="/catalogs"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: "180px",
+                  height: "48px",
+                  borderRadius: "12px",
+                  background: "#0156FF",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  padding: "0 22px",
+                }}
+              >
+                Tiếp tục mua sắm
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", alignItems: "flex-start" }}>
+              <div style={{ flex: "1 1 720px", display: "flex", flexDirection: "column", gap: "18px" }}>
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #dbe7ff",
+                      borderRadius: "18px",
+                      padding: "22px",
+                      boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+                    }}
+                  >
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "18px", alignItems: "center" }}>
+                      <div
+                        style={{
+                          width: "120px",
+                          height: "120px",
+                          borderRadius: "16px",
+                          background: "#f8fbff",
+                          border: "1px solid #e6eef8",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "12px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          onError={(e) => {
+                            e.currentTarget.src = "/img/banner.png";
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ flex: "1 1 240px", minWidth: "220px" }}>
+                        <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px", fontWeight: 700, lineHeight: 1.45 }}>
+                          {item.name}
+                        </h3>
+                        <p style={{ ...mutedTextStyle, margin: "8px 0 0" }}>
+                          Đơn giá: <strong style={{ color: "#0f172a" }}>{currency(item.price)}</strong>
+                        </p>
+                        <div
+                          style={{
+                            marginTop: "12px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 12px",
+                            background: "#eff8f1",
+                            border: "1px solid #d0f0d7",
+                            borderRadius: "12px",
+                            color: "#15803d",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Còn hàng
                         </div>
+                      </div>
 
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors truncate">{item.name}</h3>
-                          <p className="text-lg text-gray-600 mb-2">{item.price.toLocaleString("vi-VN")}₫ / sản phẩm</p>
-                          <div className="flex items-center text-green-600">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="text-sm font-medium">Còn hàng</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-6">
-                          <div className="flex items-center border-2 border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
-                            <button
-                              onClick={() => updateQty(item.id, item.qty - 1)}
-                              className="p-4 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-2xl"
-                              disabled={item.qty <= 1}
-                            >
-                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                              </svg>
-                            </button>
-                            <span className="px-6 py-4 text-center min-w-[5rem] font-bold text-xl text-gray-900 bg-gray-50">{item.qty}</span>
-                            <button
-                              onClick={() => updateQty(item.id, item.qty + 1)}
-                              className="p-4 hover:bg-green-50 text-gray-600 hover:text-green-600 transition-all duration-200 rounded-r-2xl"
-                            >
-                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                              </svg>
-                            </button>
-                          </div>
-
-                          <div className="text-right min-w-[160px]">
-                            <p className="text-3xl font-bold text-gray-900 mb-1">
-                              {(item.price * item.qty).toLocaleString("vi-VN")}₫
-                            </p>
-                            <p className="text-sm text-gray-500">Đã bao gồm VAT</p>
-                          </div>
-
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", alignItems: "center", marginLeft: "auto" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            border: "1px solid #dbe7ff",
+                            borderRadius: "14px",
+                            overflow: "hidden",
+                            background: "#f8fbff",
+                          }}
+                        >
                           <button
-                            onClick={() => removeItem(item.id)}
-                            className="p-4 text-red-500 hover:bg-red-50 rounded-2xl transition-all duration-200 hover:scale-110"
-                            title="Xóa sản phẩm"
+                            onClick={() => updateQty(item.id, item.qty - 1)}
+                            disabled={item.qty <= 1}
+                            style={{
+                              width: "42px",
+                              height: "42px",
+                              border: "none",
+                              borderRight: "1px solid #dbe7ff",
+                              background: "transparent",
+                              cursor: item.qty <= 1 ? "not-allowed" : "pointer",
+                              color: item.qty <= 1 ? "#94a3b8" : "#334155",
+                              fontSize: "20px",
+                            }}
                           >
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            −
+                          </button>
+                          <span style={{ minWidth: "48px", textAlign: "center", color: "#0f172a", fontWeight: 700 }}>
+                            {item.qty}
+                          </span>
+                          <button
+                            onClick={() => updateQty(item.id, item.qty + 1)}
+                            style={{
+                              width: "42px",
+                              height: "42px",
+                              border: "none",
+                              borderLeft: "1px solid #dbe7ff",
+                              background: "transparent",
+                              cursor: "pointer",
+                              color: "#334155",
+                              fontSize: "20px",
+                            }}
+                          >
+                            +
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
 
-            <div className="xl:col-span-2">
-              <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-10 sticky top-8">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Tóm tắt đơn hàng</h2>
-                  <p className="text-gray-600">Xem lại và xác nhận đơn hàng của bạn</p>
-                </div>
-
-                <div className="space-y-8">
-                  <div className="bg-gray-50 rounded-2xl p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-xl text-gray-700 font-medium">Tạm tính</span>
-                      <span className="text-xl font-semibold text-gray-900">{subtotal.toLocaleString("vi-VN")}₫</span>
-                    </div>
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-xl text-gray-700 font-medium">Số lượng sản phẩm</span>
-                      <span className="text-xl font-semibold text-gray-900">{cartItems.length} items</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl text-gray-700 font-medium">Phí vận chuyển</span>
-                      <span className={`text-xl font-semibold ${shipping === 0 ? "text-green-600" : "text-gray-900"}`}>
-                        {shipping === 0 ? "Miễn phí" : `${shipping.toLocaleString("vi-VN")}₫`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {shipping > 0 && (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6">
-                      <div className="flex items-start space-x-3">
-                        <svg className="w-6 h-6 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                          <h4 className="text-lg font-semibold text-blue-900 mb-1">Miễn phí vận chuyển!</h4>
-                          <p className="text-base text-blue-800">Thêm {(5000000 - subtotal).toLocaleString("vi-VN")}₫ nữa để được miễn phí giao hàng.</p>
+                        <div style={{ minWidth: "140px", textAlign: "right" }}>
+                          <div style={{ color: "#0f172a", fontSize: "21px", fontWeight: 700 }}>
+                            {currency(item.price * item.qty)}
+                          </div>
+                          <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>Tạm tính</div>
                         </div>
-                      </div>
-                    </div>
-                  )}
 
-                  <div className="border-t-2 border-gray-200 pt-8">
-                    <div className="flex justify-between items-center mb-6">
-                      <span className="text-4xl font-bold text-gray-900">Tổng cộng</span>
-                      <span className="text-4xl font-bold text-blue-600">{total.toLocaleString("vi-VN")}₫</span>
-                    </div>
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                      <div className="flex items-center text-green-800">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="font-medium">Đảm bảo giá tốt nhất</span>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          style={{
+                            width: "42px",
+                            height: "42px",
+                            borderRadius: "12px",
+                            border: "1px solid #fecaca",
+                            background: "#fff5f5",
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            fontSize: "20px",
+                          }}
+                          title="Xóa sản phẩm"
+                        >
+                          ×
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <button className="w-full mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white py-6 px-4 rounded-3xl hover:from-green-600 hover:to-green-700 transition-all font-bold text-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 flex items-center justify-center">
-                  <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13l-1.1 5M7 13L5.4 5" />
-                  </svg>
-                  Tiến hành thanh toán
-                </button>
-
-                <div className="text-center space-y-4">
-                  <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>SSL bảo mật</span>
-                    </div>
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                      </svg>
-                      <span>Thanh toán đa dạng</span>
-                    </div>
-                  </div>
-
-                  <a
-                    href="/"
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors font-semibold text-lg group"
-                  >
-                    <svg className="w-6 h-6 mr-3 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Tiếp tục mua sắm
-                  </a>
-                </div>
+                ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </main>
 
+              <aside
+                style={{
+                  flex: "0 1 360px",
+                  width: "100%",
+                  background: "#ffffff",
+                  border: "1px solid #dbe7ff",
+                  borderRadius: "18px",
+                  padding: "26px",
+                  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.06)",
+                  position: "sticky",
+                  top: "18px",
+                }}
+              >
+                <h2 style={{ margin: 0, color: "#0f172a", fontSize: "24px", fontWeight: 700 }}>
+                  Tóm tắt đơn hàng
+                </h2>
+                <p style={{ ...mutedTextStyle, margin: "8px 0 20px" }}>
+                  Kiểm tra nhanh chi phí trước khi tiến hành thanh toán.
+                </p>
+
+                <div style={{ borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0", padding: "18px 0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#475569", fontSize: "15px" }}>
+                    <span>Tạm tính</span>
+                    <strong style={{ color: "#0f172a" }}>{currency(subtotal)}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", color: "#475569", fontSize: "15px" }}>
+                    <span>Vận chuyển</span>
+                    <strong style={{ color: shipping === 0 ? "#15803d" : "#0f172a" }}>
+                      {shipping === 0 ? "Miễn phí" : currency(shipping)}
+                    </strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "#0f172a", fontSize: "18px", fontWeight: 700 }}>
+                    <span>Tổng cộng</span>
+                    <span>{currency(total)}</span>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  <button
+                    style={{
+                      height: "50px",
+                      border: "none",
+                      borderRadius: "12px",
+                      background: "#0156FF",
+                      color: "#ffffff",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      boxShadow: "0 14px 30px rgba(1, 86, 255, 0.18)",
+                    }}
+                  >
+                    Tiến hành thanh toán
+                  </button>
+
+                  <Link
+                    href="/catalogs"
+                    style={{
+                      height: "50px",
+                      borderRadius: "12px",
+                      border: "1px solid #cbd5e1",
+                      color: "#334155",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#ffffff",
+                    }}
+                  >
+                    Tiếp tục mua sắm
+                  </Link>
+                </div>
+              </aside>
+            </div>
+          )}
+        </section>
+      </main>
       <Footer />
     </>
   );

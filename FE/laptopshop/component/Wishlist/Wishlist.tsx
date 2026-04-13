@@ -1,287 +1,391 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, Trash2, CheckCircle2, ArrowRight, ChevronRight } from "lucide-react";
+
+type WishlistProduct = {
+  id: number;
+  name: string;
+  oldPrice: number;
+  price: number;
+  image: string;
+};
+
+const formatCurrency = (value: number) => `${value.toLocaleString("vi-VN")}₫`;
+
+const introTextStyle: React.CSSProperties = {
+  color: "#64748b",
+  fontSize: "14px",
+  lineHeight: 1.8,
+};
+
+const productsSeed: WishlistProduct[] = Array.from({ length: 8 }).map((_, index) => ({
+  id: index + 1,
+  name: "EX DISPLAY : MSI Pro 16 Flex-036AU 15.6 MULTITOUCH All-In-One",
+  oldPrice: 19990000,
+  price: 17990000,
+  image: "/product/msi-pro16.png",
+}));
 
 const Wishlist = () => {
-  const initialProducts = Array.from({ length: 8 }).map((_, i) => ({
-    id: i + 1,
-    name: "EX DISPLAY : MSI Pro 16 Flex-036AU 15.6 MULTITOUCH All-In-One...",
-    oldPrice: 19990000,
-    price: 17990000,
-    image: "/product/msi-pro16.png"
-  }));
+  const [products, setProducts] = useState<WishlistProduct[]>(productsSeed);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
-  const [products, setProducts] = useState(initialProducts);
-  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const isEmpty = products.length === 0;
-  const selectedCount = selectedItems.size;
+  const selectedCount = selectedItems.length;
+
+  const summaryText = useMemo(() => {
+    if (isEmpty) return "Danh sách yêu thích của bạn hiện chưa có sản phẩm nào.";
+    return `Bạn đang lưu ${products.length} sản phẩm để xem lại hoặc thêm nhanh vào giỏ hàng.`;
+  }, [isEmpty, products.length]);
 
   const toggleSelectItem = (id: number) => {
-    const newSet = new Set(selectedItems);
-    newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-    setSelectedItems(newSet);
+    setSelectedItems((current) =>
+      current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id],
+    );
   };
 
   const removeItem = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
-    const newSet = new Set(selectedItems);
-    newSet.delete(id);
-    setSelectedItems(newSet);
+    setProducts((current) => current.filter((item) => item.id !== id));
+    setSelectedItems((current) => current.filter((itemId) => itemId !== id));
   };
 
   const removeSelected = () => {
-    setProducts(products.filter(p => !selectedItems.has(p.id)));
-    setSelectedItems(new Set());
+    setProducts((current) => current.filter((item) => !selectedItems.includes(item.id)));
+    setSelectedItems([]);
   };
 
   const addSelectedToCart = () => {
-    console.log("Thêm vào giỏ hàng:", Array.from(selectedItems));
+    console.log("Thêm vào giỏ hàng:", selectedItems);
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-[80vh] pb-32 font-sans">
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8">
-        
-        {/* ================= BREADCRUMB ================= */}
-        <div className="flex items-center gap-2 text-[14px] mt-2 mb-8">
-          <Link href="/" className="text-gray-500 hover:text-[#0156FF] transition-colors font-semibold">
+    <main style={{ minHeight: "100vh", background: "#F5F7FF" }}>
+      <section className="container-global" style={{ padding: "42px 0 64px" }}>
+        <div style={{ marginBottom: "20px", color: "#64748b", fontSize: "14px" }}>
+          <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>
             Trang chủ
           </Link>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span className="text-[#d70018] font-bold tracking-wide">Danh sách yêu thích</span>
+          <span style={{ margin: "0 8px" }}>/</span>
+          <span style={{ color: "#0156FF", fontWeight: 600 }}>Wishlist</span>
         </div>
 
-        {/* ================= TITLE SECTION ================= */}
-        <div 
-          className="mb-16 bg-gradient-to-r from-[#f4f8ff] to-[#fbfcff] border border-blue-100/60 rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(1,86,255,0.08)]"
-          style={{ padding: '40px' }}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid #dbe7ff",
+            borderRadius: "18px",
+            padding: "28px",
+            marginBottom: "24px",
+            boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+          }}
         >
-          <h1 className="text-[42px] md:text-[54px] font-black tracking-tighter leading-tight mb-5 text-[#0b1b3d]">
-            My Wishlist
+          <h1 style={{ margin: 0, color: "#0f172a", fontSize: "36px", fontWeight: 700 }}>
+            Danh sách yêu thích
           </h1>
-          
-          {!isEmpty && (
-            <p className="text-gray-500 text-[16px] md:text-[18px] font-medium flex items-center flex-wrap gap-3">
-              Bạn đang có 
-              <span className="inline-flex items-center justify-center px-4 py-1.5 bg-white text-[#0156FF] rounded-xl font-bold text-lg border border-blue-100 shadow-sm">
-                {products.length} sản phẩm
-              </span> 
-              trong danh sách yêu thích
-            </p>
-          )}
+          <p style={{ ...introTextStyle, margin: "10px 0 0" }}>{summaryText}</p>
         </div>
 
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-sm border border-gray-100" style={{ padding: '80px 20px' }}>
-            <div className="relative w-36 h-36 bg-blue-50 rounded-full flex items-center justify-center mb-8 shadow-inner">
-              <div className="absolute inset-0 bg-[#0156FF] opacity-10 rounded-full animate-ping"></div>
-              <ShoppingCart className="w-16 h-16 text-[#0156FF]" />
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #dbe7ff",
+              borderRadius: "18px",
+              padding: "56px 28px",
+              textAlign: "center",
+              boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+            }}
+          >
+            <div
+              style={{
+                width: "92px",
+                height: "92px",
+                margin: "0 auto 18px",
+                borderRadius: "18px",
+                background: "#eaf2ff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20.5C11.82 20.5 11.63 20.43 11.49 20.29L4.91 13.84C3.08 12.04 3.03 9.09 4.8 7.3C6.57 5.5 9.5 5.45 11.33 7.25L12 7.92L12.67 7.25C14.5 5.45 17.43 5.5 19.2 7.3C20.97 9.09 20.92 12.04 19.09 13.84L12.51 20.29C12.37 20.43 12.18 20.5 12 20.5Z" stroke="#0156FF" strokeWidth="1.8" strokeLinejoin="round" />
+              </svg>
             </div>
-            <h2 className="text-[26px] font-bold text-gray-800 mb-3">Danh sách yêu thích trống</h2>
-            <p className="text-gray-500 mb-10 text-center max-w-md text-[16px] leading-relaxed">
-              Hãy lướt xem và lưu lại những mẫu laptop bạn ưng ý nhất để không bỏ lỡ các ưu đãi nhé!
+            <h2 style={{ margin: 0, color: "#0f172a", fontSize: "28px", fontWeight: 700 }}>
+              Chưa có sản phẩm yêu thích
+            </h2>
+            <p style={{ ...introTextStyle, maxWidth: "540px", margin: "12px auto 22px" }}>
+              Bạn có thể thêm các sản phẩm quan tâm vào wishlist để theo dõi và mua sau.
             </p>
-            <Link href="/catalogs" className="px-10 py-4 rounded-full bg-[#0156FF] hover:bg-blue-800 text-white font-semibold transition-all shadow-lg shadow-blue-500/30 hover:-translate-y-1">
-              Khám phá sản phẩm ngay
+            <Link
+              href="/catalogs"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minWidth: "180px",
+                height: "48px",
+                borderRadius: "12px",
+                background: "#0156FF",
+                color: "#ffffff",
+                fontWeight: 700,
+                textDecoration: "none",
+                padding: "0 22px",
+              }}
+            >
+              Khám phá sản phẩm
             </Link>
           </div>
         ) : (
-          /* ================= UI CÓ SẢN PHẨM ================= */
-          <div className="flex flex-col lg:flex-row gap-10 xl:gap-14">
-            
-            {/* CỘT TRÁI: BANNER QUẢNG CÁO LỚN */}
-            <div className="w-full lg:w-[320px] xl:w-[360px] flex-shrink-0">
-              <div className="relative h-full min-h-[400px] lg:min-h-[600px] rounded-[2rem] overflow-hidden group shadow-lg border border-gray-200/50">
-                <img 
-                  src="https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Promo Banner" 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
-                
-                <div className="absolute inset-0 flex flex-col justify-end" style={{ padding: '40px' }}>
-                  <span 
-                    className="inline-block text-white text-[12px] font-extrabold uppercase tracking-widest shadow-lg"
-                    style={{ 
-                      backgroundColor: '#0156FF',
-                      padding: '8px 20px', 
-                      borderRadius: '999px',
-                      width: 'fit-content',
-                      marginBottom: '20px'
-                    }}
-                  >
-                    Ưu đãi độc quyền
-                  </span>
-                  <h2 className="text-white text-4xl font-extrabold mb-5 leading-tight drop-shadow-md">
-                    Nâng Tầm <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Trải Nghiệm</span>
-                  </h2>
-                  <p className="text-gray-300 text-[15px] mb-8 leading-relaxed">
-                    Giảm ngay 20% cho các phụ kiện Gaming khi mua kèm Laptop có trong danh sách yêu thích của bạn.
-                  </p>
-                  <Link href="/catalogs" className="flex items-center gap-2 text-white font-bold hover:text-blue-400 transition-colors w-max group/link">
-                    Xem bộ sưu tập
-                    <ArrowRight className="w-5 h-5 group-hover/link:translate-x-1 transition-transform" />
-                  </Link>
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "16px",
+                background: "#ffffff",
+                border: "1px solid #dbe7ff",
+                borderRadius: "18px",
+                padding: "22px 24px",
+                marginBottom: "18px",
+                boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+              }}
+            >
+              <div>
+                <div style={{ color: "#0f172a", fontSize: "22px", fontWeight: 700, marginBottom: "6px" }}>
+                  Sản phẩm đã lưu
                 </div>
+                <div style={introTextStyle}>Chọn nhiều mục để xóa nhanh hoặc thêm vào giỏ hàng.</div>
               </div>
-            </div>
-
-            {}
-            <div className="flex-1 flex flex-col">
-              
-              {}
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 xl:gap-12">
-                {products.map((product) => {
-                  const isSelected = selectedItems.has(product.id);
-                  return (
-                    <div 
-                      key={product.id} 
-                      className={`relative group transition-all duration-300 bg-white rounded-2xl overflow-hidden flex flex-col border shadow-sm hover:shadow-xl hover:-translate-y-1 ${isSelected ? 'border-[#0156FF] ring-1 ring-[#0156FF]' : 'border-gray-200/80'}`}
-                      style={{ padding: '30px' }} 
-                    >
-                      {}
-                      <div className="flex justify-between items-center mb-6 z-10 relative">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            className="cursor-pointer w-5 h-5 rounded border-gray-300 text-[#0156FF] focus:ring-[#0156FF]"
-                            checked={isSelected}
-                            onChange={() => toggleSelectItem(product.id)}
-                          />
-                          <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1.5 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100">
-                            <CheckCircle2 size={14} /> in stock
-                          </span>
-                        </div>
-                        <button 
-                          onClick={() => removeItem(product.id)}
-                          className="w-9 h-9 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500 hover:border-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-
-                      {}
-                      <div className="w-full h-40 mb-8 flex items-center justify-center bg-white relative rounded-xl overflow-hidden" style={{ padding: '10px' }}>
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-
-                      {}
-                      <div className="flex items-center gap-1.5 mb-4 text-[#fbad18] text-[12px]">
-                        <span>★★★★☆</span>
-                        <span className="text-gray-400 ml-1 font-medium">Đánh giá (4)</span>
-                      </div>
-
-                      {}
-                      <h3 className="text-[14px] font-bold line-clamp-2 mb-6 text-gray-800 h-[46px] group-hover:text-[#0156FF] transition-colors leading-relaxed">
-                        {product.name}
-                      </h3>
-
-                      {}
-                      <div className="mb-8 mt-auto border-t border-dashed border-gray-200 pt-6">
-                        <p className="text-gray-400 text-[13px] line-through mb-1.5 font-medium">
-                          {product.oldPrice.toLocaleString("vi-VN")} ₫
-                        </p>
-                        <p className="text-gray-900 font-extrabold text-[18px]">
-                          {product.price.toLocaleString("vi-VN")} ₫
-                        </p>
-                      </div>
-
-                      {}
-                      <div className="flex gap-3 mt-auto relative z-10">
-                        {}
-                        <Link
-                          href={`/product/${product.id}`}
-                          className="flex-1 text-center font-extrabold text-gray-700 transition-colors hover:bg-gray-100 flex items-center justify-center"
-                          style={{
-                            fontSize: '12px',
-                            padding: '8px 0',
-                            borderRadius: '999px',
-                            border: '2px solid #e5e7eb',
-                            backgroundColor: '#ffffff',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          Chi tiết
-                        </Link>
-
-                        {}
-                        <button 
-                          className="flex-[1.2] font-extrabold text-white flex items-center justify-center gap-1.5 transition-transform hover:scale-105"
-                          style={{
-                            fontSize: '12px',
-                            padding: '8px 0',
-                            borderRadius: '999px',
-                            backgroundColor: '#0156FF',
-                            boxShadow: '0 6px 15px -3px rgba(1, 86, 255, 0.4)',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          <ShoppingCart size={14} strokeWidth={2.5} /> Thêm giỏ
-                        </button>
-                      </div>
-
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* ================= THANH ACTION BAR ================= */}
-              <div 
-                className="mt-20 bg-white border border-gray-200 shadow-[0_12px_40px_rgb(0,0,0,0.06)] rounded-[2rem] flex flex-col sm:flex-row justify-between items-center gap-8"
-                style={{ padding: '30px' }}
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "#eaf2ff",
+                  color: "#0156FF",
+                  borderRadius: "12px",
+                  padding: "10px 14px",
+                  fontWeight: 700,
+                }}
               >
-                <div className="flex items-center gap-4 w-full sm:w-auto bg-blue-50/50 px-6 py-4 rounded-xl border border-blue-100">
-                  <span className="text-[16px] font-medium text-gray-700">
-                    Đã chọn: <strong className="text-[#0156FF] text-2xl ml-2">{selectedCount}</strong>
-                  </span>
-                </div>
-                
-                <div className="flex gap-5 w-full sm:w-auto">
-                  <button 
-                    onClick={removeSelected}
-                    disabled={selectedCount === 0}
-                    className="flex-1 sm:flex-none text-red-500 font-bold bg-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-50"
-                    style={{
-                      fontSize: '15px',
-                      padding: '14px 32px',
-                      borderRadius: '999px',
-                      border: '2px solid #fee2e2',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    Xóa mục chọn
-                  </button>
+                {selectedCount} mục đã chọn
+              </div>
+            </div>
 
-                  <button 
-                    onClick={addSelectedToCart}
-                    disabled={selectedCount === 0}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "18px",
+              }}
+            >
+              {products.map((product) => {
+                const isSelected = selectedItems.includes(product.id);
+
+                return (
+                  <div
+                    key={product.id}
                     style={{
-                      fontSize: '15px',
-                      padding: '14px 36px',
-                      borderRadius: '999px',
-                      backgroundColor: selectedCount === 0 ? '#9ca3af' : '#0156FF',
-                      boxShadow: selectedCount === 0 ? 'none' : '0 8px 20px -4px rgba(1, 86, 255, 0.4)',
-                      whiteSpace: 'nowrap'
+                      background: "#ffffff",
+                      border: isSelected ? "1px solid #7fb0ff" : "1px solid #dbe7ff",
+                      borderRadius: "18px",
+                      padding: "20px",
+                      boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
                     }}
                   >
-                    <ShoppingCart size={18} />
-                    Thêm tất cả vào giỏ
-                  </button>
-                </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "10px", color: "#475569", fontSize: "13px", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectItem(product.id)}
+                          style={{ width: "16px", height: "16px", accentColor: "#0156FF" }}
+                        />
+                        Chọn sản phẩm
+                      </label>
+
+                      <button
+                        onClick={() => removeItem(product.id)}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "10px",
+                          border: "1px solid #fecaca",
+                          background: "#fff5f5",
+                          color: "#dc2626",
+                          cursor: "pointer",
+                          fontSize: "18px",
+                        }}
+                        title="Xóa khỏi wishlist"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        height: "190px",
+                        borderRadius: "16px",
+                        background: "#f8fbff",
+                        border: "1px solid #e6eef8",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "16px",
+                        marginBottom: "18px",
+                      }}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        onError={(e) => {
+                          e.currentTarget.src = "/img/banner.png";
+                        }}
+                      />
+                    </div>
+
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "8px 12px",
+                        background: "#eff8f1",
+                        border: "1px solid #d0f0d7",
+                        borderRadius: "12px",
+                        color: "#15803d",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        marginBottom: "14px",
+                      }}
+                    >
+                      In stock
+                    </div>
+
+                    <h3 style={{ margin: 0, color: "#0f172a", fontSize: "17px", fontWeight: 700, lineHeight: 1.55, minHeight: "80px" }}>
+                      {product.name}
+                    </h3>
+
+                    <div style={{ paddingTop: "16px", marginTop: "16px", borderTop: "1px solid #e2e8f0" }}>
+                      <div style={{ color: "#94a3b8", fontSize: "13px", textDecoration: "line-through", marginBottom: "6px" }}>
+                        {formatCurrency(product.oldPrice)}
+                      </div>
+                      <div style={{ color: "#0f172a", fontSize: "22px", fontWeight: 700 }}>
+                        {formatCurrency(product.price)}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+                      <Link
+                        href={`/product/${product.id}`}
+                        style={{
+                          flex: 1,
+                          height: "46px",
+                          borderRadius: "12px",
+                          border: "1px solid #cbd5e1",
+                          color: "#334155",
+                          fontSize: "14px",
+                          fontWeight: 700,
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "#ffffff",
+                        }}
+                      >
+                        Chi tiết
+                      </Link>
+
+                      <button
+                        style={{
+                          flex: 1,
+                          height: "46px",
+                          border: "none",
+                          borderRadius: "12px",
+                          background: "#0156FF",
+                          color: "#ffffff",
+                          fontSize: "14px",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          boxShadow: "0 14px 30px rgba(1, 86, 255, 0.18)",
+                        }}
+                      >
+                        Thêm giỏ
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              style={{
+                marginTop: "20px",
+                background: "#ffffff",
+                border: "1px solid #dbe7ff",
+                borderRadius: "18px",
+                padding: "22px 24px",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "14px",
+                boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+              }}
+            >
+              <div style={{ color: "#334155", fontSize: "15px" }}>
+                Đã chọn <strong style={{ color: "#0156FF" }}>{selectedCount}</strong> sản phẩm
               </div>
 
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                <button
+                  onClick={removeSelected}
+                  disabled={selectedCount === 0}
+                  style={{
+                    minWidth: "150px",
+                    height: "46px",
+                    borderRadius: "12px",
+                    border: "1px solid #fecaca",
+                    background: selectedCount === 0 ? "#fffafa" : "#fff5f5",
+                    color: selectedCount === 0 ? "#fca5a5" : "#dc2626",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    cursor: selectedCount === 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Xóa mục chọn
+                </button>
+
+                <button
+                  onClick={addSelectedToCart}
+                  disabled={selectedCount === 0}
+                  style={{
+                    minWidth: "190px",
+                    height: "46px",
+                    border: "none",
+                    borderRadius: "12px",
+                    background: selectedCount === 0 ? "#93c5fd" : "#0156FF",
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    cursor: selectedCount === 0 ? "not-allowed" : "pointer",
+                    boxShadow: selectedCount === 0 ? "none" : "0 14px 30px rgba(1, 86, 255, 0.18)",
+                  }}
+                >
+                  Thêm tất cả vào giỏ
+                </button>
+              </div>
             </div>
-          </div>
+          </>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

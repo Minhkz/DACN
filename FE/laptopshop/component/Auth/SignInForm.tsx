@@ -1,20 +1,101 @@
 "use client";
 
-import { ApiErrorResponse, AuthResponse } from "@/types/auth/AuthResponse";
+import Header from "@/component/Header/Header";
+import Footer from "@/component/Footer/Footer";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+
+type AuthResponse = {
+  success?: boolean;
+  message?: string;
+};
+
+type ApiErrorResponse = {
+  message?: string;
+};
+
+const pageShellStyle: React.CSSProperties = {
+  minHeight: "100vh",
+  background: "#F5F7FF",
+};
+
+const sectionStyle: React.CSSProperties = {
+  padding: "48px 0 64px",
+};
+
+const panelWrapStyle: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "28px",
+  alignItems: "stretch",
+};
+
+const infoPanelStyle: React.CSSProperties = {
+  flex: "1 1 360px",
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  border: "1px solid #dbe7ff",
+  borderRadius: "18px",
+  padding: "36px 34px",
+  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
+};
+
+const formPanelStyle: React.CSSProperties = {
+  flex: "1 1 420px",
+  background: "#ffffff",
+  border: "1px solid #e3ebf6",
+  borderRadius: "18px",
+  padding: "36px 34px",
+  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.06)",
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  height: "50px",
+  border: "1px solid #d6e0ef",
+  borderRadius: "12px",
+  padding: "0 16px",
+  fontSize: "14px",
+  color: "#1f2937",
+  background: "#ffffff",
+  outline: "none",
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  marginBottom: "10px",
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "#334155",
+};
+
+const bulletStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "14px",
+  color: "#475569",
+  fontSize: "14px",
+  lineHeight: 1.6,
+};
+
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="#E0ECFF" />
+      <path d="M7 12.5L10.2 15.5L17 8.5" stroke="#0156FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function SignInForm() {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,13 +127,13 @@ export default function SignInForm() {
         },
       );
 
-      if (response.data.success) {
+      if (response.data?.success) {
         router.replace("/");
         router.refresh();
         return;
       }
 
-      setError(response.data.message || "Đăng nhập thất bại");
+      setError(response.data?.message || "Đăng nhập thất bại");
     } catch (err) {
       if (axios.isAxiosError<ApiErrorResponse>(err)) {
         setError(err.response?.data?.message || "Đăng nhập thất bại");
@@ -65,180 +146,242 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F5F2EC] px-4 py-10">
-      <div
-        className="w-full max-w-[420px] rounded-[20px] border border-[#E0DDD6] bg-white px-9 py-10 shadow-sm"
-        style={{ padding: "5px" }}
-      >
-        {/* Brand */}
-        <div className="mb-10 flex items-center gap-2.5">
-          <span className="font-serif text-[16px] tracking-tight text-[#1A1A1A]">
-            Laptop Shop
-          </span>
-        </div>
-
-        {/* Heading */}
-        <h1 className="font-serif text-[28px] font-normal leading-tight tracking-tight text-[#1A1A1A]">
-          Chào mừng trở lại
-        </h1>
-        <p className="mb-9 mt-2 text-[13.5px] font-light leading-relaxed text-[#999]">
-          Đăng nhập để tiếp tục mua sắm
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Username */}
-          <div className="space-y-2">
-            <label
-              htmlFor="username"
-              className="block text-[11px] font-semibold uppercase tracking-[0.8px] text-[#6B6B6B]"
-            >
-              Tên đăng nhập
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Nhập tên đăng nhập"
-              className="h-[48px] w-full rounded-xl border border-[#E3E0DA] bg-[#FAFAF8] px-4 text-[14px] text-[#1A1A1A] placeholder:text-[#C0BDB7] outline-none transition-all duration-150 hover:border-[#C8C5BF] focus:border-[#1A1A1A] focus:bg-white focus:shadow-[0_0_0_3px_rgba(26,26,26,0.06)]"
-              style={{ marginBottom: "5px" }}
-            />
+    <>
+      <Header />
+      <main style={pageShellStyle}>
+        <section className="container-global" style={sectionStyle}>
+          <div style={{ marginBottom: "20px", color: "#64748b", fontSize: "14px" }}>
+            <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>
+              Trang chủ
+            </Link>
+            <span style={{ margin: "0 8px" }}>/</span>
+            <span style={{ color: "#0156FF", fontWeight: 600 }}>Đăng nhập</span>
           </div>
 
-          {/* Password */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label
-                htmlFor="password"
-                className="block text-[11px] font-semibold uppercase tracking-[0.8px] text-[#6B6B6B]"
+          <div style={panelWrapStyle}>
+            <div style={infoPanelStyle}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "8px 14px",
+                  borderRadius: "999px",
+                  background: "#eaf2ff",
+                  color: "#0156FF",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  marginBottom: "18px",
+                }}
               >
-                Mật khẩu
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-[12px] text-[#8B7355] transition hover:text-[#6B5535]"
-              >
-                Quên mật khẩu?
-              </Link>
-            </div>
-            <div className="relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu"
-                className="h-[48px] w-full rounded-xl border border-[#E3E0DA] bg-[#FAFAF8] px-4 pr-16 text-[14px] text-[#1A1A1A] placeholder:text-[#C0BDB7] outline-none transition-all duration-150 hover:border-[#C8C5BF] focus:border-[#1A1A1A] focus:bg-white focus:shadow-[0_0_0_3px_rgba(26,26,26,0.06)]"
-                style={{ marginBottom: "5px" }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[10.5px] font-semibold uppercase tracking-[0.6px] text-[#AAA] transition hover:bg-[#F0EDE8] hover:text-[#555]"
-              >
-                {showPassword ? "Ẩn" : "Hiện"}
-              </button>
-            </div>
-          </div>
+                Laptop Shop
+              </div>
 
-          {/* Remember me — custom checkbox */}
-          <label className="flex cursor-pointer items-center gap-2.5 pt-0.5">
-            <div className="relative flex shrink-0 items-center">
-              <input
-                type="checkbox"
-                checked={isChecked}
-                onChange={(e) => setIsChecked(e.target.checked)}
-                className="h-[18px] w-[18px] cursor-pointer appearance-none rounded-[5px] border-2 border-[#D5D2CB] bg-white transition checked:border-[#1A1A1A] checked:bg-[#1A1A1A]"
-              />
-              {isChecked && (
-                <svg
-                  className="pointer-events-none absolute left-[3px] top-[3px]"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                >
-                  <path
-                    d="M2 6l3 3 5-5"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "38px",
+                  lineHeight: 1.2,
+                  color: "#0f172a",
+                  fontWeight: 700,
+                }}
+              >
+                Đăng nhập để tiếp tục mua sắm thuận tiện hơn
+              </h1>
+
+              <p
+                style={{
+                  margin: "18px 0 28px",
+                  color: "#475569",
+                  fontSize: "15px",
+                  lineHeight: 1.8,
+                  maxWidth: "560px",
+                }}
+              >
+                Giao diện được làm dịu hơn để đồng bộ với toàn bộ website: sạch,
+                sáng, cân đối và dễ thao tác trên cả desktop lẫn màn hình nhỏ.
+              </p>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                  gap: "14px",
+                  marginBottom: "24px",
+                }}
+              >
+                <div style={{ ...bulletStyle, marginBottom: 0, background: "#fff", border: "1px solid #e5edf8", borderRadius: "14px", padding: "16px" }}>
+                  <CheckIcon />
+                  Mua hàng nhanh và quản lý đơn tiện lợi
+                </div>
+                <div style={{ ...bulletStyle, marginBottom: 0, background: "#fff", border: "1px solid #e5edf8", borderRadius: "14px", padding: "16px" }}>
+                  <CheckIcon />
+                  Lưu địa chỉ, giỏ hàng và sản phẩm yêu thích
+                </div>
+                <div style={{ ...bulletStyle, marginBottom: 0, background: "#fff", border: "1px solid #e5edf8", borderRadius: "14px", padding: "16px" }}>
+                  <CheckIcon />
+                  Nhận ưu đãi và cập nhật mới từ cửa hàng
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderTop: "1px solid #dbe7ff",
+                  paddingTop: "22px",
+                  color: "#475569",
+                  fontSize: "14px",
+                  lineHeight: 1.8,
+                }}
+              >
+                Chưa có tài khoản?{" "}
+                <Link href="/signup" style={{ color: "#0156FF", fontWeight: 700, textDecoration: "none" }}>
+                  Tạo tài khoản mới
+                </Link>
+              </div>
+            </div>
+
+            <div style={formPanelStyle}>
+              <div style={{ marginBottom: "26px" }}>
+                <h2 style={{ margin: 0, color: "#0f172a", fontSize: "28px", fontWeight: 700 }}>
+                  Chào mừng trở lại
+                </h2>
+                <p style={{ margin: "10px 0 0", color: "#64748b", fontSize: "14px", lineHeight: 1.7 }}>
+                  Nhập thông tin tài khoản của bạn để tiếp tục.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "18px" }}>
+                  <label htmlFor="username" style={labelStyle}>
+                    Tên đăng nhập
+                  </label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Nhập tên đăng nhập"
+                    style={inputStyle}
                   />
-                </svg>
-              )}
-            </div>
-            <span
-              className="select-none text-[13px] text-[#777]"
-              style={{ marginBottom: "5px" }}
-            >
-              Ghi nhớ đăng nhập
-            </span>
-          </label>
+                </div>
 
-          {/* Error */}
-          {error && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-[13px] text-red-700">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <circle
-                  cx="8"
-                  cy="8"
-                  r="7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M8 5v3.5M8 11h.01"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              {error}
-            </div>
-          )}
+                <div style={{ marginBottom: "18px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", gap: "12px" }}>
+                    <label htmlFor="password" style={{ ...labelStyle, marginBottom: 0 }}>
+                      Mật khẩu
+                    </label>
+                    <Link href="/forgot-password" style={{ color: "#0156FF", fontSize: "13px", textDecoration: "none", fontWeight: 600 }}>
+                      Quên mật khẩu?
+                    </Link>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Nhập mật khẩu"
+                      style={{ ...inputStyle, paddingRight: "76px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        border: "none",
+                        background: "transparent",
+                        color: "#64748b",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        padding: "6px 8px",
+                      }}
+                    >
+                      {showPassword ? "Ẩn" : "Hiện"}
+                    </button>
+                  </div>
+                </div>
 
-          {/* Submit */}
-          <div className="pt-1">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex h-[50px] w-full items-center justify-center gap-2.5 rounded-xl bg-[#1A1A1A] text-[14.5px] font-medium tracking-[0.2px] text-white transition-all duration-150 hover:bg-[#2D2D2D] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#C5C2BB]"
-            >
-              {loading && (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              )}
-              {loading ? "Đang xử lý..." : "Đăng nhập"}
-            </button>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    marginBottom: "18px",
+                    color: "#475569",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => setIsChecked(e.target.checked)}
+                    style={{ width: "16px", height: "16px", accentColor: "#0156FF" }}
+                  />
+                  Ghi nhớ đăng nhập
+                </label>
+
+                {error ? (
+                  <div
+                    style={{
+                      marginBottom: "18px",
+                      border: "1px solid #fecaca",
+                      background: "#fff1f2",
+                      color: "#be123c",
+                      borderRadius: "12px",
+                      padding: "12px 14px",
+                      fontSize: "13px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {error}
+                  </div>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: "100%",
+                    height: "52px",
+                    border: "none",
+                    borderRadius: "12px",
+                    background: loading ? "#93c5fd" : "#0156FF",
+                    color: "#ffffff",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    boxShadow: loading ? "none" : "0 14px 30px rgba(1, 86, 255, 0.18)",
+                  }}
+                >
+                  {loading ? "Đang xử lý..." : "Đăng nhập"}
+                </button>
+              </form>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "14px", margin: "24px 0 18px" }}>
+                <div style={{ height: "1px", background: "#e2e8f0", flex: 1 }} />
+                <span style={{ color: "#94a3b8", fontSize: "12px", fontWeight: 600 }}>hoặc</span>
+                <div style={{ height: "1px", background: "#e2e8f0", flex: 1 }} />
+              </div>
+
+              <p style={{ margin: 0, color: "#64748b", fontSize: "14px", lineHeight: 1.7, textAlign: "center" }}>
+                Chưa có tài khoản?{" "}
+                <Link href="/signup" style={{ color: "#0156FF", fontWeight: 700, textDecoration: "none" }}>
+                  Đăng ký ngay
+                </Link>
+              </p>
+            </div>
           </div>
-        </form>
-
-        {/* Divider */}
-        <div className="my-7 flex items-center gap-4">
-          <div className="h-px flex-1 bg-[#EEECE8]" />
-          <span className="text-[11px] uppercase tracking-[0.6px] text-[#C0BDB7]">
-            hoặc
-          </span>
-          <div className="h-px flex-1 bg-[#EEECE8]" />
-        </div>
-
-        {/* Register */}
-        <p className="text-center text-[13px] text-[#999]">
-          Chưa có tài khoản?{" "}
-          <Link
-            href="/signup"
-            className="border-b border-[#1A1A1A] pb-px font-medium text-[#1A1A1A] transition hover:border-[#555] hover:text-[#555]"
-          >
-            Tạo tài khoản
-          </Link>
-        </p>
-      </div>
-    </div>
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }
