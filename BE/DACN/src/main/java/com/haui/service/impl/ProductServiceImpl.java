@@ -25,20 +25,23 @@ import com.haui.repository.ProductImgRepository;
 import com.haui.repository.ProductRepository;
 import com.haui.service.ProductService;
 import com.haui.service.cloudinary.CloudinaryService;
+import com.haui.utils.PageableUtil;
+import com.haui.utils.SpecificationUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.cache.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -278,6 +281,87 @@ public class ProductServiceImpl implements ProductService {
                 ))
                 .toList();
     }
+
+    @Override
+    public Page<ProductDetailDto> getAll(int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+        List<Product> products = productPage.getContent();
+
+        if (products.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, productPage.getTotalElements());
+        }
+
+        List<Integer> ids = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<ProductImg> images = productImgRepository.findByProductIdIn(ids);
+        List<ProductFilter> filters = productFilterRepository.findByProductIdIn(ids);
+
+        Map<Integer, List<ProductImg>> imageMap = images.stream()
+                .collect(Collectors.groupingBy(img -> img.getProduct().getId()));
+
+        Map<Integer, List<ProductFilter>> filterMap = filters.stream()
+                .collect(Collectors.groupingBy(filter -> filter.getProduct().getId()));
+
+        List<ProductDetailDto> dtoList = products.stream()
+                .map(product -> convert(
+                        product,
+                        imageMap.getOrDefault(product.getId(), Collections.emptyList()),
+                        filterMap.getOrDefault(product.getId(), Collections.emptyList())
+                ))
+                .toList();
+
+        return new PageImpl<>(dtoList, pageable, productPage.getTotalElements());
+    }
+
+    @Override
+    public Page<ProductDetailDto> search(String keyword, int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Map<String, String> keywordFields = new HashMap<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            keywordFields.put("name", keyword);
+            keywordFields.put("description", keyword);
+        }
+
+        Specification<Product> spec = Specification
+                .where(SpecificationUtil.<Product>alwaysTrue())
+                .and(SpecificationUtil.orLikeIgnoreCase(keywordFields));
+
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+        List<Product> products = productPage.getContent();
+
+        if (products.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, productPage.getTotalElements());
+        }
+
+        List<Integer> ids = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<ProductImg> images = productImgRepository.findByProductIdIn(ids);
+        List<ProductFilter> filters = productFilterRepository.findByProductIdIn(ids);
+
+        Map<Integer, List<ProductImg>> imageMap = images.stream()
+                .collect(Collectors.groupingBy(img -> img.getProduct().getId()));
+
+        Map<Integer, List<ProductFilter>> filterMap = filters.stream()
+                .collect(Collectors.groupingBy(filter -> filter.getProduct().getId()));
+
+        List<ProductDetailDto> dtoList = products.stream()
+                .map(product -> convert(
+                        product,
+                        imageMap.getOrDefault(product.getId(), Collections.emptyList()),
+                        filterMap.getOrDefault(product.getId(), Collections.emptyList())
+                ))
+                .toList();
+
+        return new PageImpl<>(dtoList, pageable, productPage.getTotalElements());
+    }
+
 
     private ProductDetailDto convert(Product product, List<ProductImg> images, List<ProductFilter> filters) {
         ProductDetailDto dto = new ProductDetailDto();

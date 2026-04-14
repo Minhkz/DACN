@@ -62,13 +62,10 @@ const Header = () => {
       label: "Laptops",
       href: "/laptops",
       children: [
-        { label: "Everyday Use Notebooks", href: "/catalogs" },
-        { label: "MSI Workstation Series", href: "#" },
-        { label: "MSI Prestige Series", href: "#" },
-        { label: "Gaming Notebooks", href: "#" },
-        { label: "Tablets And Pads", href: "#" },
-        { label: "Netbooks", href: "#" },
-        { label: "Infinity Gaming Notebooks", href: "#" },
+        { label: "Custom Builds", href: "/catalogs" },
+        { label: "MSI Laptops", href: "#" },
+        { label: "MSI Desktops", href: "#" },
+        { label: "MSI Monitors", href: "#" },
       ],
       mega: {
         products: [],
@@ -186,11 +183,13 @@ const Header = () => {
                 if (cartTimeout) clearTimeout(cartTimeout);
                 setInfoCart(true);
               }}
-              onMouseLeave={() => setCartTimeout(setTimeout(() => setInfoCart(false), 200))}
+              onMouseLeave={() =>
+                setCartTimeout(setTimeout(() => setInfoCart(false), 200))
+              }
             >
               <Link
                 href="/cart"
-                onClick={() => router.push('/cart')}
+                onClick={() => router.push("/cart")}
                 className="relative p-2 hover:bg-black/5 rounded-full block"
               >
                 <Image
@@ -223,7 +222,7 @@ const Header = () => {
                   drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)]"
                 />
 
-                <div 
+                <div
                   onMouseEnter={() => {
                     if (cartTimeout) clearTimeout(cartTimeout);
                     setInfoCart(true);
@@ -231,14 +230,16 @@ const Header = () => {
                   className="w-[200px] rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-2xl border border-gray-100 overflow-hidden font-sans transform transition-all duration-300 ease-out hover:shadow-3xl"
                 >
                   <div className="px-5 pt-5 pb-3 text-center bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">My Cart</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-1">
+                      My Cart
+                    </h3>
                     <p className="text-sm text-gray-600">2 items in cart</p>
                   </div>
 
                   <div className="px-5 pb-4">
-                    <button 
+                    <button
                       onClick={() => {
-                        router.push('/cart');
+                        router.push("/cart");
                         setInfoCart(false);
                       }}
                       className="w-full rounded-full border-2 border-blue-500 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
@@ -251,7 +252,9 @@ const Header = () => {
 
                   <div className="px-5 py-4">
                     <div className="mb-4 flex items-center justify-between text-sm">
-                      <span className="text-gray-600 font-medium">Subtotal:</span>
+                      <span className="text-gray-600 font-medium">
+                        Subtotal:
+                      </span>
                       <span className="font-bold text-gray-900 text-base">
                         $499.00
                       </span>
@@ -327,14 +330,16 @@ const Header = () => {
 
                     <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
                       <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        <Link href="/wishlist" className="block w-full h-full text-black">
-                            My Wish List 
-                         </Link>
+                        <Link
+                          href="/wishlist"
+                          className="block w-full h-full text-black"
+                        >
+                          My Wish List
+                        </Link>
                       </span>
                       <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
                         0
                       </span>
-                      
                     </li>
 
                     <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">

@@ -1,6 +1,8 @@
 package com.haui.controller.admin;
 
+import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.ResponseResult;
+import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.user.UserDetailDto;
 import com.haui.dto.response.user.UserDto;
 import com.haui.dto.request.user.UserRequest;
@@ -10,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +46,34 @@ public class UserController {
         return ResponseResult.success("Successfully deleted user");
     }
 
-    @GetMapping
-    public ResponseResult<List<UserDetailDto>> getAll() {
+    @GetMapping("/all")
+    public ResponseResult<List<UserDetailDto>> getListUser() {
         return ResponseResult.success(userService.getAllUser());
     }
 
     @GetMapping("/{id}")
     public ResponseResult<UserDetailDto> detail(@PathVariable Integer id) {
         return ResponseResult.success(userService.getUserById(id));
+    }
+
+    @GetMapping
+    public ResponseResult<PageResponse<UserDetailDto>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) List<String> sort
+    ){
+        Page<UserDetailDto> result = userService.getAll(page, size, sort);
+        return ResponseResult.success(PageResponse.from(result));
+    }
+
+    @GetMapping("/search")
+    public ResponseResult<PageResponse<UserDetailDto>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) List<String> sort
+    ) {
+        Page<UserDetailDto> result = userService.search(keyword, page, size, sort);
+        return ResponseResult.success(PageResponse.from(result));
     }
 }
