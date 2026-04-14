@@ -1,10 +1,20 @@
 import { clientApi } from '@/lib/axios/client';
+import { PaginationResponse } from '@/types/common/PaginationResponse';
 import { ProductDetailDto } from '@/types/product/ProductDetailDto';
 import { ProductDto } from '@/types/product/ProductDto';
-import axios from 'axios';
 
-const getAll = async (): Promise<ProductDetailDto[]> => {
-  const res = await clientApi.get('/products');
+const getAll = async (
+  page: number,
+  size: number
+): Promise<PaginationResponse<ProductDetailDto[]>> => {
+  const res = await clientApi.get('/products', {
+    params: {
+      page,
+      size,
+      sort: 'id.desc',
+    },
+  });
+
   return res.data.data;
 };
 const create = async (formData: FormData): Promise<ProductDto> => {

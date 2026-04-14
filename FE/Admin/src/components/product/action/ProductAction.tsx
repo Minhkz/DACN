@@ -174,7 +174,7 @@ const ProductAction = ({ productId }: ProductActionProps) => {
 
   const { data: filterData, isLoading: isLoadingFilters } = useQuery({
     queryKey: ['filters'],
-    queryFn: getAll,
+    queryFn: getAllFilters,
     enabled: openUpdate,
   });
 

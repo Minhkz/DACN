@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Loading from '../common/Loading';
 import { CategoryType } from '@/types/category/CategoryType';
 import { getAll } from '@/services/category/CategoryApi';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -11,22 +11,25 @@ import {
   TableRow,
 } from '../ui/table';
 import CategoryAction from './action/CategoryAction';
+import { Pagination, Spin } from 'antd';
+import { PaginationResponse } from '@/types/common/PaginationResponse';
 
 const Category = () => {
-  const {
-    data = [],
-    isLoading,
-    error,
-    isError,
-    isFetching,
-  } = useQuery<CategoryType[], Error>({
-    queryKey: ['categories'],
-    queryFn: getAll,
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(3);
+
+  const { data, isLoading, isFetching, error, isError } = useQuery<
+    PaginationResponse<CategoryType[]>,
+    Error
+  >({
+    queryKey: ['categories', page, pageSize],
+    queryFn: () => getAll(page - 1, pageSize),
+    placeholderData: keepPreviousData,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return <Loading />;
   }
 
@@ -34,8 +37,16 @@ const Category = () => {
     return <div className="text-red-500">Error: {error.message}</div>;
   }
 
+  const categories = data?.items ?? [];
+
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      {isFetching && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 dark:bg-black/30">
+          <Spin size="large" />
+        </div>
+      )}
+
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[1102px]">
           <Table>
@@ -69,10 +80,12 @@ const Category = () => {
             </TableHeader>
 
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {data.length > 0 ? (
-                data.map((category, index) => (
+              {categories.length > 0 ? (
+                categories.map((category, index) => (
                   <TableRow key={category.id ?? `category-${index}`}>
-                    <TableCell className="px-5 py-4">{index + 1}</TableCell>
+                    <TableCell className="px-5 py-4">
+                      {(page - 1) * pageSize + index + 1}
+                    </TableCell>
 
                     <TableCell className="px-5 py-4 text-start">
                       {category.name}
@@ -97,6 +110,24 @@ const Category = () => {
             </TableBody>
           </Table>
         </div>
+      </div>
+
+      <div className="flex justify-end p-4">
+        <Pagination
+          current={page}
+          pageSize={pageSize}
+          total={data?.totalItems || 0}
+          showSizeChanger
+          pageSizeOptions={['3', '5', '10', '20']}
+          onChange={(newPage, newPageSize) => {
+            if (newPageSize !== pageSize) {
+              setPage(1);
+            } else {
+              setPage(newPage);
+            }
+            setPageSize(newPageSize);
+          }}
+        />
       </div>
     </div>
   );
