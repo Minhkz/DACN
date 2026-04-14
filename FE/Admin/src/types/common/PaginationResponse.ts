@@ -1,0 +1,8 @@
+export interface PaginationResponse<T> {
+  items: T;
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+  last: boolean;
+}

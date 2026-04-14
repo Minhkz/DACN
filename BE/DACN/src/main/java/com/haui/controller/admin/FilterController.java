@@ -1,6 +1,7 @@
 package com.haui.controller.admin;
 
 import com.haui.dto.request.filter.FilterRequest;
+import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.filter.FilterDto;
 import com.haui.service.FilterService;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,9 +43,19 @@ public class FilterController {
         return ResponseResult.success("Successfully deleted filter");
     }
 
-    @GetMapping
-    public ResponseResult<List<FilterDto>> getAll() {
+    @GetMapping("/all")
+    public ResponseResult<List<FilterDto>> getListFilter() {
         return ResponseResult.success(filterService.getAllFilters());
+    }
+
+    @GetMapping
+    public ResponseResult<PageResponse<FilterDto>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) List<String> sort
+    ){
+        Page<FilterDto> result = filterService.getAll(page, size, sort);
+        return ResponseResult.success(PageResponse.from(result));
     }
 
     @GetMapping("/{id}")

@@ -8,14 +8,19 @@ import com.haui.exception.ErrorCode;
 import com.haui.mapper.FilterMapper;
 import com.haui.repository.FilterRepository;
 import com.haui.service.FilterService;
+import com.haui.utils.PageableUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -84,6 +89,19 @@ public class FilterServiceImpl implements FilterService {
     public FilterDto detail(Integer id) {
         Filter entity = filterRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.FILTER_NOT_FOUND));
         return filterMapper.toDto(entity);
+    }
+
+    @Override
+    public Page<FilterDto> getAll(int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Page<Filter> filterPage = filterRepository.findAll(pageable);
+        List<Filter>  filters = filterPage.getContent();
+
+        if (filters.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, filterPage.getTotalElements());
+        }
+        return new PageImpl<>(filterMapper.toDto(filters), pageable, filterPage.getTotalElements());
     }
 
 

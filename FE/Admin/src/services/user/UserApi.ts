@@ -1,4 +1,5 @@
 import { clientApi } from '@/lib/axios/client';
+import { PaginationResponse } from '@/types/common/PaginationResponse';
 
 import { ResponseResult } from '@/types/common/ResponseResult';
 import UserDetailType from '@/types/user/UserDetailType';
@@ -6,11 +7,20 @@ import UserDto from '@/types/user/UserDto';
 import UserUpdateRequest from '@/types/user/UserUpdateRequest';
 import axios from 'axios';
 
-const getAll = async (): Promise<UserDetailType[]> => {
-  const res = await clientApi.get('/users');
+const getAll = async (
+  page: number,
+  size: number
+): Promise<PaginationResponse<UserDetailType[]>> => {
+  const res = await clientApi.get('/users', {
+    params: {
+      page,
+      size,
+      sort: 'id.desc',
+    },
+  });
+
   return res.data.data;
 };
-
 const create = async (request: UserRequest): Promise<UserDto> => {
   const formData = new FormData();
 

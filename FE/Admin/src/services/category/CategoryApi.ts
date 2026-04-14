@@ -1,13 +1,23 @@
 import { clientApi } from '@/lib/axios/client';
 import { CategoryRequest } from '@/types/category/CategoryRequest';
 import { CategoryType } from '@/types/category/CategoryType';
+import { PaginationResponse } from '@/types/common/PaginationResponse';
 import axios from 'axios';
 
-const getAll = async (): Promise<CategoryType[]> => {
-  const res = await clientApi.get('/filters');
+const getAll = async (
+  page: number,
+  size: number
+): Promise<PaginationResponse<CategoryType[]>> => {
+  const res = await clientApi.get('/filters', {
+    params: {
+      page,
+      size,
+      sort: 'id.desc',
+    },
+  });
+
   return res.data.data;
 };
-
 const create = async (category: CategoryRequest): Promise<CategoryType> => {
   const res = await clientApi.post('/filters', category);
   return res.data.data;
