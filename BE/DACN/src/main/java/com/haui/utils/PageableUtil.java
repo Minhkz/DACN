@@ -44,7 +44,7 @@ public final class PageableUtil {
         }
 
         if (orders.isEmpty()) {
-            orders.add(new Sort.Order(Sort.Direction.DESC, "createdAt"));
+            orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
         }
 
         return Sort.by(orders);

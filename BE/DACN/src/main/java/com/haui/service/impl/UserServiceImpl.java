@@ -1,5 +1,6 @@
 package com.haui.service.impl;
 
+import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.user.UserDetailDto;
 import com.haui.dto.response.user.UserDto;
 import com.haui.dto.request.user.UserRequest;
@@ -7,6 +8,7 @@ import com.haui.dto.request.user.UserUpdateRequest;
 import com.haui.dto.thread.user.DeleteUserAvatarEvent;
 import com.haui.dto.thread.user.UpdateUserAvatarEvent;
 import com.haui.dto.thread.user.UploadUserAvatarEvent;
+import com.haui.entity.Product;
 import com.haui.entity.Role;
 import com.haui.entity.User;
 import com.haui.exception.AppException;
@@ -17,18 +19,26 @@ import com.haui.repository.UserRepository;
 import com.haui.service.UserService;
 import com.haui.service.cloudinary.CloudinaryService;
 import com.haui.service.cloudinary.user.HandleUserImg;
+import com.haui.utils.PageableUtil;
+import com.haui.utils.SpecificationUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.cache.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -134,6 +144,45 @@ public class UserServiceImpl implements UserService {
     public UserDetailDto getUserById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return transfer(user);
+    }
+
+    @Override
+    public Page<UserDetailDto> getAll(int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Page<User> userPage = userRepository.findAll(pageable);
+        List<User> users = userPage.getContent();
+
+        List<UserDetailDto> dtos = users.stream()
+                .map(this::transfer)
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, userPage.getTotalElements());
+    }
+
+    @Override
+    public Page<UserDetailDto> search(String keyword, int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        String value = keyword == null ? null : keyword.trim();
+
+        Map<String, String> keywordFields = new HashMap<>();
+        if (value != null && !value.isEmpty()) {
+            keywordFields.put("fullName", value);
+            keywordFields.put("username", value);
+        }
+
+        Specification<User> spec = Specification
+                .where(SpecificationUtil.<User>alwaysTrue())
+                .and(SpecificationUtil.orLikeIgnoreCase(keywordFields));
+
+        Page<User> userPage = userRepository.findAll(spec, pageable);
+
+        List<UserDetailDto> dtos = userPage.getContent().stream()
+                .map(this::transfer)
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, userPage.getTotalElements());
     }
 
 
