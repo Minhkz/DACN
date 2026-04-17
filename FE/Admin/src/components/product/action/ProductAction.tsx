@@ -1,7 +1,10 @@
 'use client';
 
 import { getAll, detail, remove, update } from '@/services/product/ProductApi';
-import { getAll as getAllFilters } from '@/services/category/CategoryApi';
+import {
+  getAll as getAllFilters,
+  getList,
+} from '@/services/category/CategoryApi';
 import { Modal } from '@/components/ui/modal';
 import { ModalProduct } from '@/components/ui/modal/ModalProduct';
 import { notify } from '@/util/notify';
@@ -173,8 +176,8 @@ const ProductAction = ({ productId }: ProductActionProps) => {
   });
 
   const { data: filterData, isLoading: isLoadingFilters } = useQuery({
-    queryKey: ['filters'],
-    queryFn: getAllFilters,
+    queryKey: ['filters-list'],
+    queryFn: getList,
     enabled: openUpdate,
   });
 

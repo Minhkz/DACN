@@ -20,7 +20,7 @@ public interface ProductService {
 
     List<ProductDetailDto> getListProduct();
 
-    Page<ProductDetailDto> getAll(int page, int size, List<String> sort);
+    Page<ProductDetailDto> getAll(String type, int page, int size, List<String> sort);
 
     Page<ProductDetailDto> search(String keyword, int page, int size, List<String> sort);
 }

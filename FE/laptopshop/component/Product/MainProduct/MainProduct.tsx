@@ -12,40 +12,41 @@ const MainProduct = () => {
           src: "/product/banner/custom_build.png",
           title: "Custom Builds",
         }}
-        product={{} as any}
+        type="custom-build"
       />
+
       <SeriesProduct
         banner={{
           src: "/product/banner/msi_laptop.png",
           title: "MSI Laptops",
         }}
-        product={{} as any}
         series={[
           "MSI GS Series",
           "MSI GT Series",
           "MSI GL Series",
           "MSI GE Series",
         ]}
+        type="laptop"
       />
       <SeriesProduct
         banner={{
           src: "/product/banner/msi_desktop.png",
           title: "MSI Desktops",
         }}
-        product={{} as any}
         series={[
           "MSI Infinute Series",
           "MSI Triden",
           "MSI GL Series",
           "MSI Nightblade",
         ]}
+        type="desktop"
       />
       <SeriesProduct
         banner={{
           src: "/product/banner/msi_monitors.png",
           title: "MSI Monitors",
         }}
-        product={{} as any}
+        type="monitor"
       />
     </div>
   );

@@ -1,0 +1,273 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 24px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  border-radius: 16px;
+  background: white;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.closeButton {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.stateBox {
+  padding: 48px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.errorBox {
+  padding: 48px;
+  text-align: center;
+  color: #ef4444;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: auto;
+}
+
+.leftPanel {
+  padding: 24px;
+  background: #f9fafb;
+  border-right: 1px solid #f3f4f6;
+}
+
+.mainImageWrapper {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.thumbnailList {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.thumbnailButton {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0;
+  background: white;
+}
+
+.thumbnailButtonActive {
+  border: 2px solid #6366f1;
+  opacity: 1;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rightPanel {
+  padding: 28px 24px 24px;
+}
+
+.productName {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.productDescription {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.priceSection {
+  border-top: 1px solid #f3f4f6;
+  padding-top: 16px;
+  margin-bottom: 20px;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #6366f1;
+  margin: 0 0 4px;
+}
+
+.stock {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.quantitySection {
+  margin-bottom: 20px;
+}
+
+.quantityLabel {
+  font-size: 13px;
+  color: #374151;
+  margin: 0 0 8px;
+}
+
+.quantityControl {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quantityButton {
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.quantityButtonMinus {
+  border-right: 1px solid #e5e7eb;
+}
+
+.quantityButtonPlus {
+  border-left: 1px solid #e5e7eb;
+}
+
+.quantityValue {
+  width: 48px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.actionGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.outlineButton {
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid #6366f1;
+  background: transparent;
+  color: #6366f1;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.primaryButton {
+  height: 42px;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.reviewSection {
+  border-top: 1px solid #f3f4f6;
+  padding: 0 24px 24px;
+  background: #ffffff;
+}
+
+.reviewToggle {
+  margin-top: 16px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviewToggle:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 768px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .leftPanel {
+    border-right: none;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .actionGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewSection {
+    padding: 0 16px 16px;
+  }
+}

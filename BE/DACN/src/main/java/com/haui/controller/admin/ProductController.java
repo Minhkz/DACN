@@ -57,11 +57,12 @@ public class ProductController {
 
     @GetMapping
     public ResponseResult<PageResponse<ProductDetailDto>> getAll(
+            @RequestParam(required = false) String type,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "4") int size,
             @RequestParam(required = false) List<String> sort
     ){
-        Page<ProductDetailDto> result = productService.getAll(page, size, sort);
+        Page<ProductDetailDto> result = productService.getAll(type, page, size, sort);
         return ResponseResult.success(PageResponse.from(result));
     }
 

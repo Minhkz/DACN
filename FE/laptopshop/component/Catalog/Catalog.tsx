@@ -1,223 +1,269 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { Breadcrumb } from "antd";
-import styles from "./Catalog.module.css";
+import { Breadcrumb, Skeleton, Spin } from "antd";
 import Link from "next/link";
 import BrandFilter from "./Brand/BrandFilter";
-import { useState } from "react";
 import { LayoutGrid, List } from "lucide-react";
 import FilterTag from "./FilterTag";
 import ListView from "./ListView/ListView";
 import GridView from "./GridView/GridView";
+import { useQuery } from "@tanstack/react-query";
+import { getProductPageByType } from "@/services/product/ProductApi";
+import { ProductPageDto } from "@/types/product/ProductPageDto";
+
+const DEFAULT_PAGE_DATA: ProductPageDto = {
+  items: [],
+  page: 0,
+  size: 5,
+  totalItems: 0,
+  totalPages: 0,
+  last: true,
+};
+
+const typeLabelMap: Record<string, string> = {
+  laptop: "MSI Laptops",
+  desktop: "MSI Desktops",
+  monitor: "MSI Monitors",
+  "custom-build": "Custom Builds",
+};
 
 const Catalog = () => {
   const searchParams = useSearchParams();
-  const label = searchParams.get("label");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const type = searchParams.get("type") ?? "";
+  const page = Number(searchParams.get("page") ?? "0");
+  const size = Number(searchParams.get("size") ?? "5");
+  const sort = searchParams.get("sort") ?? "";
+
   const [view, setView] = useState<"grid" | "list">("grid");
+
+  const sortArray = useMemo(() => (sort ? sort.split(",") : undefined), [sort]);
+
+  const { data = DEFAULT_PAGE_DATA, isLoading } = useQuery<ProductPageDto>({
+    queryKey: ["products-by-type", type, page, size, sort],
+    queryFn: () => getProductPageByType(type, page, size, sortArray),
+  });
+
+  const updateQueryParams = (
+    updates: Record<string, string | number | null>,
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") params.delete(key);
+      else params.set(key, String(value));
+    });
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) =>
+    updateQueryParams({ page: newPage });
+
+  const handleSortChange = (value: string) =>
+    updateQueryParams({ sort: value || null, page: 0 });
+
+  const handleSizeChange = (value: string) =>
+    updateQueryParams({ size: Number(value), page: 0 });
+
   return (
-    <div>
-      <div className="container-global">
-        <div className="banner">
-          <Image
-            src="/img/catalog_banner.png"
-            alt="Catalog Banner"
-            width={1398}
-            height={104}
-          />
-        </div>
+    <div className="container-global" style={{ paddingBottom: "40px" }}>
+      {/* Banner */}
+      <div style={{ marginBottom: "16px" }}>
+        <Image
+          src="/img/catalog_banner.png"
+          alt="Catalog Banner"
+          width={1398}
+          height={104}
+          style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+        />
+      </div>
 
-        <div className={styles.breadcrumb}>
-          <Breadcrumb
-            items={[
-              {
-                title: "Home",
-                href: "/",
-              },
-              {
-                title: "Laptops",
-                href: "/laptops",
-              },
+      {/* Breadcrumb */}
+      <div style={{ marginBottom: "20px" }}>
+        <Breadcrumb
+          items={[
+            { title: <Link href="/">Home</Link> },
+            { title: typeLabelMap[type] || "MSI Products" },
+          ]}
+        />
+      </div>
 
-              {
-                title: label,
-              },
-            ]}
-          />
-        </div>
-        <div className="type">
-          <h1 className="font-semibold text-[32px]">{label}(20)</h1>
-        </div>
-        <div className={styles.main} style={{ margin: "20px 0" }}>
-          <div className={styles.left}>
-            <div className="left--top text-center h-12.5 hidden lg:block">
-              <Link href="/">‹ Back</Link>
-            </div>
-            <div className="left--main hidden lg:block">
-              <div className="filter ">
-                <aside className={styles.sidebar}>
-                  <h3 className={styles.title}>Filters</h3>
+      {/* Main layout */}
+      <div
+        style={{
+          display: "flex",
+          gap: "24px",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* Sidebar */}
+        <aside
+          className="hidden lg:block"
+          style={{ width: "200px", minWidth: "200px", flexShrink: 0 }}
+        >
+          <Link
+            href="/"
+            style={{
+              display: "inline-block",
+              fontSize: "13px",
+              color: "var(--color-text-secondary, #888)",
+              marginBottom: "12px",
+              textDecoration: "none",
+            }}
+          >
+            ‹ Back
+          </Link>
 
-                  <button className={styles.clearBtn}>Clear Filter</button>
+          {/* Filter box */}
+          <div>
+            <BrandFilter />
+          </div>
+        </aside>
 
-                  {/* Category */}
-                  <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                      <span>Category</span>
-                    </div>
+        {/* Right column */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Toolbar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "10px",
+              padding: "10px 14px",
+              border: "0.5px solid #e5e7eb",
+              borderRadius: "8px",
+              background: "white",
+              marginBottom: "12px",
+            }}
+          >
+            {/* Left: item count */}
+            <span style={{ fontSize: "13px", color: "#6b7280" }}>
+              {isLoading ? (
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 120, height: 16, borderRadius: 6 }}
+                />
+              ) : (
+                `${data.totalItems} sản phẩm`
+              )}
+            </span>
 
-                    <ul className={styles.list}>
-                      <li>
-                        <span>CUSTOM PCS</span>
-                        <span>15</span>
-                      </li>
-                      <li>
-                        <span>MSI ALL-IN-ONE PCS</span>
-                        <span>45</span>
-                      </li>
-                      <li>
-                        <span>HP/COMPAQ PCS</span>
-                        <span>1</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Price */}
-                  <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                      <span>Price</span>
-                    </div>
-
-                    <ul className={styles.list}>
-                      <li>
-                        <span>$0.00 - $1,000.00</span>
-                        <span>19</span>
-                      </li>
-                      <li>
-                        <span>$1,000.00 - $2,000.00</span>
-                        <span>21</span>
-                      </li>
-                      <li>
-                        <span>$2,000.00 - $3,000.00</span>
-                        <span>9</span>
-                      </li>
-                      <li>
-                        <span>$3,000.00 - $4,000.00</span>
-                        <span>6</span>
-                      </li>
-                      <li>
-                        <span>$4,000.00 - $5,000.00</span>
-                        <span>3</span>
-                      </li>
-                      <li>
-                        <span>$5,000.00 - $6,000.00</span>
-                        <span>1</span>
-                      </li>
-                      <li>
-                        <span>$6,000.00 - $7,000.00</span>
-                        <span>1</span>
-                      </li>
-                      <li>
-                        <span>$7,000.00 And Above</span>
-                        <span>1</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Color */}
-                  <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                      <span>Color</span>
-                    </div>
-
-                    <div className={styles.colors}>
-                      <div className={`${styles.color} ${styles.black}`} />
-                      <div className={`${styles.color} ${styles.red}`} />
-                    </div>
-                  </div>
-
-                  <button className={styles.applyBtn}>Apply Filters (2)</button>
-                </aside>
-              </div>
-              <div className="brand">
-                <BrandFilter />
-              </div>
+            {/* Right: sort, size, view toggle */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              {/* Size */}
               <div
-                className="compare-product bg-[#f5f7ff] h-27 "
-                style={{ marginBottom: "7px" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "13px",
+                  color: "#6b7280",
+                }}
               >
-                <h3 className={styles.title}>Compare Products</h3>
-                <p className="text-center">You have no items to compare.</p>
+                <span>Show:</span>
+                <select
+                  value={String(size)}
+                  onChange={(e) => handleSizeChange(e.target.value)}
+                  style={{
+                    fontSize: "13px",
+                    border: "0.5px solid #d1d5db",
+                    borderRadius: "6px",
+                    padding: "4px 8px",
+                    background: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="5">5 / page</option>
+                  <option value="10">10 / page</option>
+                  <option value="24">24 / page</option>
+                  <option value="30">30 / page</option>
+                </select>
               </div>
 
+              {/* View toggle */}
               <div
-                className="wishlist bg-[#f5f7ff] h-27 "
-                style={{ marginBottom: "7px" }}
+                style={{
+                  display: "flex",
+                  border: "0.5px solid #e5e7eb",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                }}
               >
-                <h3 className={styles.title}>Wishlist</h3>
-                <p className="text-center">
-                  You have no items in your wishlist.
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setView("grid")}
+                  style={{
+                    width: "32px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "none",
+                    cursor: "pointer",
+                    background: view === "grid" ? "#E6F1FB" : "transparent",
+                    color: view === "grid" ? "#185FA5" : "#9ca3af",
+                    transition: "background 0.1s",
+                  }}
+                >
+                  <LayoutGrid size={15} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("list")}
+                  style={{
+                    width: "32px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "none",
+                    borderLeft: "0.5px solid #e5e7eb",
+                    cursor: "pointer",
+                    background: view === "list" ? "#E6F1FB" : "transparent",
+                    color: view === "list" ? "#185FA5" : "#9ca3af",
+                    transition: "background 0.1s",
+                  }}
+                >
+                  <List size={15} />
+                </button>
               </div>
-
-              <Image
-                src="/img/catalog.png"
-                alt="Catalog Sidebar"
-                width={234}
-                height={370}
-              />
             </div>
           </div>
-          <div className="right w-full">
-            <div className={styles.toolbar}>
-              <div className={styles.toolbarLeft}>Items 1-35 of 61</div>
 
-              <div className={styles.toolbarRight}>
-                <div className={styles.selectBox}>
-                  <span>Sort By:</span>
-                  <select>
-                    <option>Position</option>
-                    <option>Price Low to High</option>
-                    <option>Price High to Low</option>
-                    <option>Name</option>
-                  </select>
-                </div>
-
-                <div className={styles.selectBox}>
-                  <span>Show:</span>
-                  <select>
-                    <option>12 per page</option>
-                    <option>24 per page</option>
-                    <option>35 per page</option>
-                    <option>50 per page</option>
-                  </select>
-                </div>
-
-                <div className={styles.viewToggle}>
-                  <button
-                    className={view === "grid" ? styles.active : ""}
-                    onClick={() => setView("grid")}
-                  >
-                    <LayoutGrid size={18} />
-                  </button>
-
-                  <button
-                    className={view === "list" ? styles.active : ""}
-                    onClick={() => setView("list")}
-                  >
-                    <List size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="select-type" style={{ marginBottom: "20px" }}>
-              <FilterTag />
-            </div>
-            <div className="view">
-              {view === "grid" ? <GridView /> : <ListView />}
-            </div>
+          {/* Filter tags */}
+          <div style={{ marginBottom: "16px" }}>
+            <FilterTag />
           </div>
+
+          {/* Product view */}
+          {view === "grid" ? (
+            <GridView
+              products={data.items}
+              loading={isLoading}
+              pageData={data}
+              onPageChange={handlePageChange}
+            />
+          ) : (
+            <ListView
+              products={data.items}
+              loading={isLoading}
+              pageData={data}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </div>
     </div>

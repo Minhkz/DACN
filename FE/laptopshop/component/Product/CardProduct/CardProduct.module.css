@@ -23,40 +23,103 @@
 }
 
 .addCart {
-  border: 2px solid #0156ff;
-  color: #0156ff;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 50px;
-
+  /* Layout & Box Model */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 
-  height: 37px;
-  width: 160px;
+  width: 100%;
+  max-width: 180px;
+  height: 44px;
+
+  /* Typography */
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  /* Visual */
+  background: rgba(1, 86, 255, 0.05);
+  backdrop-filter: blur(0px);
+  border: 1.5px solid #0156ff;
+  border-radius: 44px;
+  color: #0156ff;
+
+  /* Spacing */
   margin-bottom: 17px;
+
+  /* Interaction */
   cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
+  /* Animation initial state */
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(20px);
   pointer-events: none;
-
-  transition:
-    opacity 0.3s ease,
-    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Hiệu ứng khi hover vào product */
 .product:hover .addCart {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-  transition-delay: 0.12s;
+  transition-delay: 0.1s;
 }
 
+/* Hover effect chính */
 .addCart:hover {
-  background: #a2a6b0;
+  background: #0156ff;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(1, 86, 255, 0.25);
+}
+
+/* Hiệu ứng ripple khi click */
+.addCart:active {
+  transform: translateY(1px);
+  transition: all 0.05s ease;
+}
+
+/* Hiệu ứng cho icon khi hover */
+.addCart:hover img {
+  filter: brightness(0) invert(1);
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.addCart img {
+  transition: all 0.3s ease;
+}
+
+/* Thêm glow effect cho border */
+.addCart::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #0156ff, #00a2ff);
+  border-radius: 46px;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.addCart:hover::before {
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .addCart {
+    max-width: 100%;
+    height: 40px;
+    font-size: 12px;
+    gap: 6px;
+  }
 }
 
 .icon {

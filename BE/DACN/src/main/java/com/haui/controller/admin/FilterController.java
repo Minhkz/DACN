@@ -4,6 +4,7 @@ import com.haui.dto.request.filter.FilterRequest;
 import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.filter.FilterDto;
+import com.haui.dto.response.product.ProductDto;
 import com.haui.service.FilterService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -61,5 +62,10 @@ public class FilterController {
     @GetMapping("/{id}")
     public ResponseResult<FilterDto> detail(@PathVariable Integer id) {
         return ResponseResult.success(filterService.detail(id));
+    }
+
+    @GetMapping("/{slug}/products")
+    public ResponseResult<List<ProductDto>> getProducts(@PathVariable String slug) {
+        return null;
     }
 }

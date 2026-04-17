@@ -2,6 +2,7 @@ package com.haui.service.impl;
 
 import java.util.List;
 //import org.hibernate.mapping.List;
+import com.haui.dto.response.review.ProductReviewSummary;
 import org.springframework.stereotype.Service;
 
 import com.haui.dto.request.review.ReviewRequest;
@@ -106,13 +107,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     // ===== COUNT BY PRODUCT =====
     @Override
-    public Integer countByProduct(Integer productId) {
-
+    public ProductReviewSummary getReviewSummary(Integer productId) {
         if (!productRepository.existsById(productId)) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        return reviewRepository.countByProductId(productId);
+        Integer totalReviews = reviewRepository.countByProductId(productId);
+        Double averageRating = reviewRepository.getAverageRatingByProductId(productId);
+
+        ProductReviewSummary summary = new ProductReviewSummary();
+        summary.setTotalReviews(totalReviews);
+        summary.setAverageRating(averageRating != null ? averageRating : 0.0);
+
+        return summary;
     }
     
     // ===== GET LIST BY PRODUCT =====

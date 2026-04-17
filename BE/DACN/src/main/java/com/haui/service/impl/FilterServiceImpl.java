@@ -92,6 +92,7 @@ public class FilterServiceImpl implements FilterService {
     }
 
     @Override
+    @Cacheable(key = "{#page, #size, #sort}")
     public Page<FilterDto> getAll(int page, int size, List<String> sort) {
         Pageable pageable = PageableUtil.buildPageable(page, size, sort);
 

@@ -5,7 +5,7 @@ import Loading from '@/components/common/Loading';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import Product from '@/components/product/Product';
 import { Modal } from '@/components/ui/modal';
-import { getAll } from '@/services/category/CategoryApi';
+import { getList } from '@/services/category/CategoryApi';
 import { create } from '@/services/product/ProductApi';
 import { notify } from '@/util/notify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -325,8 +325,8 @@ const ProductPageClient = () => {
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['filters'],
-    queryFn: getAll,
+    queryKey: ['filters-list'],
+    queryFn: getList,
   });
 
   const filterOptions: FilterOption[] =

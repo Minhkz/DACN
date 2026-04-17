@@ -30,12 +30,15 @@ import java.util.List;
 public class UserController {
     UserService userService;
 
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseResult<UserDto> create(@ModelAttribute @Valid UserRequest request) throws IOException {
         return ResponseResult.success(userService.create(request));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseResult<UserDto> update(@PathVariable Integer id, @ModelAttribute @Valid UserUpdateRequest request) throws IOException {
         return ResponseResult.success(userService.update(id, request));
     }

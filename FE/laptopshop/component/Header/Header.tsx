@@ -11,6 +11,8 @@ import MegaMenu from "./menu/MegaMenu";
 import axios from "axios";
 import { me } from "@/services/user/UserApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ProductDetailDto } from "@/types/product/ProductDetailDto";
+import { getProductByType } from "@/services/product/ProductApi";
 
 const TimeClock = dynamic(() => import("./TimeClock"), { ssr: false });
 
@@ -59,17 +61,30 @@ const Header = () => {
 
   const navItems: NavItem[] = [
     {
-      label: "Laptops",
-      href: "/laptops",
+      label: "MSI Products",
+      href: "/categories",
       children: [
-        { label: "Custom Builds", href: "/catalogs" },
-        { label: "MSI Laptops", href: "#" },
-        { label: "MSI Desktops", href: "#" },
-        { label: "MSI Monitors", href: "#" },
+        {
+          label: "Custom Builds",
+          href: "/categories?type=custom-build",
+          slug: "custom-build",
+        },
+        {
+          label: "MSI Laptops",
+          href: "/categories?type=laptop",
+          slug: "laptop",
+        },
+        {
+          label: "MSI Desktops",
+          href: "/categories?type=desktop",
+          slug: "desktop",
+        },
+        {
+          label: "MSI Monitors",
+          href: "/categories?type=monitor",
+          slug: "monitor",
+        },
       ],
-      mega: {
-        products: [],
-      },
     },
     { label: "Desktop PCs", href: "/desktop-pcs" },
     { label: "Networking Devices", href: "/networking" },
@@ -139,7 +154,7 @@ const Header = () => {
               <div className="container-global flex items-center justify-between h-[68px]">
                 <nav className={styles.desktopMenu}>
                   {navItems.map((item) => {
-                    const hasMega = !!item.mega;
+                    const hasMega = !!item.children?.length;
 
                     return (
                       <div
