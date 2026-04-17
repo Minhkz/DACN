@@ -18,6 +18,12 @@ const getAll = async (
 
   return res.data.data;
 };
+
+const getList = async (): Promise<CategoryType[]> => {
+  const res = await clientApi.get('/filters/all');
+  return res.data.data;
+};
+
 const create = async (category: CategoryRequest): Promise<CategoryType> => {
   const res = await clientApi.post('/filters', category);
   return res.data.data;
@@ -40,4 +46,4 @@ const detail = async (categoryId: number): Promise<CategoryType> => {
   return res.data.data;
 };
 
-export { getAll, create, remove, update, detail };
+export { getAll, create, remove, update, detail, getList };

@@ -1,21 +1,30 @@
 "use client";
 
-import ProductType from "@/types/product/ProductType";
 import React, { useState } from "react";
 import CardProduct from "../CardProduct/CardProduct";
 import styles from "./SeriesProduct.module.css";
+import { ProductDetailDto } from "@/types/product/ProductDetailDto";
+import { getProductByType } from "@/services/product/ProductApi";
+import { Spin } from "antd";
+import { useQuery } from "@tanstack/react-query";
 
 interface SeriesProductProps {
   banner: {
     src: string;
     title: string;
   };
-  product: ProductType;
   series?: string[];
+  type: string;
 }
 
 const SeriesProduct = (props: SeriesProductProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const { data: products = [], isLoading } = useQuery<ProductDetailDto[]>({
+    queryKey: ["products-by-type", props.type],
+    queryFn: () => getProductByType(props.type),
+    staleTime: 1000 * 60 * 5,
+  });
 
   return (
     <section className="mb-12 " style={{ marginBottom: "36px" }}>
@@ -69,10 +78,19 @@ const SeriesProduct = (props: SeriesProductProps) => {
 
         {/* Products */}
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          <CardProduct />
-          <CardProduct />
-          <CardProduct />
-          <CardProduct />
+          {isLoading ? (
+            <div className="col-span-4 flex justify-center items-center h-[200px]">
+              <Spin size="large" />
+            </div>
+          ) : products.length > 0 ? (
+            products.map((product) => (
+              <CardProduct key={product.id} product={product} />
+            ))
+          ) : (
+            <div className="col-span-4 flex justify-center items-center h-[200px]">
+              <p className="text-gray-500">Không có sản phẩm</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -2,6 +2,7 @@ package com.haui.controller.admin;
 
 import java.util.List;
 
+import com.haui.dto.response.review.ProductReviewSummary;
 import org.springframework.web.bind.annotation.*;
 
 import com.haui.dto.request.review.ReviewRequest;
@@ -45,9 +46,9 @@ public class ReviewController {
     }
 
     // ===== 4. COUNT =====
-    @GetMapping("/count/{productId}")
-    public ResponseResult<Integer> countByProduct(@PathVariable Integer productId) {
-        return ResponseResult.success(reviewService.countByProduct(productId));
+    @GetMapping("/summary/{productId}")
+    public ResponseResult<ProductReviewSummary> countByProduct(@PathVariable Integer productId) {
+        return ResponseResult.success(reviewService.getReviewSummary(productId));
     }
 
     // ===== 5. GET LIST BY PRODUCT =====

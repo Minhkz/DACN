@@ -16,7 +16,6 @@ public abstract class ReviewMapper implements EntityMapper<ReviewDto, Review> {
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "content", ignore = true)
-
     public abstract Review toCreate(ReviewRequest request);
 
     // ===== DTO =====

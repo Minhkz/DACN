@@ -76,12 +76,35 @@
   font-weight: 600;
 }
 
+/* PRODUCTS: luôn nằm trên 1 hàng */
 .products {
   display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 16px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: hidden;
+  min-height: 260px;
+}
+
+.products > * {
+  flex: 0 0 220px;
+  max-width: 220px;
+}
+
+.stateBox {
+  min-height: 220px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 12px;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 16px;
+  color: #666;
 }
 
 /* brand dưới cùng */

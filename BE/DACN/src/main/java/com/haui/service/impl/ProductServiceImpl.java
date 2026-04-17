@@ -283,10 +283,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDetailDto> getAll(int page, int size, List<String> sort) {
+    public Page<ProductDetailDto> getAll(String type, int page, int size, List<String> sort) {
         Pageable pageable = PageableUtil.buildPageable(page, size, sort);
 
-        Page<Product> productPage = productRepository.findAll(pageable);
+        String normalizedType = normalizeType(type);
+
+        Page<Product> productPage = (normalizedType == null || normalizedType.isBlank())
+                ? productRepository.findAll(pageable)
+                : productRepository.findAllByType(normalizedType, pageable);
+
         List<Product> products = productPage.getContent();
 
         if (products.isEmpty()) {
@@ -315,6 +320,18 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
 
         return new PageImpl<>(dtoList, pageable, productPage.getTotalElements());
+    }
+
+    private String normalizeType(String type) {
+        if (type == null || type.isBlank()) return null;
+
+        return switch (type.trim().toLowerCase()) {
+            case "laptop" -> "Laptop";
+            case "desktop" -> "Desktop";
+            case "monitor" -> "Monitor";
+            case "custom-build" -> "Custom Build";
+            default -> type.trim();
+        };
     }
 
     @Override
