@@ -1,6 +1,13 @@
+export interface ReviewUserDto {
+  username: string;
+  fullName: string;
+  avatar: string;
+}
+
 export interface ReviewDto {
   id: number;
   rating: number;
-  comment: string;
-  createdAt: string;
+  reviewContent: string;
+  createdDate: string;
+  user: ReviewUserDto;
 }

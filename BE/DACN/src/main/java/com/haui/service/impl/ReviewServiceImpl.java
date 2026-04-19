@@ -3,6 +3,9 @@ package com.haui.service.impl;
 import java.util.List;
 //import org.hibernate.mapping.List;
 import com.haui.dto.response.review.ProductReviewSummary;
+import com.haui.dto.response.user.UserDetailDto;
+import com.haui.dto.response.user.UserReview;
+import com.haui.service.cloudinary.CloudinaryService;
 import org.springframework.stereotype.Service;
 
 import com.haui.dto.request.review.ReviewRequest;
@@ -29,6 +32,7 @@ public class ReviewServiceImpl implements ReviewService {
     ReviewRepository reviewRepository;
     UserRepository userRepository;
     ProductRepository productRepository;
+    CloudinaryService cloudinaryService;
     ReviewMapper reviewMapper;
 
     // ===== FILTER BAD WORD =====
@@ -130,9 +134,24 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        return reviewRepository.findByProductId(productId)
-                .stream()
-                .map(reviewMapper::toDto)
-                .toList();
+        List<Review> reviews = reviewRepository.findByProductId(productId);
+        return reviews.stream().map(review -> {
+            ReviewDto dto = new ReviewDto();
+            dto.setId(review.getId());
+            dto.setReviewContent(review.getContent());
+            dto.setRating(review.getRating());
+            dto.setCreatedDate(review.getCreatedDate());
+
+            User user = review.getUser();
+            if (user != null) {
+                UserReview userReview = new UserReview();
+                userReview.setFullName(user.getFullName());
+                userReview.setAvatar(cloudinaryService.getImageUrl(user.getAvatar()));
+                userReview.setUsername(user.getUsername());
+                dto.setUser(userReview);
+            }
+
+            return dto;
+        }).toList();
     }
 }

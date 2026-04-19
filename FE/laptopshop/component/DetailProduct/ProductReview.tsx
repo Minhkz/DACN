@@ -1,25 +1,16 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+"use client";
+
+import React, { useState } from "react";
 import { StarFilled, StarOutlined } from "@ant-design/icons";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import reviewStyles from "./ProductReview.module.css";
-
-type Review = {
-  id: number;
-  name: string;
-  avatar: string;
-  rating: number;
-  comment: string;
-  date: string;
-};
-
-type RatingSummary = {
-  average: number;
-  total: number;
-  distribution: Record<1 | 2 | 3 | 4 | 5, number>;
-};
+import { ReviewDto } from "@/types/review/ReviewDto";
+import { ProductReviewSummary } from "@/types/review/ProductReviewSummary";
+import { ReviewApi } from "@/services/review/ReviewApi";
 
 type ProductReviewProps = {
   productId: number;
+  userId: number;
 };
 
 function StarDisplay({ rating }: { rating: number }) {
@@ -65,97 +56,60 @@ function StarSelector({
   );
 }
 
-export default function ProductReview({ productId }: ProductReviewProps) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [summary, setSummary] = useState<RatingSummary | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function ProductReview({
+  productId,
+  userId,
+}: ProductReviewProps) {
+  const queryClient = useQueryClient();
 
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [reviewContent, setReviewContent] = useState("");
 
-  useEffect(() => {
-    if (!productId) return;
+  const [reviewsQuery, summaryQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["reviews", productId],
+        queryFn: () => ReviewApi.getByProduct(productId),
+        enabled: !!productId,
+      },
+      {
+        queryKey: ["review-summary", productId],
+        queryFn: () => ReviewApi.getSummary(productId),
+        enabled: !!productId,
+      },
+    ],
+  });
 
-    const fetchReviews = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/reviews`,
-        );
+  const reviews: ReviewDto[] = reviewsQuery.data ?? [];
+  const summary: ProductReviewSummary | null = summaryQuery.data ?? null;
+  const loading = reviewsQuery.isLoading || summaryQuery.isLoading;
 
-        setReviews(res.data.data?.reviews ?? []);
-        setSummary(res.data.data?.summary ?? null);
-      } catch (error) {
-        console.error("Lỗi lấy review:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, [productId]);
+  const createReviewMutation = useMutation({
+    mutationFn: ReviewApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
+      queryClient.invalidateQueries({
+        queryKey: ["review-summary", productId],
+      });
+    },
+  });
 
   const handleSubmit = async () => {
-    if (rating === 0 || !comment.trim()) return;
+    if (rating === 0 || !reviewContent.trim()) return;
 
     try {
-      setSubmitting(true);
-
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/reviews`,
-        {
-          rating,
-          comment,
-        },
-      );
-
-      const newReview = res.data.data;
-
-      setReviews((prev) => [newReview, ...prev]);
-
-      setSummary((prev) => {
-        if (!prev) {
-          return {
-            average: rating,
-            total: 1,
-            distribution: {
-              1: rating === 1 ? 1 : 0,
-              2: rating === 2 ? 1 : 0,
-              3: rating === 3 ? 1 : 0,
-              4: rating === 4 ? 1 : 0,
-              5: rating === 5 ? 1 : 0,
-            },
-          };
-        }
-
-        const newTotal = prev.total + 1;
-        const newDistribution = {
-          ...prev.distribution,
-          [rating]: prev.distribution[rating as 1 | 2 | 3 | 4 | 5] + 1,
-        };
-
-        const totalScore = prev.average * prev.total + rating;
-
-        return {
-          average: totalScore / newTotal,
-          total: newTotal,
-          distribution: newDistribution,
-        };
+      await createReviewMutation.mutateAsync({
+        productId,
+        userId,
+        rating,
+        reviewContent: reviewContent.trim(),
       });
 
       setRating(0);
-      setComment("");
+      setReviewContent("");
     } catch (error) {
       console.error("Lỗi gửi review:", error);
-    } finally {
-      setSubmitting(false);
     }
-  };
-
-  const barPercent = (star: 1 | 2 | 3 | 4 | 5): number => {
-    if (!summary || summary.total === 0) return 0;
-    return Math.round((summary.distribution[star] / summary.total) * 100);
   };
 
   return (
@@ -164,29 +118,12 @@ export default function ProductReview({ productId }: ProductReviewProps) {
         <div className={reviewStyles.summary}>
           <div>
             <div className={reviewStyles.bigScore}>
-              {summary.average.toFixed(1)}
+              {summary.averageRating.toFixed(1)}
             </div>
-            <StarDisplay rating={Math.round(summary.average)} />
+            <StarDisplay rating={Math.round(summary.averageRating)} />
             <div className={reviewStyles.totalCount}>
-              {summary.total} đánh giá
+              {summary.totalReviews} đánh giá
             </div>
-          </div>
-
-          <div className={reviewStyles.bars}>
-            {([5, 4, 3, 2, 1] as const).map((star) => (
-              <div key={star} className={reviewStyles.barRow}>
-                <span className={reviewStyles.barLabel}>{star}</span>
-                <div className={reviewStyles.barTrack}>
-                  <div
-                    className={reviewStyles.barFill}
-                    style={{ width: `${barPercent(star)}%` }}
-                  />
-                </div>
-                <span className={reviewStyles.barCount}>
-                  {summary.distribution[star]}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       )}
@@ -199,16 +136,20 @@ export default function ProductReview({ productId }: ProductReviewProps) {
         <textarea
           className={reviewStyles.textarea}
           placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          value={reviewContent}
+          onChange={(e) => setReviewContent(e.target.value)}
         />
 
         <button
           className={reviewStyles.submit}
           onClick={handleSubmit}
-          disabled={rating === 0 || !comment.trim() || submitting}
+          disabled={
+            rating === 0 ||
+            !reviewContent.trim() ||
+            createReviewMutation.isPending
+          }
         >
-          {submitting ? "Đang gửi..." : "Gửi đánh giá"}
+          {createReviewMutation.isPending ? "Đang gửi..." : "Gửi đánh giá"}
         </button>
       </div>
 
@@ -224,16 +165,30 @@ export default function ProductReview({ productId }: ProductReviewProps) {
         reviews.map((rv) => (
           <div key={rv.id} className={reviewStyles.item}>
             <div className={reviewStyles.itemHeader}>
-              <div className={reviewStyles.avatar}>{rv.avatar}</div>
-              <div className={reviewStyles.itemInfo}>
-                <p className={reviewStyles.itemName}>{rv.name}</p>
-                <div className={reviewStyles.itemStars}>
-                  <StarDisplay rating={rv.rating} />
-                </div>
+              {/* Avatar + tên người dùng */}
+              <div className={reviewStyles.itemUser}>
+                {rv.user?.avatar && (
+                  <img
+                    src={rv.user.avatar}
+                    alt={rv.user.fullName}
+                    className={reviewStyles.avatar}
+                  />
+                )}
+                <span className={reviewStyles.fullName}>
+                  {rv.user?.fullName ?? rv.user?.username}
+                </span>
               </div>
-              <span className={reviewStyles.itemDate}>{rv.date}</span>
+
+              <div className={reviewStyles.itemInfo}>
+                <StarDisplay rating={rv.rating} />
+                <span className={reviewStyles.itemDate}>
+                  {new Date(rv.createdDate).toLocaleDateString("vi-VN")}
+                </span>
+              </div>
             </div>
-            <p className={reviewStyles.comment}>{rv.comment}</p>
+
+            {/* Nội dung review — API trả về "reviewContent", không phải "comment" */}
+            <p className={reviewStyles.comment}>{rv.reviewContent}</p>
           </div>
         ))
       )}
