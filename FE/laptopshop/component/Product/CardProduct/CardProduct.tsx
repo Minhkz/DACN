@@ -6,10 +6,11 @@ import Image from "next/image";
 import { Rating } from "@mui/material";
 import DetailProduct from "@/component/DetailProduct/DetailProduct";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
-import { getReviewSummary } from "@/services/review/ReviewApi,";
+
 import { useQuery } from "@tanstack/react-query";
 import { ProductReviewSummary } from "@/types/review/ProductReviewSummary";
 import { Skeleton } from "antd";
+import { getReviewSummary } from "@/services/review/ReviewApi";
 
 type Props = {
   product: ProductDetailDto;

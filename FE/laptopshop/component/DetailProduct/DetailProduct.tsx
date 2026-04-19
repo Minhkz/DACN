@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
 import { detail as detailProduct } from "@/services/product/ProductApi";
 import { StarOutlined } from "@ant-design/icons";
@@ -7,6 +10,7 @@ import { Spin } from "antd";
 import ProductReview from "./ProductReview";
 import styles from "./DetailProduct.module.css";
 import Image from "next/image";
+import { me } from "@/services/user/UserApi";
 
 type DetailProductProps = {
   open: boolean;
@@ -25,11 +29,8 @@ export default function DetailProduct({
   onClose,
   id,
 }: DetailProductProps) {
-  const [product, setProduct] = useState<ProductDetailDto | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [error, setError] = useState("");
   const [showReview, setShowReview] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -38,44 +39,42 @@ export default function DetailProduct({
     return () => setMounted(false);
   }, []);
 
+  const {
+    data: product,
+    isLoading: loading,
+    isError,
+  } = useQuery<ProductDetailDto>({
+    queryKey: ["product-detail", id],
+    queryFn: () => detailProduct(id),
+    enabled: open && !!id,
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["me"],
+    queryFn: me,
+    enabled: open,
+  });
+
+  const userId = Number(profile?.id) || 0;
+
+  const allImages = useMemo(() => {
+    if (!product) return [];
+    const arr = [product.avatar, ...(product.imgs || [])].filter(
+      (img): img is string => Boolean(img && img.trim()),
+    );
+    return [...new Set(arr)];
+  }, [product]);
+
   useEffect(() => {
-    if (!open || !id) return;
+    if (!product) {
+      setSelectedImage(null);
+      return;
+    }
 
-    let isMounted = true;
-
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        setProduct(null);
-        setQuantity(1);
-        setSelectedImage("");
-        setShowReview(false);
-
-        const data = await detailProduct(id);
-
-        if (!isMounted) return;
-
-        setProduct(data);
-        setSelectedImage(data.avatar || data.imgs?.[0] || "");
-      } catch (err) {
-        console.error("Lỗi lấy chi tiết sản phẩm:", err);
-        if (isMounted) {
-          setError("Không thể tải chi tiết sản phẩm.");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchProduct();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [id, open]);
+    setQuantity(1);
+    setShowReview(false);
+    setSelectedImage(allImages[0] ?? null);
+  }, [product, allImages]);
 
   useEffect(() => {
     if (!open) return;
@@ -92,14 +91,6 @@ export default function DetailProduct({
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
-
-  const allImages = useMemo(() => {
-    if (!product) return [];
-    const arr = [product.avatar, ...(product.imgs || [])].filter(
-      Boolean,
-    ) as string[];
-    return [...new Set(arr)];
-  }, [product]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
@@ -128,8 +119,10 @@ export default function DetailProduct({
           <div className={styles.stateBox}>
             <Spin />
           </div>
-        ) : error ? (
-          <div className={styles.errorBox}>{error}</div>
+        ) : isError ? (
+          <div className={styles.errorBox}>
+            Không thể tải chi tiết sản phẩm.
+          </div>
         ) : !product ? (
           <div className={styles.stateBox}>Không có dữ liệu sản phẩm.</div>
         ) : (
@@ -137,18 +130,24 @@ export default function DetailProduct({
             <div className={styles.content}>
               <div className={styles.leftPanel}>
                 <div className={styles.mainImageWrapper}>
-                  <img
-                    src={selectedImage}
-                    alt={product.name}
-                    className={styles.mainImage}
-                  />
+                  {selectedImage ? (
+                    <img
+                      src={selectedImage}
+                      alt={product.name}
+                      className={styles.mainImage}
+                    />
+                  ) : (
+                    <div className={styles.stateBox}>
+                      Không có ảnh sản phẩm.
+                    </div>
+                  )}
                 </div>
 
                 {allImages.length > 1 && (
                   <div className={styles.thumbnailList}>
                     {allImages.map((img, index) => (
                       <button
-                        key={index}
+                        key={`${img}-${index}`}
                         type="button"
                         onClick={() => setSelectedImage(img)}
                         className={`${styles.thumbnailButton} ${
@@ -172,7 +171,7 @@ export default function DetailProduct({
                 <h2 className={styles.productName}>{product.name}</h2>
 
                 <p className={styles.productDescription}>
-                  {product.description}
+                  {product.description || "Chưa có mô tả sản phẩm."}
                 </p>
 
                 <div className={styles.priceSection}>
@@ -192,13 +191,16 @@ export default function DetailProduct({
                     >
                       −
                     </button>
+
                     <span className={styles.quantityValue}>{quantity}</span>
+
                     <button
                       type="button"
                       onClick={() =>
                         setQuantity((q) => Math.min(q + 1, product.quantity))
                       }
                       className={`${styles.quantityButton} ${styles.quantityButtonPlus}`}
+                      disabled={product.quantity <= 0}
                     >
                       +
                     </button>
@@ -206,11 +208,19 @@ export default function DetailProduct({
                 </div>
 
                 <div className={styles.actionGroup}>
-                  <button type="button" className={styles.outlineButton}>
+                  <button
+                    type="button"
+                    className={styles.outlineButton}
+                    disabled={product.quantity <= 0}
+                  >
                     Thêm vào giỏ
                   </button>
 
-                  <button type="button" className={styles.primaryButton}>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    disabled={product.quantity <= 0}
+                  >
                     <Image
                       src="/logo/vnpay.png"
                       alt="vnpay"
@@ -229,14 +239,14 @@ export default function DetailProduct({
                   <StarOutlined />
                   <span>{showReview ? "Ẩn đánh giá" : "Xem đánh giá"}</span>
                 </button>
+
+                {showReview && (
+                  <div className={styles.reviewSection}>
+                    <ProductReview productId={id} userId={userId} />
+                  </div>
+                )}
               </div>
             </div>
-
-            {showReview && (
-              <div className={styles.reviewSection}>
-                <ProductReview productId={id} />
-              </div>
-            )}
           </div>
         )}
       </div>

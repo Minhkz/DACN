@@ -1,7 +1,7 @@
 export interface ReviewRequest {
   id?: number;
   productId: number;
-  userId: string;
+  userId: number;
   rating: number;
   reviewContent: string;
 }
