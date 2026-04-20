@@ -3,16 +3,15 @@
 import { useMemo, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { Breadcrumb, Skeleton, Spin } from "antd";
+import { Breadcrumb, Skeleton } from "antd";
 import Link from "next/link";
-import BrandFilter from "./Brand/BrandFilter";
 import { LayoutGrid, List } from "lucide-react";
-import FilterTag from "./FilterTag";
 import ListView from "./ListView/ListView";
 import GridView from "./GridView/GridView";
 import { useQuery } from "@tanstack/react-query";
 import { getProductPageByType } from "@/services/product/ProductApi";
 import { ProductPageDto } from "@/types/product/ProductPageDto";
+import ProductFilter from "./ProductFilter";
 
 const DEFAULT_PAGE_DATA: ProductPageDto = {
   items: [],
@@ -62,10 +61,8 @@ const Catalog = () => {
 
   const handlePageChange = (newPage: number) =>
     updateQueryParams({ page: newPage });
-
   const handleSortChange = (value: string) =>
     updateQueryParams({ sort: value || null, page: 0 });
-
   const handleSizeChange = (value: string) =>
     updateQueryParams({ size: Number(value), page: 0 });
 
@@ -78,7 +75,7 @@ const Catalog = () => {
           alt="Catalog Banner"
           width={1398}
           height={104}
-          style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          className="w-full h-auto rounded-lg"
         />
       </div>
 
@@ -93,56 +90,24 @@ const Catalog = () => {
       </div>
 
       {/* Main layout */}
-      <div
-        style={{
-          display: "flex",
-          gap: "24px",
-          alignItems: "flex-start",
-        }}
-      >
+      <div className="flex justify-between " style={{ gap: "20px" }}>
         {/* Sidebar */}
         <aside
-          className="hidden lg:block"
-          style={{ width: "200px", minWidth: "200px", flexShrink: 0 }}
+          className="hidden lg:block shrink-0"
+          style={{ width: "220px", minWidth: "220px" }}
         >
-          <Link
-            href="/"
-            style={{
-              display: "inline-block",
-              fontSize: "13px",
-              color: "var(--color-text-secondary, #888)",
-              marginBottom: "12px",
-              textDecoration: "none",
-            }}
-          >
-            ‹ Back
-          </Link>
-
-          {/* Filter box */}
-          <div>
-            <BrandFilter />
-          </div>
+          <ProductFilter />
         </aside>
 
         {/* Right column */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex-1 min-w-0">
           {/* Toolbar */}
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "10px",
-              padding: "10px 14px",
-              border: "0.5px solid #e5e7eb",
-              borderRadius: "8px",
-              background: "white",
-              marginBottom: "12px",
-            }}
+            className="flex items-center justify-between flex-wrap rounded-lg bg-white border border-gray-200"
+            style={{ gap: "10px", padding: "10px 16px", marginBottom: "16px" }}
           >
-            {/* Left: item count */}
-            <span style={{ fontSize: "13px", color: "#6b7280" }}>
+            {/* Item count */}
+            <span className="text-sm text-gray-500">
               {isLoading ? (
                 <Skeleton.Input
                   active
@@ -154,37 +119,19 @@ const Catalog = () => {
               )}
             </span>
 
-            {/* Right: sort, size, view toggle */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexWrap: "wrap",
-                gap: "10px",
-              }}
-            >
-              {/* Size */}
+            {/* Size + view toggle */}
+            <div className="flex items-center" style={{ gap: "10px" }}>
+              {/* Size selector */}
               <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  fontSize: "13px",
-                  color: "#6b7280",
-                }}
+                className="flex items-center text-sm text-gray-500"
+                style={{ gap: "6px" }}
               >
                 <span>Show:</span>
                 <select
                   value={String(size)}
                   onChange={(e) => handleSizeChange(e.target.value)}
-                  style={{
-                    fontSize: "13px",
-                    border: "0.5px solid #d1d5db",
-                    borderRadius: "6px",
-                    padding: "4px 8px",
-                    background: "white",
-                    cursor: "pointer",
-                  }}
+                  className="text-sm border border-gray-300 rounded-md bg-white cursor-pointer"
+                  style={{ padding: "4px 8px" }}
                 >
                   <option value="5">5 / page</option>
                   <option value="10">10 / page</option>
@@ -194,58 +141,31 @@ const Catalog = () => {
               </div>
 
               {/* View toggle */}
-              <div
-                style={{
-                  display: "flex",
-                  border: "0.5px solid #e5e7eb",
-                  borderRadius: "6px",
-                  overflow: "hidden",
-                }}
-              >
+              <div className="flex border border-gray-200 rounded-md overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setView("grid")}
-                  style={{
-                    width: "32px",
-                    height: "30px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "none",
-                    cursor: "pointer",
-                    background: view === "grid" ? "#E6F1FB" : "transparent",
-                    color: view === "grid" ? "#185FA5" : "#9ca3af",
-                    transition: "background 0.1s",
-                  }}
+                  className={`w-8 h-[30px] flex items-center justify-center cursor-pointer transition-colors duration-100 border-none ${
+                    view === "grid"
+                      ? "bg-[#E6F1FB] text-[#185FA5]"
+                      : "bg-transparent text-gray-400"
+                  }`}
                 >
                   <LayoutGrid size={15} />
                 </button>
                 <button
                   type="button"
                   onClick={() => setView("list")}
-                  style={{
-                    width: "32px",
-                    height: "30px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "none",
-                    borderLeft: "0.5px solid #e5e7eb",
-                    cursor: "pointer",
-                    background: view === "list" ? "#E6F1FB" : "transparent",
-                    color: view === "list" ? "#185FA5" : "#9ca3af",
-                    transition: "background 0.1s",
-                  }}
+                  className={`w-8 h-[30px] flex items-center justify-center cursor-pointer transition-colors duration-100 border-none border-l border-gray-200 ${
+                    view === "list"
+                      ? "bg-[#E6F1FB] text-[#185FA5]"
+                      : "bg-transparent text-gray-400"
+                  }`}
                 >
                   <List size={15} />
                 </button>
               </div>
             </div>
-          </div>
-
-          {/* Filter tags */}
-          <div style={{ marginBottom: "16px" }}>
-            <FilterTag />
           </div>
 
           {/* Product view */}
