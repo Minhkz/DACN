@@ -7,6 +7,7 @@ import reviewStyles from "./ProductReview.module.css";
 import { ReviewDto } from "@/types/review/ReviewDto";
 import { ProductReviewSummary } from "@/types/review/ProductReviewSummary";
 import { ReviewApi } from "@/services/review/ReviewApi";
+import { Spin } from "antd";
 
 type ProductReviewProps = {
   productId: number;
@@ -89,6 +90,9 @@ export default function ProductReview({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
       queryClient.invalidateQueries({
+        queryKey: ["reviewSummary", productId],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["review-summary", productId],
       });
     },
@@ -111,6 +115,12 @@ export default function ProductReview({
       console.error("Lỗi gửi review:", error);
     }
   };
+
+  if (reviewsQuery.isFetching || summaryQuery.isFetching) {
+    return (
+      <Spin size="large" style={{ display: "block", margin: "40px auto" }} />
+    );
+  }
 
   return (
     <div className={reviewStyles.wrap}>
@@ -149,14 +159,20 @@ export default function ProductReview({
             createReviewMutation.isPending
           }
         >
-          {createReviewMutation.isPending ? "Đang gửi..." : "Gửi đánh giá"}
+          {createReviewMutation.isPending ? (
+            <Spin size="small" style={{ color: "#fff" }} />
+          ) : (
+            "Gửi đánh giá"
+          )}
         </button>
       </div>
 
       <p className={reviewStyles.listTitle}>Đánh giá từ khách hàng</p>
 
       {loading ? (
-        <div className={reviewStyles.empty}>Đang tải đánh giá...</div>
+        <div className={reviewStyles.empty}>
+          <Spin size="medium" />
+        </div>
       ) : reviews.length === 0 ? (
         <div className={reviewStyles.empty}>
           Chưa có đánh giá nào. Hãy là người đầu tiên!
