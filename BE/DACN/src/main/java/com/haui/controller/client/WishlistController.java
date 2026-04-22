@@ -1,4 +1,4 @@
-package com.haui.controller.admin;
+package com.haui.controller.client;
 
 import com.haui.dto.request.wishlist.WishlistItemRequest;
 import com.haui.dto.request.wishlist.WishlistRequest;
@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/api/v1/wishlists", "/api/v1/wishlist"})
-@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping("/api/v1/wishlists")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class WishlistController {
@@ -36,7 +35,7 @@ public class WishlistController {
         return ResponseResult.success(wishlistService.getById(id));
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseResult<WishlistDto> getByUserId(@PathVariable Integer userId) {
         return ResponseResult.success(wishlistService.getByUserId(userId));
     }

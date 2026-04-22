@@ -6,12 +6,19 @@ import Image from "next/image";
 import { Breadcrumb, Skeleton } from "antd";
 import Link from "next/link";
 import { LayoutGrid, List } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
 import ListView from "./ListView/ListView";
 import GridView from "./GridView/GridView";
-import { useQuery } from "@tanstack/react-query";
-import { getProductPageByType } from "@/services/product/ProductApi";
-import { ProductPageDto } from "@/types/product/ProductPageDto";
 import ProductFilter from "./ProductFilter";
+
+import { ProductPageDto } from "@/types/product/ProductPageDto";
+import { ProductFilterValue } from "@/types/catalog/FilterDto";
+import {
+  buildProductFilterRequest,
+  filterProducts,
+  getProductPageByType,
+} from "@/services/product/ProductApi";
 
 const DEFAULT_PAGE_DATA: ProductPageDto = {
   items: [],
@@ -29,6 +36,24 @@ const typeLabelMap: Record<string, string> = {
   "custom-build": "Custom Builds",
 };
 
+const typeIdMap: Record<string, number> = {
+  laptop: 4,
+  desktop: 5,
+  monitor: 6,
+  "custom-build": 3,
+};
+
+const hasAppliedFilters = (value: ProductFilterValue) => {
+  const hasSelected = Object.values(value.selected).some(
+    (ids) => ids.length > 0,
+  );
+  const hasMinPrice = value.minPrice !== undefined;
+  const hasMaxPrice = value.maxPrice !== undefined;
+  const hasSort = value.sortOrder !== null;
+
+  return hasSelected || hasMinPrice || hasMaxPrice || hasSort;
+};
+
 const Catalog = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -37,38 +62,78 @@ const Catalog = () => {
   const type = searchParams.get("type") ?? "";
   const page = Number(searchParams.get("page") ?? "0");
   const size = Number(searchParams.get("size") ?? "5");
-  const sort = searchParams.get("sort") ?? "";
 
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [filterValue, setFilterValue] = useState<ProductFilterValue>({
+    selected: {},
+    minPrice: undefined,
+    maxPrice: undefined,
+    sortOrder: null,
+  });
 
-  const sortArray = useMemo(() => (sort ? sort.split(",") : undefined), [sort]);
+  const isFiltering = useMemo(
+    () => hasAppliedFilters(filterValue),
+    [filterValue],
+  );
 
-  const { data = DEFAULT_PAGE_DATA, isLoading } = useQuery<ProductPageDto>({
-    queryKey: ["products-by-type", type, page, size, sort],
-    queryFn: () => getProductPageByType(type, page, size, sortArray),
+  const forcedFilters = useMemo((): Record<string, number[]> => {
+    const typeId = typeIdMap[type];
+    if (!typeId) return {};
+    return { type: [typeId] };
+  }, [type]);
+
+  const payload = useMemo(() => {
+    return buildProductFilterRequest(filterValue, page, size, forcedFilters);
+  }, [filterValue, page, size, forcedFilters]);
+
+  const {
+    data = DEFAULT_PAGE_DATA,
+    isLoading,
+    isFetching,
+  } = useQuery<ProductPageDto>({
+    queryKey: ["catalog-products", type, page, size, filterValue, isFiltering],
+    queryFn: async () => {
+      if (!isFiltering) {
+        return getProductPageByType(type, page, size);
+      }
+
+      return filterProducts(payload);
+    },
   });
 
   const updateQueryParams = (
     updates: Record<string, string | number | null>,
   ) => {
     const params = new URLSearchParams(searchParams.toString());
+
     Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === "") params.delete(key);
-      else params.set(key, String(value));
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, String(value));
+      }
     });
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handlePageChange = (newPage: number) =>
+  const handlePageChange = (newPage: number) => {
     updateQueryParams({ page: newPage });
-  const handleSortChange = (value: string) =>
-    updateQueryParams({ sort: value || null, page: 0 });
-  const handleSizeChange = (value: string) =>
+  };
+
+  const handleSizeChange = (value: string) => {
     updateQueryParams({ size: Number(value), page: 0 });
+  };
+
+  const handleFilterChange = (value: ProductFilterValue) => {
+    setFilterValue(value);
+    updateQueryParams({ page: 0 });
+  };
+
+  const loading = isLoading || isFetching;
 
   return (
     <div className="container-global" style={{ paddingBottom: "40px" }}>
-      {/* Banner */}
       <div style={{ marginBottom: "16px" }}>
         <Image
           src="/img/catalog_banner.png"
@@ -79,7 +144,6 @@ const Catalog = () => {
         />
       </div>
 
-      {/* Breadcrumb */}
       <div style={{ marginBottom: "20px" }}>
         <Breadcrumb
           items={[
@@ -89,26 +153,21 @@ const Catalog = () => {
         />
       </div>
 
-      {/* Main layout */}
-      <div className="flex justify-between " style={{ gap: "20px" }}>
-        {/* Sidebar */}
+      <div className="flex justify-between" style={{ gap: "20px" }}>
         <aside
           className="hidden lg:block shrink-0"
           style={{ width: "220px", minWidth: "220px" }}
         >
-          <ProductFilter />
+          <ProductFilter onChange={handleFilterChange} />
         </aside>
 
-        {/* Right column */}
         <div className="flex-1 min-w-0">
-          {/* Toolbar */}
           <div
             className="flex items-center justify-between flex-wrap rounded-lg bg-white border border-gray-200"
             style={{ gap: "10px", padding: "10px 16px", marginBottom: "16px" }}
           >
-            {/* Item count */}
             <span className="text-sm text-gray-500">
-              {isLoading ? (
+              {loading ? (
                 <Skeleton.Input
                   active
                   size="small"
@@ -119,9 +178,7 @@ const Catalog = () => {
               )}
             </span>
 
-            {/* Size + view toggle */}
             <div className="flex items-center" style={{ gap: "10px" }}>
-              {/* Size selector */}
               <div
                 className="flex items-center text-sm text-gray-500"
                 style={{ gap: "6px" }}
@@ -140,7 +197,6 @@ const Catalog = () => {
                 </select>
               </div>
 
-              {/* View toggle */}
               <div className="flex border border-gray-200 rounded-md overflow-hidden">
                 <button
                   type="button"
@@ -153,6 +209,7 @@ const Catalog = () => {
                 >
                   <LayoutGrid size={15} />
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setView("list")}
@@ -168,18 +225,17 @@ const Catalog = () => {
             </div>
           </div>
 
-          {/* Product view */}
           {view === "grid" ? (
             <GridView
               products={data.items}
-              loading={isLoading}
+              loading={loading}
               pageData={data}
               onPageChange={handlePageChange}
             />
           ) : (
             <ListView
               products={data.items}
-              loading={isLoading}
+              loading={loading}
               pageData={data}
               onPageChange={handlePageChange}
             />

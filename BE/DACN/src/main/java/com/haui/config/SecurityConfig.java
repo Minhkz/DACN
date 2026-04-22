@@ -64,8 +64,8 @@ public class SecurityConfig {
                 .cors(org.springframework.security.config.Customizer.withDefaults())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**")
-                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/products/filter").permitAll()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/reviews/**",
