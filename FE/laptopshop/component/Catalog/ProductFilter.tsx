@@ -11,6 +11,7 @@ import {
   SelectedFilters,
 } from "@/types/catalog/FilterDto";
 import { FilterApi } from "@/services/category/FilterApi";
+import ChipSkeleton from "./Skeleton/ChipSkeleton";
 
 const LABEL_MAP: Record<string, string> = {
   type: "Loại sản phẩm",
@@ -34,6 +35,8 @@ function getLabel(type: string): string {
   return LABEL_MAP[type] ?? type.charAt(0).toUpperCase() + type.slice(1);
 }
 
+type SortOrder = "asc" | "desc" | null;
+
 type ProductFilterProps = {
   onChange?: (value: ProductFilterValue) => void;
 };
@@ -47,6 +50,9 @@ export default function ProductFilter({ onChange }: ProductFilterProps) {
   const [maxPrice, setMaxPrice] = useState("");
   const [draftMinPrice, setDraftMinPrice] = useState("");
   const [draftMaxPrice, setDraftMaxPrice] = useState("");
+
+  const [sortOrder, setSortOrder] = useState<SortOrder>(null);
+  const [draftSortOrder, setDraftSortOrder] = useState<SortOrder>(null);
 
   const { data: filters = [], isLoading } = useQuery<FilterDto[]>({
     queryKey: ["filters"],
@@ -100,11 +106,14 @@ export default function ProductFilter({ onChange }: ProductFilterProps) {
     setMaxPrice("");
     setDraftMinPrice("");
     setDraftMaxPrice("");
+    setSortOrder(null);
+    setDraftSortOrder(null);
 
     onChange?.({
       selected: {},
       minPrice: undefined,
       maxPrice: undefined,
+      sortOrder: null,
     });
   };
 
@@ -126,26 +135,34 @@ export default function ProductFilter({ onChange }: ProductFilterProps) {
     setSelected(draftSelected);
     setMinPrice(draftMinPrice);
     setMaxPrice(draftMaxPrice);
+    setSortOrder(draftSortOrder);
 
     onChange?.({
       selected: draftSelected,
       minPrice: parsedMin,
       maxPrice: parsedMax,
+      sortOrder: draftSortOrder,
     });
   };
 
   const totalSelected =
     Object.values(draftSelected).flat().length +
     (draftMinPrice.trim() ? 1 : 0) +
-    (draftMaxPrice.trim() ? 1 : 0);
+    (draftMaxPrice.trim() ? 1 : 0) +
+    (draftSortOrder ? 1 : 0);
 
   const hasPendingChanges =
     JSON.stringify(selected) !== JSON.stringify(draftSelected) ||
     minPrice !== draftMinPrice ||
-    maxPrice !== draftMaxPrice;
+    maxPrice !== draftMaxPrice ||
+    sortOrder !== draftSortOrder;
 
   if (isLoading) {
-    return <div className={styles.loading}>Đang tải bộ lọc...</div>;
+    return (
+      <div className={styles.loading}>
+        <ChipSkeleton />
+      </div>
+    );
   }
 
   return (
@@ -160,6 +177,80 @@ export default function ProductFilter({ onChange }: ProductFilterProps) {
         )}
       </div>
 
+      {/* ── Sort section ── */}
+      <div className={styles.group}>
+        <div className={styles.groupHeaderStatic}>
+          <span className={styles.groupLabel}>Sắp xếp theo giá</span>
+        </div>
+
+        <div className="flex gap-2" style={{ padding: "8px 0" }}>
+          {/* Giá tăng dần */}
+          <button
+            type="button"
+            onClick={() =>
+              setDraftSortOrder(draftSortOrder === "asc" ? null : "asc")
+            }
+            style={{ padding: "8px 12px" }}
+            className={[
+              "flex items-center gap-1.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer select-none",
+              draftSortOrder === "asc"
+                ? "border-blue-500 bg-blue-50 text-blue-600"
+                : "border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-500",
+            ].join(" ")}
+          >
+            {/* Arrow up icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="19" x2="12" y2="5" />
+              <polyline points="5 12 12 5 19 12" />
+            </svg>
+            Tăng dần
+          </button>
+
+          {/* Giá giảm dần */}
+          <button
+            type="button"
+            onClick={() =>
+              setDraftSortOrder(draftSortOrder === "desc" ? null : "desc")
+            }
+            style={{ padding: "8px 12px" }}
+            className={[
+              "flex items-center gap-1.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer select-none",
+              draftSortOrder === "desc"
+                ? "border-blue-500 bg-blue-50 text-blue-600"
+                : "border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-500",
+            ].join(" ")}
+          >
+            {/* Arrow down icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <polyline points="19 12 12 19 5 12" />
+            </svg>
+            Giảm dần
+          </button>
+        </div>
+      </div>
+
+      {/* ── Price range section ── */}
       <div className={styles.group}>
         <div className={styles.groupHeaderStatic}>
           <span className={styles.groupLabel}>Khoảng giá</span>
@@ -192,6 +283,7 @@ export default function ProductFilter({ onChange }: ProductFilterProps) {
         </div>
       </div>
 
+      {/* ── Filter groups ── */}
       {groups.map(([type, items]) => {
         const isCollapsed = collapsed[type];
         const selectedInGroup = (draftSelected[type] ?? []).length;

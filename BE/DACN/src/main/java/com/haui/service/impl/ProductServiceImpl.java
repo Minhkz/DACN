@@ -2,6 +2,7 @@ package com.haui.service.impl;
 
 import com.haui.dto.request.product.ProductRequest;
 import com.haui.dto.request.product.ProductUpdateRequest;
+import com.haui.dto.request.product.filter.ProductFilterRequest;
 import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.product.ProductDto;
 import com.haui.dto.thread.product.DeleteProductAvatarEvent;
@@ -27,14 +28,16 @@ import com.haui.service.ProductService;
 import com.haui.service.cloudinary.CloudinaryService;
 import com.haui.utils.PageableUtil;
 import com.haui.utils.SpecificationUtil;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.cache.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -379,6 +382,98 @@ public class ProductServiceImpl implements ProductService {
         return new PageImpl<>(dtoList, pageable, productPage.getTotalElements());
     }
 
+    @Override
+    public Page<ProductDetailDto> filterProducts(ProductFilterRequest request) {
+        int page = request.getPage() != null ? request.getPage() : 0;
+        int size = request.getSize() != null ? request.getSize() : 5;
+
+        Pageable pageable = PageRequest.of(page, size, resolveSort(request.getSort()));
+
+        Specification<Product> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Lọc giá
+            if (request.getPrice() != null) {
+                if (request.getPrice().getMin() != null) {
+                    predicates.add(
+                            cb.greaterThanOrEqualTo(root.get("price"), request.getPrice().getMin())
+                    );
+                }
+
+                if (request.getPrice().getMax() != null) {
+                    predicates.add(
+                            cb.lessThanOrEqualTo(root.get("price"), request.getPrice().getMax())
+                    );
+                }
+            }
+
+
+            if (request.getFilters() != null && !request.getFilters().isEmpty()) {
+                for (Map.Entry<String, List<Integer>> entry : request.getFilters().entrySet()) {
+                    String type = entry.getKey();
+                    List<Integer> filterIds = entry.getValue();
+
+                    if (filterIds == null || filterIds.isEmpty()) {
+                        continue;
+                    }
+
+                    Subquery<Integer> subquery = query.subquery(Integer.class);
+                    Root<ProductFilter> pfRoot = subquery.from(ProductFilter.class);
+                    Join<ProductFilter, Filter> filterJoin = pfRoot.join("filter");
+
+                    subquery.select(pfRoot.get("product").get("id"))
+                            .where(
+                                    cb.equal(pfRoot.get("product").get("id"), root.get("id")),
+                                    cb.equal(filterJoin.get("type"), type),
+                                    filterJoin.get("id").in(filterIds)
+                            );
+
+                    predicates.add(cb.exists(subquery));
+                }
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+        List<Product> products = productPage.getContent();
+
+        if (products.isEmpty()) {
+            return new PageImpl<>(
+                    Collections.emptyList(),
+                    pageable,
+                    productPage.getTotalElements()
+            );
+        }
+
+        List<Integer> ids = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<ProductImg> images = productImgRepository.findByProductIdIn(ids);
+        List<ProductFilter> filters = productFilterRepository.findByProductIdIn(ids);
+
+        Map<Integer, List<ProductImg>> imageMap = images.stream()
+                .collect(Collectors.groupingBy(img -> img.getProduct().getId()));
+
+        Map<Integer, List<ProductFilter>> filterMap = filters.stream()
+                .collect(Collectors.groupingBy(filter -> filter.getProduct().getId()));
+
+        List<ProductDetailDto> dtoList = products.stream()
+                .map(product -> convert(
+                        product,
+                        imageMap.getOrDefault(product.getId(), Collections.emptyList()),
+                        filterMap.getOrDefault(product.getId(), Collections.emptyList())
+                ))
+                .toList();
+
+        return new PageImpl<>(
+                dtoList,
+                pageable,
+                productPage.getTotalElements()
+        );
+    }
+
 
     private ProductDetailDto convert(Product product, List<ProductImg> images, List<ProductFilter> filters) {
         ProductDetailDto dto = new ProductDetailDto();
@@ -393,6 +488,18 @@ public class ProductServiceImpl implements ProductService {
         dto.setImgs(images.stream().map(ProductImg::getSrc).map(cloudinaryService::getImageUrl).toList());
         dto.setFilters(filters.stream().map(f -> f.getFilter().getName()).toList());
         return dto;
+    }
+
+    private Sort resolveSort(String sortOrder) {
+        if (sortOrder == null || sortOrder.isBlank()) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+
+        return switch (sortOrder.toLowerCase()) {
+            case "asc" -> Sort.by(Sort.Direction.ASC, "price");
+            case "desc" -> Sort.by(Sort.Direction.DESC, "price");
+            default -> Sort.by(Sort.Direction.DESC, "id");
+        };
     }
 
 

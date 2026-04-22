@@ -2,6 +2,7 @@ package com.haui.controller.admin;
 
 import com.haui.dto.request.product.ProductRequest;
 import com.haui.dto.request.product.ProductUpdateRequest;
+import com.haui.dto.request.product.filter.ProductFilterRequest;
 import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.product.ProductDetailDto;
@@ -75,6 +76,11 @@ public class ProductController {
     ) {
         Page<ProductDetailDto> result = productService.search(keyword, page, size, sort);
         return ResponseResult.success(PageResponse.from(result));
+    }
+
+    @PostMapping("filter")
+    public ResponseResult<PageResponse<ProductDetailDto>> filter(@RequestBody ProductFilterRequest request){
+        return ResponseResult.success(PageResponse.from(productService.filterProducts(request)));
     }
 
 }
