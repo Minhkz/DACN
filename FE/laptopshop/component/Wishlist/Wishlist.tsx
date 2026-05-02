@@ -1,17 +1,11 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-
-type WishlistProduct = {
-  id: number;
-  name: string;
-  oldPrice: number;
-  price: number;
-  image: string;
-};
-
-const formatCurrency = (value: number) => `${value.toLocaleString("vi-VN")}₫`;
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { removeFromWishlist } from "@/store/slices/wishlistSlice";
+import WishlistCard from "./WishlistCard";
+import { Spin } from "antd";
 
 const introTextStyle: React.CSSProperties = {
   color: "#64748b",
@@ -19,50 +13,87 @@ const introTextStyle: React.CSSProperties = {
   lineHeight: 1.8,
 };
 
-const productsSeed: WishlistProduct[] = Array.from({ length: 8 }).map((_, index) => ({
-  id: index + 1,
-  name: "EX DISPLAY : MSI Pro 16 Flex-036AU 15.6 MULTITOUCH All-In-One",
-  oldPrice: 19990000,
-  price: 17990000,
-  image: "/product/msi-pro16.png",
-}));
-
 const Wishlist = () => {
-  const [products, setProducts] = useState<WishlistProduct[]>(productsSeed);
+  const dispatch = useAppDispatch();
+  const { wishlist, loading, error } = useAppSelector((s) => s.wishlist);
+
+  const wishlistId = useAppSelector((s) => s.wishlist.wishlist?.id ?? null);
+
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
-  const isEmpty = products.length === 0;
+  const items = wishlist?.items ?? [];
+  const isEmpty = items.length === 0;
   const selectedCount = selectedItems.length;
 
-  const summaryText = useMemo(() => {
-    if (isEmpty) return "Danh sách yêu thích của bạn hiện chưa có sản phẩm nào.";
-    return `Bạn đang lưu ${products.length} sản phẩm để xem lại hoặc thêm nhanh vào giỏ hàng.`;
-  }, [isEmpty, products.length]);
-
   const toggleSelectItem = (id: number) => {
-    setSelectedItems((current) =>
-      current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id],
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
-  const removeItem = (id: number) => {
-    setProducts((current) => current.filter((item) => item.id !== id));
-    setSelectedItems((current) => current.filter((itemId) => itemId !== id));
+  const handleRemove = (productId: number) => {
+    if (!wishlistId) return;
+    dispatch(removeFromWishlist({ wishlistId, productId }));
+    setSelectedItems((prev) => prev.filter((id) => id !== productId));
   };
 
-  const removeSelected = () => {
-    setProducts((current) => current.filter((item) => !selectedItems.includes(item.id)));
+  const handleRemoveSelected = () => {
+    if (!wishlistId) return;
+    selectedItems.forEach((productId) =>
+      dispatch(removeFromWishlist({ wishlistId, productId })),
+    );
     setSelectedItems([]);
   };
 
-  const addSelectedToCart = () => {
-    console.log("Thêm vào giỏ hàng:", selectedItems);
+  const handleAddToCart = (productId: number) => {
+    console.log("Add to cart:", productId);
   };
+
+  const handleAddSelectedToCart = () => {
+    console.log("Add selected to cart:", selectedItems);
+  };
+
+  if (loading)
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#F5F7FF",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div style={{ color: "#64748b", fontSize: "16px" }}>
+          <Spin size="large" />
+        </div>
+      </main>
+    );
+
+  if (error)
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#F5F7FF",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div style={{ color: "#dc2626", fontSize: "16px" }}>
+          Không thể tải wishlist. Vui lòng thử lại.
+        </div>
+      </main>
+    );
 
   return (
     <main style={{ minHeight: "100vh", background: "#F5F7FF" }}>
       <section className="container-global" style={{ padding: "42px 0 64px" }}>
-        <div style={{ marginBottom: "20px", color: "#64748b", fontSize: "14px" }}>
+        {/* Breadcrumb */}
+        <div
+          style={{ marginBottom: "20px", color: "#64748b", fontSize: "14px" }}
+        >
           <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>
             Trang chủ
           </Link>
@@ -70,6 +101,7 @@ const Wishlist = () => {
           <span style={{ color: "#0156FF", fontWeight: 600 }}>Wishlist</span>
         </div>
 
+        {/* Header */}
         <div
           style={{
             background: "#ffffff",
@@ -80,10 +112,21 @@ const Wishlist = () => {
             boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
           }}
         >
-          <h1 style={{ margin: 0, color: "#0f172a", fontSize: "36px", fontWeight: 700 }}>
+          <h1
+            style={{
+              margin: 0,
+              color: "#0f172a",
+              fontSize: "36px",
+              fontWeight: 700,
+            }}
+          >
             Danh sách yêu thích
           </h1>
-          <p style={{ ...introTextStyle, margin: "10px 0 0" }}>{summaryText}</p>
+          <p style={{ ...introTextStyle, margin: "10px 0 0" }}>
+            {isEmpty
+              ? "Danh sách yêu thích của bạn hiện chưa có sản phẩm nào."
+              : `Bạn đang lưu ${items.length} sản phẩm để xem lại hoặc thêm nhanh vào giỏ hàng.`}
+          </p>
         </div>
 
         {isEmpty ? (
@@ -109,15 +152,34 @@ const Wishlist = () => {
                 justifyContent: "center",
               }}
             >
-              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 20.5C11.82 20.5 11.63 20.43 11.49 20.29L4.91 13.84C3.08 12.04 3.03 9.09 4.8 7.3C6.57 5.5 9.5 5.45 11.33 7.25L12 7.92L12.67 7.25C14.5 5.45 17.43 5.5 19.2 7.3C20.97 9.09 20.92 12.04 19.09 13.84L12.51 20.29C12.37 20.43 12.18 20.5 12 20.5Z" stroke="#0156FF" strokeWidth="1.8" strokeLinejoin="round" />
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 20.5C11.82 20.5 11.63 20.43 11.49 20.29L4.91 13.84C3.08 12.04 3.03 9.09 4.8 7.3C6.57 5.5 9.5 5.45 11.33 7.25L12 7.92L12.67 7.25C14.5 5.45 17.43 5.5 19.2 7.3C20.97 9.09 20.92 12.04 19.09 13.84L12.51 20.29C12.37 20.43 12.18 20.5 12 20.5Z"
+                  stroke="#0156FF"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            <h2 style={{ margin: 0, color: "#0f172a", fontSize: "28px", fontWeight: 700 }}>
+            <h2
+              style={{
+                margin: 0,
+                color: "#0f172a",
+                fontSize: "28px",
+                fontWeight: 700,
+              }}
+            >
               Chưa có sản phẩm yêu thích
             </h2>
-            <p style={{ ...introTextStyle, maxWidth: "540px", margin: "12px auto 22px" }}>
-              Bạn có thể thêm các sản phẩm quan tâm vào wishlist để theo dõi và mua sau.
+            <p
+              style={{
+                ...introTextStyle,
+                maxWidth: "540px",
+                margin: "12px auto 22px",
+              }}
+            >
+              Bạn có thể thêm các sản phẩm quan tâm vào wishlist để theo dõi và
+              mua sau.
             </p>
             <Link
               href="/catalogs"
@@ -140,6 +202,7 @@ const Wishlist = () => {
           </div>
         ) : (
           <>
+            {/* Toolbar */}
             <div
               style={{
                 display: "flex",
@@ -156,10 +219,19 @@ const Wishlist = () => {
               }}
             >
               <div>
-                <div style={{ color: "#0f172a", fontSize: "22px", fontWeight: 700, marginBottom: "6px" }}>
+                <div
+                  style={{
+                    color: "#0f172a",
+                    fontSize: "22px",
+                    fontWeight: 700,
+                    marginBottom: "6px",
+                  }}
+                >
                   Sản phẩm đã lưu
                 </div>
-                <div style={introTextStyle}>Chọn nhiều mục để xóa nhanh hoặc thêm vào giỏ hàng.</div>
+                <div style={introTextStyle}>
+                  Chọn nhiều mục để xóa nhanh hoặc thêm vào giỏ hàng.
+                </div>
               </div>
               <div
                 style={{
@@ -177,6 +249,7 @@ const Wishlist = () => {
               </div>
             </div>
 
+            {/* Grid */}
             <div
               style={{
                 display: "grid",
@@ -184,146 +257,19 @@ const Wishlist = () => {
                 gap: "18px",
               }}
             >
-              {products.map((product) => {
-                const isSelected = selectedItems.includes(product.id);
-
-                return (
-                  <div
-                    key={product.id}
-                    style={{
-                      background: "#ffffff",
-                      border: isSelected ? "1px solid #7fb0ff" : "1px solid #dbe7ff",
-                      borderRadius: "18px",
-                      padding: "20px",
-                      boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "10px", color: "#475569", fontSize: "13px", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelectItem(product.id)}
-                          style={{ width: "16px", height: "16px", accentColor: "#0156FF" }}
-                        />
-                        Chọn sản phẩm
-                      </label>
-
-                      <button
-                        onClick={() => removeItem(product.id)}
-                        style={{
-                          width: "36px",
-                          height: "36px",
-                          borderRadius: "10px",
-                          border: "1px solid #fecaca",
-                          background: "#fff5f5",
-                          color: "#dc2626",
-                          cursor: "pointer",
-                          fontSize: "18px",
-                        }}
-                        title="Xóa khỏi wishlist"
-                      >
-                        ×
-                      </button>
-                    </div>
-
-                    <div
-                      style={{
-                        height: "190px",
-                        borderRadius: "16px",
-                        background: "#f8fbff",
-                        border: "1px solid #e6eef8",
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "16px",
-                        marginBottom: "18px",
-                      }}
-                    >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                        onError={(e) => {
-                          e.currentTarget.src = "/img/banner.png";
-                        }}
-                      />
-                    </div>
-
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        padding: "8px 12px",
-                        background: "#eff8f1",
-                        border: "1px solid #d0f0d7",
-                        borderRadius: "12px",
-                        color: "#15803d",
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        marginBottom: "14px",
-                      }}
-                    >
-                      In stock
-                    </div>
-
-                    <h3 style={{ margin: 0, color: "#0f172a", fontSize: "17px", fontWeight: 700, lineHeight: 1.55, minHeight: "80px" }}>
-                      {product.name}
-                    </h3>
-
-                    <div style={{ paddingTop: "16px", marginTop: "16px", borderTop: "1px solid #e2e8f0" }}>
-                      <div style={{ color: "#94a3b8", fontSize: "13px", textDecoration: "line-through", marginBottom: "6px" }}>
-                        {formatCurrency(product.oldPrice)}
-                      </div>
-                      <div style={{ color: "#0f172a", fontSize: "22px", fontWeight: 700 }}>
-                        {formatCurrency(product.price)}
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
-                      <Link
-                        href={`/product/${product.id}`}
-                        style={{
-                          flex: 1,
-                          height: "46px",
-                          borderRadius: "12px",
-                          border: "1px solid #cbd5e1",
-                          color: "#334155",
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "#ffffff",
-                        }}
-                      >
-                        Chi tiết
-                      </Link>
-
-                      <button
-                        style={{
-                          flex: 1,
-                          height: "46px",
-                          border: "none",
-                          borderRadius: "12px",
-                          background: "#0156FF",
-                          color: "#ffffff",
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          boxShadow: "0 14px 30px rgba(1, 86, 255, 0.18)",
-                        }}
-                      >
-                        Thêm giỏ
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {items.map((item) => (
+                <WishlistCard
+                  key={item.productId}
+                  item={item}
+                  isSelected={selectedItems.includes(item.productId)}
+                  onToggleSelect={toggleSelectItem}
+                  onRemove={handleRemove}
+                  onAddToCart={handleAddToCart}
+                />
+              ))}
             </div>
 
+            {/* Bottom bar */}
             <div
               style={{
                 marginTop: "20px",
@@ -340,12 +286,13 @@ const Wishlist = () => {
               }}
             >
               <div style={{ color: "#334155", fontSize: "15px" }}>
-                Đã chọn <strong style={{ color: "#0156FF" }}>{selectedCount}</strong> sản phẩm
+                Đã chọn{" "}
+                <strong style={{ color: "#0156FF" }}>{selectedCount}</strong>{" "}
+                sản phẩm
               </div>
-
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                 <button
-                  onClick={removeSelected}
+                  onClick={handleRemoveSelected}
                   disabled={selectedCount === 0}
                   style={{
                     minWidth: "150px",
@@ -361,9 +308,8 @@ const Wishlist = () => {
                 >
                   Xóa mục chọn
                 </button>
-
                 <button
-                  onClick={addSelectedToCart}
+                  onClick={handleAddSelectedToCart}
                   disabled={selectedCount === 0}
                   style={{
                     minWidth: "190px",
@@ -375,7 +321,10 @@ const Wishlist = () => {
                     fontSize: "14px",
                     fontWeight: 700,
                     cursor: selectedCount === 0 ? "not-allowed" : "pointer",
-                    boxShadow: selectedCount === 0 ? "none" : "0 14px 30px rgba(1, 86, 255, 0.18)",
+                    boxShadow:
+                      selectedCount === 0
+                        ? "none"
+                        : "0 14px 30px rgba(1, 86, 255, 0.18)",
                   }}
                 >
                   Thêm tất cả vào giỏ

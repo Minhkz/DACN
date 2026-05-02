@@ -32,6 +32,7 @@ public enum ErrorCode {
     WISHLIST_ALREADY_EXISTS("409", "Wishlist already exists", HttpStatus.CONFLICT),
     WISHLIST_ITEM_NOT_FOUND("404", "Wishlist item not found", HttpStatus.NOT_FOUND),
     WISHLIST_ITEM_ALREADY_EXISTS("409", "Wishlist item already exists", HttpStatus.CONFLICT),
+    WISHLIST_USER_NOT_FOUND("404", "Wishlist user not found", HttpStatus.NOT_FOUND),
     INVALID_REQUEST("400", "Invalid request", HttpStatus.BAD_REQUEST);
 
     private final String code;

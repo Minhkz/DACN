@@ -13,6 +13,10 @@ import { me } from "@/services/user/UserApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
 import { getProductByType } from "@/services/product/ProductApi";
+import { Spin } from "antd";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearWishlist, fetchWishlist } from "@/store/slices/wishlistSlice";
+import { setUserId } from "@/store/slices/authSlice";
 
 const TimeClock = dynamic(() => import("./TimeClock"), { ssr: false });
 
@@ -28,6 +32,11 @@ const Header = () => {
   const [accountOpen, setAccountOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [cartTimeout, setCartTimeout] = useState<NodeJS.Timeout | null>(null);
+  const dispatch = useAppDispatch();
+
+  const wishlistCount = useAppSelector(
+    (s) => s.wishlist.wishlist?.items?.length ?? 0,
+  );
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["user"],
@@ -35,6 +44,13 @@ const Header = () => {
     staleTime: 0,
     retry: false,
   });
+
+  useEffect(() => {
+    if (data?.id != null) {
+      dispatch(setUserId(data.id));
+      dispatch(fetchWishlist(data.id));
+    }
+  }, [data, dispatch]);
 
   const isLoggedIn = !!data && !isError;
 
@@ -48,6 +64,8 @@ const Header = () => {
 
       await queryClient.invalidateQueries({ queryKey: ["user"] });
       await queryClient.setQueryData(["user"], null);
+
+      dispatch(clearWishlist());
 
       setAccountOpen(false);
       router.replace("/signin");
@@ -242,44 +260,77 @@ const Header = () => {
                     if (cartTimeout) clearTimeout(cartTimeout);
                     setInfoCart(true);
                   }}
-                  className="w-[200px] rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-2xl border border-gray-100 overflow-hidden font-sans transform transition-all duration-300 ease-out hover:shadow-3xl"
+                  style={{ width: "220px" }}
+                  className="bg-white border border-gray-200 rounded-xl overflow-hidden"
                 >
-                  <div className="px-5 pt-5 pb-3 text-center bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">
-                      My Cart
-                    </h3>
-                    <p className="text-sm text-gray-600">2 items in cart</p>
+                  {/* Header */}
+                  <div
+                    className="border-b border-gray-100"
+                    style={{ padding: "14px 16px 12px" }}
+                  >
+                    <p
+                      className="text-sm font-medium text-gray-800"
+                      style={{ margin: "0 0 2px" }}
+                    >
+                      My cart
+                    </p>
+                    <p className="text-xs text-gray-400" style={{ margin: 0 }}>
+                      2 items
+                    </p>
                   </div>
 
-                  <div className="px-5 pb-4">
+                  {/* View cart button */}
+                  <div
+                    className="border-b border-gray-100"
+                    style={{ padding: "12px 16px" }}
+                  >
                     <button
                       onClick={() => {
                         router.push("/cart");
                         setInfoCart(false);
                       }}
-                      className="w-full rounded-full border-2 border-blue-500 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                      className="w-full text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      style={{ padding: "8px 0" }}
                     >
-                      View or Edit Your Cart
+                      View or edit your cart
                     </button>
                   </div>
 
-                  <div className="border-y border-gray-200 bg-gray-50"></div>
+                  {/* Subtotal */}
+                  <div
+                    className="flex items-center justify-between border-b border-gray-100"
+                    style={{ padding: "12px 16px" }}
+                  >
+                    <span className="text-xs text-gray-400">Subtotal</span>
+                    <span className="text-sm font-medium text-gray-800">
+                      $499.00
+                    </span>
+                  </div>
 
-                  <div className="px-5 py-4">
-                    <div className="mb-4 flex items-center justify-between text-sm">
-                      <span className="text-gray-600 font-medium">
-                        Subtotal:
-                      </span>
-                      <span className="font-bold text-gray-900 text-base">
-                        $499.00
-                      </span>
-                    </div>
-
-                    <button className="mb-3 w-full rounded-full bg-gradient-to-r from-blue-600 to-blue-700 py-2.5 text-sm font-semibold text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                      Go to Checkout
+                  {/* Actions */}
+                  <div
+                    className="flex flex-col"
+                    style={{ padding: "12px 16px", gap: "8px" }}
+                  >
+                    <button
+                      className="w-full text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                      style={{ padding: "8px 0" }}
+                    >
+                      Go to checkout
                     </button>
 
-                    <button className="w-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 py-2.5 text-sm font-semibold text-gray-800 hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <button
+                      className="w-full text-sm font-medium text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors flex items-center justify-center"
+                      style={{ padding: "8px 0", gap: "6px" }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.568 6.243-8.148 6.243h-2.19l-1.264 8.013H12.9l.163-1.027.893-5.656.057-.352h.371c4.494 0 7.347-1.987 8.254-6.31.148-.7.183-1.29.138-1.824z" />
+                      </svg>
                       Check out with PayPal
                     </button>
                   </div>
@@ -303,108 +354,121 @@ const Header = () => {
               </Link>
 
               <div
-                className={`
-                  absolute right-[-15px] top-[48px] mt-2 z-50
-                  transition-all duration-150
-                  ${
-                    accountOpen
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 -translate-y-1 pointer-events-none"
-                  }
-                `}
+                className={`absolute z-50 transition-all duration-150 ${
+                  accountOpen
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 -translate-y-1 pointer-events-none"
+                }`}
+                style={{ right: "-12px", top: "calc(100% + 10px)" }}
               >
+                {/* Mũi tên caret */}
                 <div
-                  className="
-                    relative
-                    w-[240px]
-                    bg-white
-                    border border-gray-300
-                    shadow-sm
-                    text-[18px]
-                  "
-                >
-                  <div
-                    className="
-                      absolute -top-[9px] right-6
-                      w-4 h-4
-                      bg-white
-                      border-l border-t border-gray-300
-                      rotate-45
-                    "
-                  />
+                  className="absolute bg-white border-l border-t border-gray-200"
+                  style={{
+                    top: "-5px",
+                    right: "18px",
+                    width: "10px",
+                    height: "10px",
+                    transform: "rotate(45deg)",
+                  }}
+                />
 
-                  <ul className="w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden p-1">
-                    <li className="group flex items-center px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
-                      <Link
-                        href="/account"
-                        className="w-full text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                <ul
+                  className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+                  style={{ width: "220px", padding: "4px 0" }}
+                >
+                  {/* My Account */}
+                  <li className="border-b border-gray-100">
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
+                      style={{ padding: "10px 16px", fontSize: "14px" }}
+                    >
+                      My Account
+                    </Link>
+                  </li>
+
+                  {/* My Wish List */}
+                  <li className="border-b border-gray-100">
+                    <Link
+                      href="/wishlist"
+                      className="flex items-center justify-between text-gray-700 hover:bg-gray-50 transition-colors"
+                      style={{ padding: "10px 16px", fontSize: "14px" }}
+                    >
+                      <span>My Wish List</span>
+                      <span
+                        className="text-gray-400 font-medium"
+                        style={{
+                          fontSize: "11px",
+                          padding: "1px 7px",
+                          background: "#f3f4f6",
+                          borderRadius: "99px",
+                        }}
                       >
-                        My Account
+                        {wishlistCount}
+                      </span>
+                    </Link>
+                  </li>
+
+                  {/* Compare */}
+                  <li className="border-b border-gray-100">
+                    <div
+                      className="flex items-center justify-between text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                      style={{ padding: "10px 16px", fontSize: "14px" }}
+                    >
+                      <span>Compare</span>
+                      <span
+                        className="text-gray-400 font-medium"
+                        style={{
+                          fontSize: "11px",
+                          padding: "1px 7px",
+                          background: "#f3f4f6",
+                          borderRadius: "99px",
+                        }}
+                      >
+                        0
+                      </span>
+                    </div>
+                  </li>
+
+                  {/* Auth actions */}
+                  {isLoading ? (
+                    <li style={{ padding: "10px 16px" }}>
+                      <Spin size="small" />
+                    </li>
+                  ) : !isLoggedIn ? (
+                    <li>
+                      <Link
+                        href="/signin"
+                        className="flex items-center text-gray-700 hover:bg-gray-50 transition-colors"
+                        style={{ padding: "10px 16px", fontSize: "14px" }}
+                      >
+                        Đăng nhập
                       </Link>
                     </li>
-
-                    <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
-                      <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        <Link
-                          href="/wishlist"
-                          className="block w-full h-full text-black"
+                  ) : (
+                    <li>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                        className="flex items-center gap-2.5 w-full text-red-500 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{ padding: "10px 16px", fontSize: "14px" }}
+                      >
+                        <svg
+                          className="shrink-0"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
                         >
-                          My Wish List
-                        </Link>
-                      </span>
-                      <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
-                        0
-                      </span>
+                          <path d="M15.1007 19.247C14.6865 19.247 14.3507 18.9112 14.3507 18.497L14.3507 14.245H12.8507V18.497C12.8507 19.7396 13.8581 20.747 15.1007 20.747H18.5007C19.7434 20.747 20.7507 19.7396 20.7507 18.497L20.7507 5.49609C20.7507 4.25345 19.7433 3.24609 18.5007 3.24609H15.1007C13.8581 3.24609 12.8507 4.25345 12.8507 5.49609V9.74501L14.3507 9.74501V5.49609C14.3507 5.08188 14.6865 4.74609 15.1007 4.74609L18.5007 4.74609C18.9149 4.74609 19.2507 5.08188 19.2507 5.49609L19.2507 18.497C19.2507 18.9112 18.9149 19.247 18.5007 19.247H15.1007ZM3.25073 11.9984C3.25073 12.2144 3.34204 12.4091 3.48817 12.546L8.09483 17.1556C8.38763 17.4485 8.86251 17.4487 9.15549 17.1559C9.44848 16.8631 9.44863 16.3882 9.15583 16.0952L5.81116 12.7484L16.0007 12.7484C16.4149 12.7484 16.7507 12.4127 16.7507 11.9984C16.7507 11.5842 16.4149 11.2484 16.0007 11.2484L5.81528 11.2484L9.15585 7.90554C9.44864 7.61255 9.44847 7.13767 9.15547 6.84488C8.86248 6.55209 8.3876 6.55226 8.09481 6.84525L3.52309 11.4202C3.35673 11.5577 3.25073 11.7657 3.25073 11.9984Z" />
+                        </svg>
+                        {isSigningOut ? <Spin size="small" /> : "Đăng xuất"}
+                      </button>
                     </li>
-
-                    <li className="group flex items-center justify-between px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-b border-gray-50 dark:border-gray-700">
-                      <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        Compare
-                      </span>
-                      <span className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 text-xs font-bold px-2.5 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600">
-                        0
-                      </span>
-                    </li>
-
-                    {isLoading ? (
-                      <li className="px-6 py-4 text-gray-500 border-b border-gray-50 dark:border-gray-700">
-                        Đang tải...
-                      </li>
-                    ) : !isLoggedIn ? (
-                      <li className="group flex items-center px-6 py-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all cursor-pointer border-b border-gray-50 dark:border-gray-700">
-                        <Link
-                          href="/signin"
-                          className="flex items-center w-full h-full"
-                        >
-                          <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-blue-600">
-                            Đăng nhập
-                          </span>
-                        </Link>
-                      </li>
-                    ) : (
-                      <li className="border-b border-gray-50 dark:border-gray-700">
-                        <button
-                          type="button"
-                          onClick={handleSignOut}
-                          disabled={isSigningOut}
-                          className="group flex items-center w-full px-6 py-4 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          <svg
-                            className="mr-3 fill-gray-500 group-hover:fill-red-500 transition-colors"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M15.1007 19.247C14.6865 19.247 14.3507 18.9112 14.3507 18.497L14.3507 14.245H12.8507V18.497C12.8507 19.7396 13.8581 20.747 15.1007 20.747H18.5007C19.7434 20.747 20.7507 19.7396 20.7507 18.497L20.7507 5.49609C20.7507 4.25345 19.7433 3.24609 18.5007 3.24609H15.1007C13.8581 3.24609 12.8507 4.25345 12.8507 5.49609V9.74501L14.3507 9.74501V5.49609C14.3507 5.08188 14.6865 4.74609 15.1007 4.74609L18.5007 4.74609C18.9149 4.74609 19.2507 5.08188 19.2507 5.49609L19.2507 18.497C19.2507 18.9112 18.9149 19.247 18.5007 19.247H15.1007ZM3.25073 11.9984C3.25073 12.2144 3.34204 12.4091 3.48817 12.546L8.09483 17.1556C8.38763 17.4485 8.86251 17.4487 9.15549 17.1559C9.44848 16.8631 9.44863 16.3882 9.15583 16.0952L5.81116 12.7484L16.0007 12.7484C16.4149 12.7484 16.7507 12.4127 16.7507 11.9984C16.7507 11.5842 16.4149 11.2484 16.0007 11.2484L5.81528 11.2484L9.15585 7.90554C9.44864 7.61255 9.44847 7.13767 9.15547 6.84488C8.86248 6.55209 8.3876 6.55226 8.09481 6.84525L3.52309 11.4202C3.35673 11.5577 3.25073 11.7657 3.25073 11.9984Z" />
-                          </svg>
-                          <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-red-600">
-                            {isSigningOut ? "Đang đăng xuất..." : "Đăng xuất"}
-                          </span>
-                        </button>
-                      </li>
-                    )}
-                  </ul>
-                </div>
+                  )}
+                </ul>
               </div>
             </div>
 
