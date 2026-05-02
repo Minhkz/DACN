@@ -6,11 +6,16 @@ import Image from "next/image";
 import { Rating } from "@mui/material";
 import DetailProduct from "@/component/DetailProduct/DetailProduct";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
-
 import { useQuery } from "@tanstack/react-query";
 import { ProductReviewSummary } from "@/types/review/ProductReviewSummary";
 import { Skeleton } from "antd";
 import { getReviewSummary } from "@/services/review/ReviewApi";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  addToWishlist,
+  createWishlist,
+  removeFromWishlist,
+} from "@/store/slices/wishlistSlice";
 
 type Props = {
   product: ProductDetailDto;
@@ -18,23 +23,72 @@ type Props = {
 
 const CardProduct = ({ product }: Props) => {
   const [openDetail, setOpenDetail] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
 
-  const handleLike = (e: React.MouseEvent) => {
+  if (product.sold >= product.quantity) {
+    setIsAvailable(false);
+  }
+
+  const dispatch = useAppDispatch();
+
+  const userId = useAppSelector((s) => s.auth.userId);
+  const wishlistId = useAppSelector((s) => s.wishlist.wishlist?.id ?? null);
+
+  const isLiked = useAppSelector(
+    (s) =>
+      s.wishlist.wishlist?.items?.some(
+        (item) => item.productId === product.id,
+      ) ?? false,
+  );
+
+  const isPending = useAppSelector((s) =>
+    s.wishlist.pendingProductIds.includes(product.id),
+  );
+
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsLiked((prev) => !prev);
+    if (!userId || isPending) return;
+
+    let currentWishlistId = wishlistId;
+
+    if (!currentWishlistId) {
+      try {
+        const newWishlist = await dispatch(createWishlist(userId)).unwrap();
+        currentWishlistId = newWishlist.id;
+      } catch (err) {
+        console.error("Create wishlist failed", err);
+        return;
+      }
+    }
+
+    const wId = currentWishlistId!;
+
+    if (isLiked) {
+      dispatch(removeFromWishlist({ wishlistId: wId, productId: product.id }));
+    } else {
+      dispatch(
+        addToWishlist({
+          wishlistId: wId,
+          productId: product.id,
+          item: {
+            productId: product.id,
+            productName: product.name,
+            avatar: product.avatar ?? "",
+            price: product.price,
+          },
+        }),
+      );
+    }
   };
 
-  const formatPrice = (value: number) => {
-    return value.toLocaleString("vi-VN") + " ₫";
-  };
+  const formatPrice = (value: number) => value.toLocaleString("vi-VN") + " ₫";
 
   const productImage =
     product.avatar && product.avatar.trim() !== ""
       ? product.avatar
       : "/product/msi-pro16.png";
 
-  const { data, isLoading, error, isError } = useQuery<ProductReviewSummary>({
+  const { data, isLoading } = useQuery<ProductReviewSummary>({
     queryKey: ["reviewSummary", product.id],
     queryFn: () => getReviewSummary(product.id),
   });
@@ -44,7 +98,16 @@ const CardProduct = ({ product }: Props) => {
       <div className={style.product} onClick={() => setOpenDetail(true)}>
         <div className={style.content}>
           <div className="warehouse">
-            <Image src="/img/stock.png" alt="stock" width={71} height={26} />
+            {isAvailable ? (
+              <Image src="/img/stock.png" alt="stock" width={71} height={26} />
+            ) : (
+              <Image
+                src="/img/check.png"
+                alt="out of stock"
+                width={71}
+                height={26}
+              />
+            )}
           </div>
 
           <div className="product--img">
@@ -82,7 +145,6 @@ const CardProduct = ({ product }: Props) => {
 
           <div className={style.info}>
             <div className="name">{product.name}</div>
-
             <div className="price">
               <div className={style.oldPrice}>
                 {formatPrice(product.price * 1.2)}
@@ -92,14 +154,20 @@ const CardProduct = ({ product }: Props) => {
           </div>
 
           <div className={style.icon}>
+            {/* ─── Heart Button ──────────────────────────── */}
             <div
-              className={`cursor-pointer flex items-center justify-center rounded-full transition-all duration-300 ${
-                isLiked
-                  ? "bg-red-500 shadow-md shadow-red-500/40 scale-110"
-                  : "bg-transparent scale-100"
-              }`}
-              style={{ width: 30, height: 30 }}
               onClick={handleLike}
+              style={{ width: 30, height: 30 }}
+              className={`
+                cursor-pointer flex items-center justify-center rounded-full
+                transition-all duration-200
+                ${isPending ? "opacity-40 cursor-not-allowed scale-90" : ""}
+                ${
+                  isLiked && !isPending
+                    ? "bg-red-500 shadow-md shadow-red-500/40 scale-110"
+                    : "bg-transparent scale-100"
+                }
+              `}
             >
               <Image
                 src="/icon/heart.png"
@@ -108,11 +176,12 @@ const CardProduct = ({ product }: Props) => {
                 height={30}
                 style={{
                   filter: isLiked ? "brightness(0) invert(1)" : "none",
-                  transition: "all 0.3s ease",
+                  transition: "filter 0.2s ease, transform 0.2s ease",
                 }}
-                className={`${
-                  isLiked ? "scale-75" : "scale-100"
-                } transition-transform duration-300`}
+                className={`
+                  transition-transform duration-200
+                  ${isLiked ? "scale-75" : "scale-100"}
+                `}
               />
             </div>
 

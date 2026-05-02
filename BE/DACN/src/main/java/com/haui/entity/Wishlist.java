@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "wishlist")
+@Table(name = "wishlists")
 @Data
 public class Wishlist {
 
@@ -18,5 +20,6 @@ public class Wishlist {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private LocalDateTime createdDate = LocalDateTime.now();
+    @OneToMany(mappedBy = "wishlist")
+    private List<ProductWishlist> productWishlists = new ArrayList<>();
 }
