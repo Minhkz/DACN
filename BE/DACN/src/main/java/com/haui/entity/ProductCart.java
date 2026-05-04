@@ -14,6 +14,7 @@ public class ProductCart {
     private Integer id;
 
     private Integer quantity;
+
     private BigDecimal price;
 
     @ManyToOne

@@ -2,8 +2,8 @@ package com.haui.controller.client;
 
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.wishlist.WishlistDto;
-import com.haui.dto.response.wishlist.product.WishlistProductDto;
 import com.haui.dto.response.wishlist.product.WishlistItemDto;
+import com.haui.middleware.annotation.CurrentUserId;
 import com.haui.service.WishlistService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,40 +17,35 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class WishlistController {
+
     WishlistService wishlistService;
 
-    @GetMapping("/users/{userId}")
-    public ResponseResult<WishlistDto> getByUser(@PathVariable Integer userId) {
+    @GetMapping
+    public ResponseResult<WishlistDto> getMyWishlist(@CurrentUserId Integer userId) {
         return ResponseResult.success(wishlistService.getByUserId(userId));
     }
 
-    @GetMapping("/{id}/products")
-    public ResponseResult<List<WishlistItemDto>> getProducts(@PathVariable Integer id) {
-        return ResponseResult.success(wishlistService.getProducts(id));
+    @PostMapping
+    public ResponseResult<WishlistDto> create(@CurrentUserId Integer userId) {
+        return ResponseResult.success(wishlistService.create(userId));
     }
 
-    @PostMapping("/{id}/products")
-    public ResponseResult<Void> add(@PathVariable Integer id,
-                                    @RequestParam Integer productId) {
-        wishlistService.addProduct(id, productId);
+    @GetMapping("/products")
+    public ResponseResult<List<WishlistItemDto>> getProducts(@CurrentUserId Integer userId) {
+        return ResponseResult.success(wishlistService.getProducts(userId));
+    }
+
+    @PostMapping("/products")
+    public ResponseResult<Void> addProduct(@CurrentUserId Integer userId,
+                                           @RequestParam Integer productId) {
+        wishlistService.addProduct(userId, productId);
         return ResponseResult.success(null);
     }
 
-    @DeleteMapping("/{id}/products/{productId}")
-    public ResponseResult<Void> remove(@PathVariable Integer id,
-                                       @PathVariable Integer productId) {
-        wishlistService.removeProduct(id, productId);
+    @DeleteMapping("/products/{productId}")
+    public ResponseResult<Void> removeProduct(@CurrentUserId Integer userId,
+                                              @PathVariable Integer productId) {
+        wishlistService.removeProduct(userId, productId);
         return ResponseResult.success(null);
-    }
-
-    @GetMapping("/{userId}/check/{productId}")
-    public ResponseResult<Boolean> check(@PathVariable Integer userId,
-                                         @PathVariable Integer productId) {
-        return ResponseResult.success(wishlistService.check(userId, productId));
-    }
-
-    @PostMapping("/users/{userId}")
-    public ResponseResult<WishlistDto> create(@PathVariable("userId") Integer request) {
-        return ResponseResult.success(wishlistService.create(request));
     }
 }

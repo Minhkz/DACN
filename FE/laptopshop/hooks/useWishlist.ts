@@ -6,7 +6,7 @@ export const WISHLIST_KEY = (userId: number) => ["wishlist", userId];
 export const useWishlist = (userId: number) => {
   return useQuery({
     queryKey: WISHLIST_KEY(userId),
-    queryFn: () => wishlistService.getByUserId(userId),
+    queryFn: () => wishlistService.getByUserId(),
     enabled: !!userId,
   });
 };
@@ -35,14 +35,6 @@ export const useAddToCart = () => {
       console.log("Add to cart:", productIds);
       return Promise.resolve();
     },
-  });
-};
-
-export const useCheckWishlist = (userId: number, productId: number) => {
-  return useQuery({
-    queryKey: ["wishlist-check", userId, productId],
-    queryFn: () => wishlistService.check(userId, productId),
-    enabled: !!userId && !!productId,
   });
 };
 

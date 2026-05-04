@@ -23,11 +23,7 @@ type Props = {
 
 const CardProduct = ({ product }: Props) => {
   const [openDetail, setOpenDetail] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(true);
-
-  if (product.sold >= product.quantity) {
-    setIsAvailable(false);
-  }
+  const isAvailable = product.sold < product.quantity;
 
   const dispatch = useAppDispatch();
 
@@ -49,26 +45,20 @@ const CardProduct = ({ product }: Props) => {
     e.stopPropagation();
     if (!userId || isPending) return;
 
-    let currentWishlistId = wishlistId;
-
-    if (!currentWishlistId) {
+    if (!wishlistId) {
       try {
-        const newWishlist = await dispatch(createWishlist(userId)).unwrap();
-        currentWishlistId = newWishlist.id;
+        await dispatch(createWishlist()).unwrap();
       } catch (err) {
         console.error("Create wishlist failed", err);
         return;
       }
     }
 
-    const wId = currentWishlistId!;
-
     if (isLiked) {
-      dispatch(removeFromWishlist({ wishlistId: wId, productId: product.id }));
+      dispatch(removeFromWishlist({ productId: product.id }));
     } else {
       dispatch(
         addToWishlist({
-          wishlistId: wId,
           productId: product.id,
           item: {
             productId: product.id,
