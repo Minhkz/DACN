@@ -1,68 +1,74 @@
 package com.haui.controller.client;
 
-import com.haui.dto.request.cart.CartItemRequest;
-import com.haui.dto.request.cart.CartRequest;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.cart.CartDto;
+import com.haui.dto.response.cart.product.CartItemDto;
+import com.haui.entity.CustomUserDetails;
+import com.haui.middleware.annotation.CurrentUserId;
 import com.haui.service.CartService;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/carts")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class CartController {
     CartService cartService;
 
     @PostMapping
-    public ResponseResult<CartDto> create(@RequestBody @Valid CartRequest request) {
-        return ResponseResult.success(cartService.create(request));
+    public ResponseResult<CartDto> create(@CurrentUserId Integer userId) {
+        return ResponseResult.success(cartService.create(userId));
     }
 
-    @GetMapping
-    public ResponseResult<List<CartDto>> getAll() {
-        return ResponseResult.success(cartService.getAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseResult<CartDto> getById(@PathVariable Integer id) {
-        return ResponseResult.success(cartService.getById(id));
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseResult<CartDto> getByUserId(@PathVariable Integer userId) {
+    @GetMapping("/users/{userId}")
+    public ResponseResult<CartDto> getByUser(@PathVariable Integer userId) {
         return ResponseResult.success(cartService.getByUserId(userId));
     }
 
-    @PostMapping("/{cartId}/items")
-    public ResponseResult<CartDto> addItem(@PathVariable Integer cartId,
-                                           @RequestBody @Valid CartItemRequest request) {
-        return ResponseResult.success(cartService.addItem(cartId, request));
+    @GetMapping("/{id}/products")
+    public ResponseResult<List<CartItemDto>> getProducts(@PathVariable Integer id) {
+        return ResponseResult.success(cartService.getProducts(id));
     }
 
-    @PutMapping("/{cartId}/items/{itemId}")
-    public ResponseResult<CartDto> updateItem(@PathVariable Integer cartId,
-                                              @PathVariable Integer itemId,
-                                              @RequestBody @Valid CartItemRequest request) {
-        return ResponseResult.success(cartService.updateItem(cartId, itemId, request));
+    @PostMapping("/{id}/products")
+    public ResponseResult<Void> addProduct(@PathVariable Integer id,
+                                           @RequestParam Integer productId,
+                                           @RequestParam Integer quantity) {
+        cartService.addProduct(id, productId, quantity);
+        return ResponseResult.success(null);
     }
 
-    @DeleteMapping("/{cartId}/items/{itemId}")
-    public ResponseResult<CartDto> removeItem(@PathVariable Integer cartId,
-                                              @PathVariable Integer itemId) {
-        return ResponseResult.success(cartService.removeItem(cartId, itemId));
+    @PatchMapping("/{id}/products/{productId}")
+    public ResponseResult<Void> updateQuantity(@PathVariable Integer id,
+                                               @PathVariable Integer productId,
+                                               @RequestParam Integer quantity) {
+        cartService.updateQuantity(id, productId, quantity);
+        return ResponseResult.success(null);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseResult<String> delete(@PathVariable Integer id) {
-        cartService.delete(id);
-        return ResponseResult.success("Successfully deleted cart");
+    @DeleteMapping("/{id}/products/{productId}")
+    public ResponseResult<Void> removeProduct(@PathVariable Integer id,
+                                              @PathVariable Integer productId) {
+        cartService.removeProduct(id, productId);
+        return ResponseResult.success(null);
+    }
+
+    @DeleteMapping("/{id}/clear")
+    public ResponseResult<Void> clear(@PathVariable Integer id) {
+        cartService.clear(id);
+        return ResponseResult.success(null);
+    }
+
+    @GetMapping("/{id}/products/{productId}/exists")
+    public ResponseResult<Boolean> check(@PathVariable Integer id,
+                                         @PathVariable Integer productId) {
+        return ResponseResult.success(cartService.check(id, productId));
     }
 }

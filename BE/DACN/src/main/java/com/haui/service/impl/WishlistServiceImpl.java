@@ -22,6 +22,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -36,9 +37,7 @@ public class WishlistServiceImpl implements WishlistService {
     UserRepository userRepository;
     WishlistMapper wishlistMapper;
 
-    // GET /wishlists/users/{userId}
     @Override
-    @Transactional
     public WishlistDto getByUserId(Integer userId) {
         Wishlist wishlist = wishlistRepository.findByUserId(userId)
                 .orElseThrow(()-> new AppException(ErrorCode.WISHLIST_USER_NOT_FOUND));
@@ -46,29 +45,31 @@ public class WishlistServiceImpl implements WishlistService {
         return wishlistMapper.toDto(wishlist);
     }
 
-    // GET /wishlists/{id}/products
+
     @Override
     @Transactional(readOnly = true)
-    public List<WishlistItemDto> getProducts(Integer wishlistId) {
-        Wishlist wishlist = wishlistRepository.findById(wishlistId)
+    public List<WishlistItemDto> getProducts(Integer userId) {
+        Wishlist wishlist = wishlistRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+
+        if (wishlist == null) return Collections.emptyList();
 
         return wishlistProductMapper.toItemDtos(wishlist.getProductWishlists());
     }
 
-    // POST /wishlists/{id}/products?productId=...
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addProduct(Integer wishlistId, Integer productId) {
-        Wishlist wishlist = wishlistRepository.findById(wishlistId)
-                .orElseThrow(() -> new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+    public void addProduct(Integer userId, Integer productId) {
+        Wishlist wishlist = wishlistRepository.findByUserId(userId).orElseThrow(()-> new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // Tránh thêm trùng
         boolean alreadyExists = productWishlistRepository
-                .existsByWishlistIdAndProductId(wishlistId, productId);
+                .existsByWishlistIdAndProductId(wishlist.getId(), productId);
         if (alreadyExists) return;
 
         ProductWishlist productWishlist = new ProductWishlist();
@@ -78,33 +79,30 @@ public class WishlistServiceImpl implements WishlistService {
         productWishlistRepository.save(productWishlist);
     }
 
-    // DELETE /wishlists/{id}/products/{productId}
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void removeProduct(Integer wishlistId, Integer productId) {
+    public void removeProduct(Integer userId, Integer productId) {
+
         ProductWishlist productWishlist = productWishlistRepository
-                .findByWishlistIdAndProductId(wishlistId, productId)
+                .findByWishlistIdAndProductId(getWishlistId(userId), productId)
                 .orElseThrow(() -> new AppException(ErrorCode.WISHLIST_ITEM_NOT_FOUND));
 
         productWishlistRepository.delete(productWishlist);
     }
 
-    // GET /wishlists/{userId}/check/{productId}
-    @Override
-    public boolean check(Integer userId, Integer productId) {
-        return wishlistRepository.findByUserId(userId)
-                .map(w -> productWishlistRepository
-                        .existsByWishlistIdAndProductId(w.getId(), productId))
-                .orElse(false);
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public WishlistDto create(Integer request) {
-        User user = userRepository.findById(request).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
+    public WishlistDto create(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
         Wishlist wishlist = new Wishlist();
         wishlist.setUser(user);
         wishlistRepository.save(wishlist);
         return wishlistMapper.toDto(wishlist);
+    }
+
+    private Integer getWishlistId(Integer userId) {
+        Wishlist wishlist = wishlistRepository.findByUserId(userId).orElseThrow(()-> new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+        return wishlist.getId();
     }
 }

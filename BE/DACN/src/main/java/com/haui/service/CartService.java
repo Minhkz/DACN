@@ -1,18 +1,26 @@
 package com.haui.service;
 
-import com.haui.dto.request.cart.CartItemRequest;
-import com.haui.dto.request.cart.CartRequest;
+
 import com.haui.dto.response.cart.CartDto;
+import com.haui.dto.response.cart.product.CartItemDto;
 
 import java.util.List;
 
 public interface CartService {
-    CartDto create(CartRequest request);
-    List<CartDto> getAll();
-    CartDto getById(Integer id);
+    CartDto create(Integer userId);
+
     CartDto getByUserId(Integer userId);
-    CartDto addItem(Integer cartId, CartItemRequest request);
-    CartDto updateItem(Integer cartId, Integer itemId, CartItemRequest request);
-    CartDto removeItem(Integer cartId, Integer itemId);
-    void delete(Integer id);
+
+    List<CartItemDto> getProducts(Integer cartId);
+
+    void addProduct(Integer cartId, Integer productId, Integer quantity);
+
+    void updateQuantity(Integer cartId, Integer productId, Integer quantity);
+
+    void removeProduct(Integer cartId, Integer productId);
+
+    void clear(Integer cartId);
+
+    Boolean check(Integer cartId, Integer productId);
+
 }

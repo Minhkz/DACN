@@ -54,7 +54,7 @@ CREATE TABLE products_filters (
 );
 CREATE TABLE carts (
     id 			INT PRIMARY KEY AUTO_INCREMENT,
-    user_id 	INT,
+    user_id 	INT UNIQUE,
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -82,7 +82,7 @@ CREATE TABLE products_orders (
 
 CREATE TABLE wishlists (
     id 			INT PRIMARY KEY AUTO_INCREMENT,
-    user_id 	INT,
+    user_id 	INT UNIQUE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

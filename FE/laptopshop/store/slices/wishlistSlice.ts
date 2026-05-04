@@ -12,7 +12,7 @@ type WishlistState = {
   wishlist: WishlistProductDto | null;
   loading: boolean;
   error: string | null;
-  pendingProductIds: number[]; // Track từng nút đang loading
+  pendingProductIds: number[];
 };
 
 const initialState: WishlistState = {
@@ -22,13 +22,17 @@ const initialState: WishlistState = {
   pendingProductIds: [],
 };
 
+//
+// ─── FETCH WISHLIST ─────────────────────────────────────
+//
 export const fetchWishlist = createAsyncThunk(
-  "wishlist/fetchByUserId",
-  async (userId: number, { rejectWithValue }) => {
+  "wishlist/fetch",
+  async (_, { rejectWithValue }) => {
     try {
-      const wishlistDto = await wishlistService.getByUserId(userId);
-      const items = await wishlistService.getProducts(wishlistDto.id);
-      // Merge thành WishlistProductDto
+      const wishlistDto: WishlistDto = await wishlistService.getMyWishlist();
+
+      const items = await wishlistService.getProducts();
+
       return { ...wishlistDto, items } as WishlistProductDto;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -36,61 +40,14 @@ export const fetchWishlist = createAsyncThunk(
   },
 );
 
-export const addToWishlist = createAsyncThunk(
-  "wishlist/addProduct",
-  async (
-    {
-      wishlistId,
-      productId,
-      item,
-    }: {
-      wishlistId: number;
-      productId: number;
-      item: WishlistItemDto;
-    },
-    { dispatch, rejectWithValue, getState },
-  ) => {
-    const previousWishlist = (getState() as RootState).wishlist.wishlist;
-    dispatch(optimisticAdd(item));
-
-    try {
-      await wishlistService.addProduct(wishlistId, productId);
-      return productId;
-    } catch (err: any) {
-      dispatch(rollbackWishlist(previousWishlist));
-      return rejectWithValue(err.message);
-    }
-  },
-);
-
-export const removeFromWishlist = createAsyncThunk(
-  "wishlist/removeProduct",
-  async (
-    { wishlistId, productId }: { wishlistId: number; productId: number },
-    { dispatch, rejectWithValue, getState },
-  ) => {
-    const previousWishlist = (getState() as RootState).wishlist.wishlist;
-
-    // Xóa khỏi UI ngay lập tức
-    dispatch(optimisticRemove(productId));
-
-    try {
-      await wishlistService.removeProduct(wishlistId, productId);
-      return productId;
-    } catch (err: any) {
-      // Thất bại → rollback
-      dispatch(rollbackWishlist(previousWishlist));
-      return rejectWithValue(err.message);
-    }
-  },
-);
-
+//
+// ─── CREATE WISHLIST ────────────────────────────────────
+//
 export const createWishlist = createAsyncThunk(
   "wishlist/create",
-  async (userId: number, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const wishlistDto: WishlistDto = await wishlistService.create(userId);
-
+      const wishlistDto = await wishlistService.create();
       return { ...wishlistDto, items: [] } as WishlistProductDto;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -98,6 +55,60 @@ export const createWishlist = createAsyncThunk(
   },
 );
 
+//
+// ─── ADD PRODUCT ────────────────────────────────────────
+//
+export const addToWishlist = createAsyncThunk(
+  "wishlist/addProduct",
+  async (
+    {
+      productId,
+      item,
+    }: {
+      productId: number;
+      item: WishlistItemDto;
+    },
+    { dispatch, rejectWithValue, getState },
+  ) => {
+    const previousWishlist = (getState() as RootState).wishlist.wishlist;
+
+    // optimistic update
+    dispatch(optimisticAdd(item));
+
+    try {
+      await wishlistService.addProduct(productId);
+      return productId;
+    } catch (err: any) {
+      dispatch(rollbackWishlist(previousWishlist));
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+//
+// ─── REMOVE PRODUCT ─────────────────────────────────────
+//
+export const removeFromWishlist = createAsyncThunk(
+  "wishlist/removeProduct",
+  async (
+    { productId }: { productId: number }, // bỏ wishlistId
+    { dispatch, rejectWithValue, getState },
+  ) => {
+    const previousWishlist = (getState() as RootState).wishlist.wishlist;
+    dispatch(optimisticRemove(productId));
+    try {
+      await wishlistService.removeProduct(productId);
+      return productId;
+    } catch (err: any) {
+      dispatch(rollbackWishlist(previousWishlist));
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
+//
+// ─── SLICE ──────────────────────────────────────────────
+//
 const wishlistSlice = createSlice({
   name: "wishlist",
   initialState,
@@ -106,21 +117,22 @@ const wishlistSlice = createSlice({
       state.wishlist = null;
     },
 
-    // Thêm item vào UI ngay (không chờ API)
+    // optimistic add
     optimisticAdd: (state, action: PayloadAction<WishlistItemDto>) => {
-      state.wishlist?.items.push(action.payload);
+      if (!state.wishlist) return;
+      state.wishlist.items.push(action.payload);
     },
 
-    // Xóa item khỏi UI ngay (không chờ API)
+    // optimistic remove
     optimisticRemove: (state, action: PayloadAction<number>) => {
-      if (state.wishlist) {
-        state.wishlist.items = state.wishlist.items.filter(
-          (item) => item.productId !== action.payload,
-        );
-      }
+      if (!state.wishlist) return;
+
+      state.wishlist.items = state.wishlist.items.filter(
+        (item) => item.productId !== action.payload,
+      );
     },
 
-    // Hoàn về state cũ nếu API lỗi
+    // rollback
     rollbackWishlist: (
       state,
       action: PayloadAction<WishlistProductDto | null>,
@@ -131,7 +143,9 @@ const wishlistSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // ─── fetchWishlist ───────────────────────────────
+      //
+      // FETCH
+      //
       .addCase(fetchWishlist.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -145,14 +159,18 @@ const wishlistSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // ─── createWishlist ──────────────────────────────
+      //
+      // CREATE
+      //
       .addCase(createWishlist.fulfilled, (state, action) => {
         state.wishlist = action.payload;
       })
 
-      // ─── addToWishlist ───────────────────────────────
+      //
+      // ADD
+      //
       .addCase(addToWishlist.pending, (state, action) => {
-        state.pendingProductIds.push(action.meta.arg.productId); // Đánh dấu nút đang loading
+        state.pendingProductIds.push(action.meta.arg.productId);
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
         state.pendingProductIds = state.pendingProductIds.filter(
@@ -163,10 +181,13 @@ const wishlistSlice = createSlice({
         state.pendingProductIds = state.pendingProductIds.filter(
           (id) => id !== action.meta.arg.productId,
         );
+
         notify("error", "Không thể thêm vào wishlist. Vui lòng thử lại!");
       })
 
-      // ─── removeFromWishlist ──────────────────────────
+      //
+      // REMOVE
+      //
       .addCase(removeFromWishlist.pending, (state, action) => {
         state.pendingProductIds.push(action.meta.arg.productId);
       })
@@ -179,6 +200,7 @@ const wishlistSlice = createSlice({
         state.pendingProductIds = state.pendingProductIds.filter(
           (id) => id !== action.meta.arg.productId,
         );
+
         notify("error", "Không thể xóa khỏi wishlist. Vui lòng thử lại!");
       });
   },
@@ -190,4 +212,5 @@ export const {
   optimisticRemove,
   rollbackWishlist,
 } = wishlistSlice.actions;
+
 export default wishlistSlice.reducer;

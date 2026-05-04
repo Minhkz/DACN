@@ -9,13 +9,11 @@ import java.util.List;
 public interface WishlistService {
     WishlistDto getByUserId(Integer userId);
 
-    List<WishlistItemDto> getProducts(Integer id);
+    List<WishlistItemDto> getProducts(Integer userId);
 
-    void addProduct(Integer id, Integer productId);
+    void addProduct(Integer userId, Integer productId);
 
-    void removeProduct(Integer id, Integer productId);
+    void removeProduct(Integer userId, Integer productId);
 
-    boolean check(Integer userId, Integer productId);
-
-    WishlistDto create(Integer request);
+    WishlistDto create(Integer userId);
 }
