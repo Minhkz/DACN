@@ -11,16 +11,16 @@ public interface CartService {
 
     CartDto getByUserId(Integer userId);
 
-    List<CartItemDto> getProducts(Integer cartId);
+    List<CartItemDto> getProducts(Integer userId);
 
-    void addProduct(Integer cartId, Integer productId, Integer quantity);
+    void addProduct(Integer userId, Integer productId, Integer quantity);
 
-    void updateQuantity(Integer cartId, Integer productId, Integer quantity);
+    void updateQuantity(Integer userId, Integer productId, Integer quantity);
 
-    void removeProduct(Integer cartId, Integer productId);
+    void removeProduct(Integer userId, Integer productId);
 
-    void clear(Integer cartId);
+    void clear(Integer userId);
 
-    Boolean check(Integer cartId, Integer productId);
+    Boolean check(Integer userId, Integer productId);
 
 }
