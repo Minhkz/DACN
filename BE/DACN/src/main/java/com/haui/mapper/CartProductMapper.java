@@ -1,7 +1,11 @@
 package com.haui.mapper;
 
-import com.haui.dto.response.wishlist.product.WishlistProductDto;
+import com.haui.dto.response.cart.product.CartItemDto;
+import com.haui.dto.response.cart.product.CartProductDto;
 import com.haui.dto.response.wishlist.product.WishlistItemDto;
+import com.haui.dto.response.wishlist.product.WishlistProductDto;
+import com.haui.entity.Cart;
+import com.haui.entity.ProductCart;
 import com.haui.entity.ProductWishlist;
 import com.haui.entity.Wishlist;
 import com.haui.service.cloudinary.CloudinaryService;
@@ -14,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public abstract class WishlistProductMapper {
+public abstract class CartProductMapper {
 
     @Autowired
     protected CloudinaryService cloudinaryService;
@@ -23,21 +27,20 @@ public abstract class WishlistProductMapper {
     @Mapping(target = "productName", source = "product.name")
     @Mapping(target = "price", source = "product.price")
     @Mapping(target = "avatar", ignore = true)
-    public abstract WishlistItemDto toItemDto(ProductWishlist entity);
+    public abstract CartItemDto toItemDto(ProductCart entity);
 
     @AfterMapping
-    protected void mapAvatar(ProductWishlist entity,
-                             @MappingTarget WishlistItemDto dto) {
+    protected void mapAvatar(ProductCart entity,
+                             @MappingTarget CartItemDto dto) {
 
         dto.setAvatar(
                 cloudinaryService.getImageUrl(entity.getProduct().getAvatar())
         );
     }
 
-    public abstract List<WishlistItemDto> toItemDtos(List<ProductWishlist> items);
+    public abstract List<CartItemDto> toItemDtos(List<ProductCart> items);
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "items", ignore = true)
-    public abstract WishlistProductDto toDto(Wishlist entity);
-
+    public abstract CartProductDto toDto(Cart entity);
 }

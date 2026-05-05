@@ -27,48 +27,48 @@ public class CartController {
         return ResponseResult.success(cartService.create(userId));
     }
 
-    @GetMapping("/users/{userId}")
-    public ResponseResult<CartDto> getByUser(@PathVariable Integer userId) {
+    @GetMapping
+    public ResponseResult<CartDto> getByUser(@CurrentUserId Integer userId) {
         return ResponseResult.success(cartService.getByUserId(userId));
     }
 
-    @GetMapping("/{id}/products")
-    public ResponseResult<List<CartItemDto>> getProducts(@PathVariable Integer id) {
-        return ResponseResult.success(cartService.getProducts(id));
+    @GetMapping("/products")
+    public ResponseResult<List<CartItemDto>> getProducts(@CurrentUserId Integer userId) {
+        return ResponseResult.success(cartService.getProducts(userId));
     }
 
-    @PostMapping("/{id}/products")
-    public ResponseResult<Void> addProduct(@PathVariable Integer id,
+    @PostMapping("/products")
+    public ResponseResult<Void> addProduct(@CurrentUserId Integer userId,
                                            @RequestParam Integer productId,
                                            @RequestParam Integer quantity) {
-        cartService.addProduct(id, productId, quantity);
+        cartService.addProduct(userId, productId, quantity);
         return ResponseResult.success(null);
     }
 
-    @PatchMapping("/{id}/products/{productId}")
-    public ResponseResult<Void> updateQuantity(@PathVariable Integer id,
+    @PatchMapping("/products/{productId}")
+    public ResponseResult<Void> updateQuantity(@CurrentUserId Integer userId,
                                                @PathVariable Integer productId,
                                                @RequestParam Integer quantity) {
-        cartService.updateQuantity(id, productId, quantity);
+        cartService.updateQuantity(userId, productId, quantity);
         return ResponseResult.success(null);
     }
 
-    @DeleteMapping("/{id}/products/{productId}")
-    public ResponseResult<Void> removeProduct(@PathVariable Integer id,
+    @DeleteMapping("/products/{productId}")
+    public ResponseResult<Void> removeProduct(@CurrentUserId Integer userId,
                                               @PathVariable Integer productId) {
-        cartService.removeProduct(id, productId);
+        cartService.removeProduct(userId, productId);
         return ResponseResult.success(null);
     }
 
-    @DeleteMapping("/{id}/clear")
-    public ResponseResult<Void> clear(@PathVariable Integer id) {
-        cartService.clear(id);
+    @DeleteMapping("/clear")
+    public ResponseResult<Void> clear(@CurrentUserId Integer userId) {
+        cartService.clear(userId);
         return ResponseResult.success(null);
     }
 
-    @GetMapping("/{id}/products/{productId}/exists")
-    public ResponseResult<Boolean> check(@PathVariable Integer id,
+    @GetMapping("/products/{productId}/exists")
+    public ResponseResult<Boolean> check(@CurrentUserId Integer userId,
                                          @PathVariable Integer productId) {
-        return ResponseResult.success(cartService.check(id, productId));
+        return ResponseResult.success(cartService.check(userId, productId));
     }
 }
