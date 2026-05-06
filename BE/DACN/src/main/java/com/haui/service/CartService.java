@@ -21,6 +21,5 @@ public interface CartService {
 
     void clear(Integer userId);
 
-    Boolean check(Integer userId, Integer productId);
 
 }
