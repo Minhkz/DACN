@@ -17,6 +17,7 @@ import { Spin } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearWishlist, fetchWishlist } from "@/store/slices/wishlistSlice";
 import { setUserId } from "@/store/slices/authSlice";
+import { fetchCart } from "@/store/slices/cartSlice";
 
 const TimeClock = dynamic(() => import("./TimeClock"), { ssr: false });
 
@@ -38,19 +39,24 @@ const Header = () => {
     (s) => s.wishlist.wishlist?.items?.length ?? 0,
   );
 
+  const cartCount = useAppSelector((s) => s.cart.cart?.items?.length ?? 0);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["user"],
     queryFn: me,
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
 
+  const userId = data?.id;
+
   useEffect(() => {
-    if (data?.id != null) {
-      dispatch(setUserId(data.id));
-      dispatch(fetchWishlist(data.id));
+    if (userId != null) {
+      dispatch(setUserId(userId));
+      dispatch(fetchWishlist());
+      dispatch(fetchCart());
     }
-  }, [data, dispatch]);
+  }, [userId, dispatch]);
 
   const isLoggedIn = !!data && !isError;
 
@@ -232,7 +238,7 @@ const Header = () => {
                   height={25}
                 />
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  2
+                  {cartCount}
                 </span>
               </Link>
 
@@ -275,7 +281,7 @@ const Header = () => {
                       My cart
                     </p>
                     <p className="text-xs text-gray-400" style={{ margin: 0 }}>
-                      2 items
+                      {cartCount} items
                     </p>
                   </div>
 

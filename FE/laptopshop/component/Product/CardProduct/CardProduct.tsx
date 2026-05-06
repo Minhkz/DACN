@@ -16,6 +16,7 @@ import {
   createWishlist,
   removeFromWishlist,
 } from "@/store/slices/wishlistSlice";
+import { addToCart, createCart } from "@/store/slices/cartSlice";
 
 type Props = {
   product: ProductDetailDto;
@@ -28,6 +29,8 @@ const CardProduct = ({ product }: Props) => {
   const dispatch = useAppDispatch();
 
   const userId = useAppSelector((s) => s.auth.userId);
+
+  // ─── Wishlist selectors ────────────────────────────────────────────────────
   const wishlistId = useAppSelector((s) => s.wishlist.wishlist?.id ?? null);
 
   const isLiked = useAppSelector(
@@ -37,13 +40,28 @@ const CardProduct = ({ product }: Props) => {
       ) ?? false,
   );
 
-  const isPending = useAppSelector((s) =>
+  const isWishlistPending = useAppSelector((s) =>
     s.wishlist.pendingProductIds.includes(product.id),
   );
 
+  // ─── Cart selectors ────────────────────────────────────────────────────────
+  const cartId = useAppSelector((s) => s.cart.cart?.id ?? null);
+
+  const isInCart = useAppSelector(
+    (s) =>
+      s.cart.cart?.items?.some((item) => item.productId === product.id) ??
+      false,
+  );
+
+  const isCartPending = useAppSelector((s) =>
+    s.cart.pendingProductIds.includes(product.id),
+  );
+
+  // ─── Wishlist handler ──────────────────────────────────────────────────────
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!userId || isPending) return;
+    // Chờ store load xong mới cho phép thao tác
+    if (!userId || isWishlistPending) return;
 
     if (!wishlistId) {
       try {
@@ -69,6 +87,36 @@ const CardProduct = ({ product }: Props) => {
         }),
       );
     }
+  };
+
+  // ─── Cart handler ──────────────────────────────────────────────────────────
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Chờ store load xong, tránh gọi createCart khi chưa biết cart có tồn tại chưa
+    if (!userId || isCartPending || isInCart) return;
+
+    if (!cartId) {
+      try {
+        await dispatch(createCart()).unwrap();
+      } catch (err) {
+        console.error("Create cart failed", err);
+        return;
+      }
+    }
+
+    dispatch(
+      addToCart({
+        productId: product.id,
+        quantity: 1,
+        item: {
+          productId: product.id,
+          productName: product.name,
+          avatar: product.avatar ?? "",
+          price: product.price,
+          qty: 1,
+        },
+      }),
+    );
   };
 
   const formatPrice = (value: number) => value.toLocaleString("vi-VN") + " ₫";
@@ -151,9 +199,9 @@ const CardProduct = ({ product }: Props) => {
               className={`
                 cursor-pointer flex items-center justify-center rounded-full
                 transition-all duration-200
-                ${isPending ? "opacity-40 cursor-not-allowed scale-90" : ""}
+                ${isWishlistPending ? "opacity-40 cursor-not-allowed scale-90" : ""}
                 ${
-                  isLiked && !isPending
+                  isLiked && !isWishlistPending
                     ? "bg-red-500 shadow-md shadow-red-500/40 scale-110"
                     : "bg-transparent scale-100"
                 }
@@ -185,7 +233,15 @@ const CardProduct = ({ product }: Props) => {
             </div>
           </div>
 
-          <div className={style.addCart}>
+          {/* ─── Add to Cart Button ────────────────────────────────────────── */}
+          <div
+            className={`
+              ${style.addCart}
+              ${isInCart ? style.addCartActive : ""}
+              ${isCartPending || !isAvailable ? style.addCartDisabled : ""}
+            `}
+            onClick={isAvailable ? handleAddToCart : undefined}
+          >
             <Image
               src="/icon/cart-blue.png"
               alt="cart"
@@ -193,7 +249,13 @@ const CardProduct = ({ product }: Props) => {
               height={18}
               className={style.cartIcon}
             />
-            <span>Thêm vào giỏ</span>
+            <span>
+              {isCartPending
+                ? "Đang thêm..."
+                : isInCart
+                  ? "Đã trong giỏ"
+                  : "Thêm vào giỏ"}
+            </span>
           </div>
         </div>
       </div>

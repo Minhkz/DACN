@@ -15,7 +15,7 @@ export const wishlistService = {
   },
 
   // GET /wishlists/products
-  getProducts: async (): Promise<WishlistItemDto[]> => {
+  getProductWishlist: async (): Promise<WishlistItemDto[]> => {
     const res = await clientApi.get(`/wishlists/products`);
     return res.data.data;
   },

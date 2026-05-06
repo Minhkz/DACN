@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeFromWishlist } from "@/store/slices/wishlistSlice";
-import WishlistCard from "./WishlistCard";
+import WishlistCard from "./WishlistItem";
 import { Spin } from "antd";
 
 const introTextStyle: React.CSSProperties = {
@@ -33,14 +33,14 @@ const Wishlist = () => {
 
   const handleRemove = (productId: number) => {
     if (!wishlistId) return;
-    dispatch(removeFromWishlist({ wishlistId, productId }));
+    dispatch(removeFromWishlist({ productId }));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
   };
 
   const handleRemoveSelected = () => {
     if (!wishlistId) return;
     selectedItems.forEach((productId) =>
-      dispatch(removeFromWishlist({ wishlistId, productId })),
+      dispatch(removeFromWishlist({ productId })),
     );
     setSelectedItems([]);
   };

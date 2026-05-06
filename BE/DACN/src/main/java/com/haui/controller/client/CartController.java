@@ -65,10 +65,4 @@ public class CartController {
         cartService.clear(userId);
         return ResponseResult.success(null);
     }
-
-    @GetMapping("/products/{productId}/exists")
-    public ResponseResult<Boolean> check(@CurrentUserId Integer userId,
-                                         @PathVariable Integer productId) {
-        return ResponseResult.success(cartService.check(userId, productId));
-    }
 }

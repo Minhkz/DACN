@@ -31,7 +31,7 @@ export const fetchWishlist = createAsyncThunk(
     try {
       const wishlistDto: WishlistDto = await wishlistService.getMyWishlist();
 
-      const items = await wishlistService.getProducts();
+      const items = await wishlistService.getProductWishlist();
 
       return { ...wishlistDto, items } as WishlistProductDto;
     } catch (err: any) {

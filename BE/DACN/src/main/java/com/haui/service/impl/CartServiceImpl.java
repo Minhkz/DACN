@@ -47,10 +47,13 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        Cart entity = new Cart();
-        entity.setUser(user);
-        cartRepository.save(entity);
-        return cartMapper.toDto(entity);
+        return cartRepository.findByUserId(userId)
+                .map(cartMapper::toDto)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartMapper.toDto(cartRepository.save(cart));
+                });
     }
 
     @Override
@@ -59,6 +62,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public List<CartItemDto> getProducts(Integer userId) {
         return cartProductMapper.toItemDtos(getCartByUserId(userId).getProductCart());
     }
@@ -123,9 +127,5 @@ public class CartServiceImpl implements CartService {
         productCartRepository.deleteAllByCartId(cart.getId());
     }
 
-    @Override
-    public Boolean check(Integer userId, Integer productId) {
-        Cart cart = getCartByUserId(userId);
-        return productCartRepository.existsByCartIdAndProductId(cart.getId(), productId);
-    }
+
 }
