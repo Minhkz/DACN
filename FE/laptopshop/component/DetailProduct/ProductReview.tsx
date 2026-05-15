@@ -8,6 +8,9 @@ import { ReviewDto } from "@/types/review/ReviewDto";
 import { ProductReviewSummary } from "@/types/review/ProductReviewSummary";
 import { ReviewApi } from "@/services/review/ReviewApi";
 import { Spin } from "antd";
+import { getAxiosErrorMessage } from "@/utils/getAxiosErrorMessage";
+import { notify } from "@/utils/notify";
+import { me } from "@/services/user/UserService";
 
 type ProductReviewProps = {
   productId: number;
@@ -112,7 +115,8 @@ export default function ProductReview({
       setRating(0);
       setReviewContent("");
     } catch (error) {
-      console.error("Lỗi gửi review:", error);
+      const message = getAxiosErrorMessage(error);
+      notify("error", message);
     }
   };
 

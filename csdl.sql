@@ -62,10 +62,12 @@ CREATE TABLE carts (
 CREATE TABLE orders (
     id 					INT PRIMARY KEY AUTO_INCREMENT,
     user_id 			INT,
-    `status` 				INT,
+    `status` 			NVARCHAR(50),
     total_price 		DECIMAL(19,0),
     shipping_address 	NVARCHAR(255),
     payment_method 		VARCHAR(255),
+    payment_ref			VARCHAR(255),
+    payment_status		VARCHAR(255),
     created_date 		TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

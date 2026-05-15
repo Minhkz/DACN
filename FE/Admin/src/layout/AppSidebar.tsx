@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { ShieldUser } from 'lucide-react';
+import { ShieldUser, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -49,7 +49,7 @@ const navItems: NavItem[] = [
     path: '/products',
   },
   {
-    icon: <ListIcon />,
+    icon: <ShoppingCart size={22} />,
     name: 'Quản lý đơn hàng',
     path: '/orders',
   },

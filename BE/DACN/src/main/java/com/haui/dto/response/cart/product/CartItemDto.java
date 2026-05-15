@@ -14,4 +14,6 @@ public class CartItemDto {
     private String avatar;
 
     private BigDecimal price;
+
+    private Integer qty;
 }

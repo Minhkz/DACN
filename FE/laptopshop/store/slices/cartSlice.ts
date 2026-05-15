@@ -26,7 +26,16 @@ export const fetchCart = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const cartDto: CartDto = await cartService.getMyCart();
-      const items = await cartService.getProductCart();
+      const products = await cartService.getProductCart();
+
+      const items: CartItemDto[] = products.map((product: any) => ({
+        productId: product.productId,
+        productName: product.productName,
+        avatar: product.avatar,
+        price: product.price,
+        qty: product.qty ?? product.quantity ?? 1,
+      }));
+
       return { ...cartDto, items } as CartProductDto;
     } catch (err) {
       return rejectWithValue("Error");

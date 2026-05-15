@@ -9,7 +9,7 @@ public class OrderItemRequest {
     @NotNull(message = "productId is required")
     private Integer productId;
 
-    @NotNull(message = "quantity is required")
-    @Min(value = 1, message = "quantity must be greater than 0")
-    private Integer quantity;
+    @NotNull(message = "qty is required")
+    @Min(value = 1, message = "qty must be greater than 0")
+    private Integer qty;
 }

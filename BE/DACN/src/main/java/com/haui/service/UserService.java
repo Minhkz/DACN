@@ -5,6 +5,7 @@ import com.haui.dto.response.user.UserDetailDto;
 import com.haui.dto.response.user.UserDto;
 import com.haui.dto.request.user.UserRequest;
 import com.haui.dto.request.user.UserUpdateRequest;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
@@ -22,4 +23,6 @@ public interface UserService {
     Page<UserDetailDto> getAll(int page, int size, List<String> sort);
 
     Page<UserDetailDto> search(String keyword, int page, int size, List<String> sort);
+
+    void updateAddress(Integer userId, String address);
 }

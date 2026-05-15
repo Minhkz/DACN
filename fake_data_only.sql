@@ -10,9 +10,7 @@ VALUES (1,'Mikzzz1','$2a$10$qOdTgskl8AVbOl5pB41/Vuv06sA6IzY7mjV0K2irHpnQCJ3ciR2B
        (6,'caocao','$2a$10$6DmTlC4t4dwRrXS8tgpmP.Qu4ad3lPVEgzy4KC4xFtmPMPXF7ClRW','caobanh123456@gmail.com','Nguyễn Cao','Hà Nội','0978917563',NULL,2),
        (7,'user','$2a$10$0l/jyPEpVnN4IGFFldAPzuetJ8QSRdJfa8OEm5P1u/IfMUSj/f2Pa','user@gmail.com','Minh Đặng Nhật','Xuân Phương','0385096604',NULL,2);
 
-INSERT INTO `carts` (`id`, `user_id`)
-VALUES (1,1),
-       (2,2);
+
 INSERT INTO `filters` (`id`, `name`, `type`)
 VALUES (3,'Custom Build','type'),
        (4,'Laptop','type'),
@@ -36,12 +34,7 @@ VALUES (5,'Laptop MSI Modern 15 F13MG-667VN','Laptop MSI Modern 15 F13MG-667VN -
        (10,'Màn Hình MSI G275L E14','Màn Hình MSI G275L E14 (27/FHD/144hz/IPS) - Chính Hãng - Bảo Hành 24T',2647000.00,10,0,0,'nhom6/products/10/8bc459ff-c94a-44c6-b484-6cee6676453d'),
        (11,'VGA MSI GeForce','VGA MSI GeForce RTX 5060 Ti 8GB VENTUS 3X OC - Card màn hình Chính Hãng',12606332.00,4,0,0,'nhom6/products/11/37b808db-0d15-491f-8ce6-1306f69d31d8');
 
-INSERT INTO `orders` (`id`,
-               `user_id`, `status`, `total_price`, `shipping_address`, `payment_method`, `created_date`)
-VALUES (2,1,0,420000.00,'Hà Nội','COD','2026-03-30 13:28:35'),
-       (3,2,0,4000.00,'Hà Nội','COD','2026-04-04 14:35:32'),
-       (4,3,0,10200.00,'Vĩnh Phúc','COD','2026-04-04 14:35:55'),
-       (5,6,0,8000.00,'Phú Thọ','COD','2026-04-04 14:36:31');
+
 INSERT INTO `product_img` (`id`, `product_id`, `src`)
 VALUES (13,5,'nhom6/products/5/02b0f944-eca1-4b86-ad00-a092cdf2c85a'),
        (14,5,'nhom6/products/5/b7eafd41-d5c1-4e3d-90e8-51573552029a'),

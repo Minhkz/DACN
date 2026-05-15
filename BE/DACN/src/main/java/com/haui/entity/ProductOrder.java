@@ -15,6 +15,7 @@ public class ProductOrder {
     private Integer id;
 
     private BigDecimal price;
+
     private Integer quantity;
 
     @ManyToOne

@@ -10,7 +10,12 @@ import { Spin } from "antd";
 import ProductReview from "./ProductReview";
 import styles from "./DetailProduct.module.css";
 import Image from "next/image";
-import { me } from "@/services/user/UserApi";
+import { me } from "@/services/user/UserService";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addToCart, createCart } from "@/store/slices/cartSlice";
+import { CartItemDto } from "@/types/cart/cart";
+import { notify } from "@/utils/notify";
+import { getAxiosErrorMessage } from "@/utils/getAxiosErrorMessage";
 
 type DetailProductProps = {
   open: boolean;
@@ -29,10 +34,16 @@ export default function DetailProduct({
   onClose,
   id,
 }: DetailProductProps) {
+  const dispatch = useAppDispatch();
+
+  const { cart, pendingProductIds } = useAppSelector((state) => state.cart);
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showReview, setShowReview] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const isAdding = pendingProductIds.includes(id);
 
   useEffect(() => {
     setMounted(true);
@@ -59,9 +70,11 @@ export default function DetailProduct({
 
   const allImages = useMemo(() => {
     if (!product) return [];
+
     const arr = [product.avatar, ...(product.imgs || [])].filter(
       (img): img is string => Boolean(img && img.trim()),
     );
+
     return [...new Set(arr)];
   }, [product]);
 
@@ -94,6 +107,52 @@ export default function DetailProduct({
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
+  };
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    if (product.quantity <= 0) {
+      notify("info", "Sản phẩm đã hết hàng.");
+      return;
+    }
+
+    if (quantity < 1) {
+      notify("info", "Số lượng phải lớn hơn 0.");
+      return;
+    }
+
+    if (quantity > product.quantity) {
+      notify("info", "Số lượng vượt quá tồn kho.");
+      return;
+    }
+
+    try {
+      if (!cart) {
+        await dispatch(createCart()).unwrap();
+      }
+
+      const item: CartItemDto = {
+        productId: product.id,
+        productName: product.name,
+        avatar: product.avatar,
+        price: product.price,
+        qty: quantity,
+      };
+
+      await dispatch(
+        addToCart({
+          productId: product.id,
+          quantity,
+          item,
+        }),
+      ).unwrap();
+
+      notify("success", "Đã thêm sản phẩm vào giỏ hàng.");
+    } catch (error) {
+      const message = getAxiosErrorMessage(error);
+      notify("error", message);
+    }
   };
 
   if (!open || !mounted) return null;
@@ -183,6 +242,7 @@ export default function DetailProduct({
 
                 <div className={styles.quantitySection}>
                   <p className={styles.quantityLabel}>Số lượng</p>
+
                   <div className={styles.quantityControl}>
                     <button
                       type="button"
@@ -211,9 +271,10 @@ export default function DetailProduct({
                   <button
                     type="button"
                     className={styles.outlineButton}
-                    disabled={product.quantity <= 0}
+                    disabled={product.quantity <= 0 || isAdding}
+                    onClick={handleAddToCart}
                   >
-                    Thêm vào giỏ
+                    {isAdding ? "Đang thêm..." : "Thêm vào giỏ"}
                   </button>
 
                   <button

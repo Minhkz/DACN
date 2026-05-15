@@ -9,15 +9,15 @@ import styles from "./Header.module.css";
 import { NavItem } from "@/types/header/menu/MenuType";
 import MegaMenu from "./menu/MegaMenu";
 import axios from "axios";
-import { me } from "@/services/user/UserApi";
+import { me } from "@/services/user/UserService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
 import { getProductByType } from "@/services/product/ProductApi";
 import { Spin } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearWishlist, fetchWishlist } from "@/store/slices/wishlistSlice";
-import { setUserId } from "@/store/slices/authSlice";
 import { fetchCart } from "@/store/slices/cartSlice";
+import { setUserId } from "@/store/slices/authSlice";
 
 const TimeClock = dynamic(() => import("./TimeClock"), { ssr: false });
 
@@ -241,107 +241,6 @@ const Header = () => {
                   {cartCount}
                 </span>
               </Link>
-
-              <div
-                className={`
-                  absolute right-[-10px] top-[35px] mt-3 z-50
-                  transition-all duration-200 ease-out
-                  ${
-                    infoCart
-                      ? "opacity-100 translate-y-0 pointer-events-auto"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
-                  }
-                `}
-              >
-                <div
-                  className="absolute -top-2 right-4
-                  h-0 w-0
-                  border-l-8 border-r-8 border-b-8
-                  border-l-transparent border-r-transparent border-b-white
-                  drop-shadow-[0_-2px_2px_rgba(0,0,0,0.08)]"
-                />
-
-                <div
-                  onMouseEnter={() => {
-                    if (cartTimeout) clearTimeout(cartTimeout);
-                    setInfoCart(true);
-                  }}
-                  style={{ width: "220px" }}
-                  className="bg-white border border-gray-200 rounded-xl overflow-hidden"
-                >
-                  {/* Header */}
-                  <div
-                    className="border-b border-gray-100"
-                    style={{ padding: "14px 16px 12px" }}
-                  >
-                    <p
-                      className="text-sm font-medium text-gray-800"
-                      style={{ margin: "0 0 2px" }}
-                    >
-                      My cart
-                    </p>
-                    <p className="text-xs text-gray-400" style={{ margin: 0 }}>
-                      {cartCount} items
-                    </p>
-                  </div>
-
-                  {/* View cart button */}
-                  <div
-                    className="border-b border-gray-100"
-                    style={{ padding: "12px 16px" }}
-                  >
-                    <button
-                      onClick={() => {
-                        router.push("/cart");
-                        setInfoCart(false);
-                      }}
-                      className="w-full text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                      style={{ padding: "8px 0" }}
-                    >
-                      View or edit your cart
-                    </button>
-                  </div>
-
-                  {/* Subtotal */}
-                  <div
-                    className="flex items-center justify-between border-b border-gray-100"
-                    style={{ padding: "12px 16px" }}
-                  >
-                    <span className="text-xs text-gray-400">Subtotal</span>
-                    <span className="text-sm font-medium text-gray-800">
-                      $499.00
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div
-                    className="flex flex-col"
-                    style={{ padding: "12px 16px", gap: "8px" }}
-                  >
-                    <button
-                      className="w-full text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                      style={{ padding: "8px 0" }}
-                    >
-                      Go to checkout
-                    </button>
-
-                    <button
-                      className="w-full text-sm font-medium text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors flex items-center justify-center"
-                      style={{ padding: "8px 0", gap: "6px" }}
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.568 6.243-8.148 6.243h-2.19l-1.264 8.013H12.9l.163-1.027.893-5.656.057-.352h.371c4.494 0 7.347-1.987 8.254-6.31.148-.7.183-1.29.138-1.824z" />
-                      </svg>
-                      Check out with PayPal
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div
@@ -383,17 +282,6 @@ const Header = () => {
                   className="bg-white border border-gray-200 rounded-xl overflow-hidden"
                   style={{ width: "220px", padding: "4px 0" }}
                 >
-                  {/* My Account */}
-                  <li className="border-b border-gray-100">
-                    <Link
-                      href="/account"
-                      className="flex items-center gap-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                      style={{ padding: "10px 16px", fontSize: "14px" }}
-                    >
-                      My Account
-                    </Link>
-                  </li>
-
                   {/* My Wish List */}
                   <li className="border-b border-gray-100">
                     <Link

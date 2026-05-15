@@ -43,8 +43,11 @@ export default function Cart() {
 
   const subtotal = useMemo(
     () =>
-      cart?.items.reduce((sum, item) => sum + item.price * item.qty, 0) ?? 0,
-    [cart?.items],
+      (cart?.items ?? []).reduce(
+        (sum, item) => sum + (item.price ?? 0) * (item.qty ?? 0),
+        0,
+      ),
+    [cart, cart?.items],
   );
   const shipping = subtotal > 5000000 ? 0 : 30000;
   const total = subtotal + shipping;
@@ -215,7 +218,7 @@ export default function Cart() {
                 hàng.
               </p>
               <Link
-                href="/catalogs"
+                href="/categories"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -368,7 +371,8 @@ export default function Cart() {
                     gap: "12px",
                   }}
                 >
-                  <button
+                  <Link
+                    href="/checkout"
                     style={{
                       height: "50px",
                       border: "none",
@@ -379,14 +383,17 @@ export default function Cart() {
                       fontWeight: 700,
                       cursor: "pointer",
                       boxShadow: "0 14px 30px rgba(1, 86, 255, 0.18)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textDecoration: "none",
                     }}
-                    // onClick={() => router.push("/checkout")}
                   >
                     Tiến hành thanh toán
-                  </button>
+                  </Link>
 
                   <Link
-                    href="/catalogs"
+                    href="/categories"
                     style={{
                       height: "50px",
                       borderRadius: "12px",
