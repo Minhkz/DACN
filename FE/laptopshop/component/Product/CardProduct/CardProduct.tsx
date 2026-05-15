@@ -17,6 +17,8 @@ import {
   removeFromWishlist,
 } from "@/store/slices/wishlistSlice";
 import { addToCart, createCart } from "@/store/slices/cartSlice";
+import { notify } from "@/utils/notify";
+import { getAxiosErrorMessage } from "@/utils/getAxiosErrorMessage";
 
 type Props = {
   product: ProductDetailDto;
@@ -66,8 +68,9 @@ const CardProduct = ({ product }: Props) => {
     if (!wishlistId) {
       try {
         await dispatch(createWishlist()).unwrap();
-      } catch (err) {
-        console.error("Create wishlist failed", err);
+      } catch (error) {
+        const message = getAxiosErrorMessage(error);
+        notify("error", message);
         return;
       }
     }
@@ -98,8 +101,9 @@ const CardProduct = ({ product }: Props) => {
     if (!cartId) {
       try {
         await dispatch(createCart()).unwrap();
-      } catch (err) {
-        console.error("Create cart failed", err);
+      } catch (error) {
+        const message = getAxiosErrorMessage(error);
+        notify("error", message);
         return;
       }
     }

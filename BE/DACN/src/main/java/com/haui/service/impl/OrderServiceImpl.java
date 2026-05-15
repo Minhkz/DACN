@@ -1,206 +1,243 @@
 package com.haui.service.impl;
+
+import com.haui.dto.request.order.OrderCancelRequest;
 import com.haui.dto.request.order.OrderItemRequest;
 import com.haui.dto.request.order.OrderRequest;
-import com.haui.dto.request.order.OrderUpdateRequest;
+import com.haui.dto.request.order.admin.OrderStatusUpdateRequest;
+import com.haui.dto.request.order.client.OrderUpdateRequest;
 import com.haui.dto.response.order.OrderDto;
-import com.haui.dto.response.order.OrderItemDto;
-import com.haui.dto.response.product.ProductDetailDto;
+import com.haui.dto.response.order.admin.OrderAdminDto;
+import com.haui.dto.response.order.admin.OrderAdminItemDto;
 import com.haui.entity.Order;
 import com.haui.entity.Product;
-import com.haui.entity.ProductFilter;
-import com.haui.entity.ProductImg;
 import com.haui.entity.ProductOrder;
 import com.haui.entity.User;
+import com.haui.enums.OrderStatus;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
+import com.haui.mapper.OrderMapper;
+import com.haui.mapper.ProductOrderMapper;
 import com.haui.repository.OrderRepository;
-import com.haui.repository.ProductFilterRepository;
-import com.haui.repository.ProductImgRepository;
 import com.haui.repository.ProductOrderRepository;
 import com.haui.repository.ProductRepository;
 import com.haui.repository.UserRepository;
 import com.haui.service.OrderService;
 import com.haui.service.cloudinary.CloudinaryService;
+import com.haui.utils.PageableUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.math.BigDecimal;
+import java.util.List;
 @Service
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     OrderRepository orderRepository;
     ProductOrderRepository productOrderRepository;
-    ProductRepository productRepository;
     UserRepository userRepository;
-    ProductImgRepository productImgRepository;
-    ProductFilterRepository productFilterRepository;
+    OrderMapper orderMapper;
+    ProductOrderMapper productOrderMapper;
+    ProductRepository productRepository;
     CloudinaryService cloudinaryService;
 
     @Override
-    @Transactional
-    public OrderDto create(OrderRequest request) {
-        User user = userRepository.findById(request.getUserId())
+    @Transactional(rollbackFor = Exception.class)
+    public OrderDto create(Integer userId, OrderRequest request) {
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        Order order = new Order();
+        Order order = orderMapper.toCreate(request);
         order.setUser(user);
-        order.setShippingAddress(request.getShippingAddress());
-        order.setPaymentMethod(request.getPaymentMethod());
-        order.setStatus(request.getStatus() == null ? 0 : request.getStatus());
-        order.setCreatedDate(LocalDateTime.now());
-        order.setTotalPrice(BigDecimal.ZERO);
-        orderRepository.save(order);
 
-        BigDecimal total = buildOrderItems(order, request.getItems());
-        order.setTotalPrice(total);
-        orderRepository.save(order);
-        return toDto(order);
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        Order savedOrder = orderRepository.save(order);
+
+        for (OrderItemRequest itemRequest : request.getProducts()) {
+
+            Integer productId = itemRequest.getProductId();
+            Integer quantity = itemRequest.getQty();
+
+            if (productId == null) {
+                throw new AppException(ErrorCode.INVALID_REQUEST);
+            }
+
+            if (quantity == null || quantity <= 0) {
+                throw new AppException(ErrorCode.INVALID_QUANTITY);
+            }
+
+            int updatedRows = productRepository.decreaseStockAndIncreaseSold(productId, quantity);
+
+            if (updatedRows == 0) {
+                throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH);
+            }
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+            ProductOrder productOrder =
+                    productOrderMapper.toCreate(product, savedOrder);
+
+            productOrder.setQuantity(quantity);
+
+            productOrderRepository.save(productOrder);
+
+            BigDecimal subTotal = productOrder.getPrice()
+                    .multiply(BigDecimal.valueOf(quantity));
+
+            totalPrice = totalPrice.add(subTotal);
+        }
+
+        savedOrder.setTotalPrice(totalPrice);
+
+        Order finalOrder = orderRepository.save(savedOrder);
+
+        return orderMapper.toDto(finalOrder);
     }
 
     @Override
-    public List<OrderDto> getAll() {
-        return orderRepository.findAll().stream().map(this::toDto).toList();
-    }
-
-    @Override
-    public List<OrderDto> getByUserId(Integer userId) {
-        return orderRepository.findByUserId(userId).stream().map(this::toDto).toList();
-    }
-
-    @Override
-    public OrderDto getById(Integer id) {
-        return toDto(getOrder(id));
-    }
-
-    @Override
-    @Transactional
     public OrderDto update(Integer id, OrderUpdateRequest request) {
-        Order order = getOrder(id);
-
-        restoreStock(order);
-        productOrderRepository.deleteByOrderId(id);
-
-        order.setShippingAddress(request.getShippingAddress());
-        order.setPaymentMethod(request.getPaymentMethod());
-        order.setStatus(request.getStatus() == null ? order.getStatus() : request.getStatus());
-
-        BigDecimal total = buildOrderItems(order, request.getItems());
-        order.setTotalPrice(total);
-        orderRepository.save(order);
-        return toDto(order);
+        return null;
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Integer id) {
-        Order order = getOrder(id);
-        restoreStock(order);
-        productOrderRepository.deleteByOrderId(id);
+        Order order = orderRepository.findAdminDetailById(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         orderRepository.delete(order);
     }
 
-    private Order getOrder(Integer id) {
-        return orderRepository.findById(id)
+    @Override
+    public List<OrderDto> findByUserId(Integer userId) {
+        return List.of();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderAdminDto> getAllOrders(int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        return orderPage.map(this::convertToOrderAdminDto);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderAdminDto detail(Integer id) {
+        Order order = orderRepository.findAdminDetailById(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        return convertToOrderAdminDto(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderAdminDto updateStatus(Integer id, OrderStatusUpdateRequest request) {
+        Order order = orderRepository.findAdminDetailById(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        order.setStatus(request.getStatus());
+        orderRepository.save(order);
+        return convertToOrderAdminDto(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancel(Integer userId, OrderCancelRequest request) {
+
+        if (request == null || request.getOrderId() == null) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        Order order = orderRepository.findByIdAndUserIdForUpdate(request.getOrderId(), userId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-    }
 
-    private Product getProduct(Integer id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-    }
-
-    private BigDecimal buildOrderItems(Order order, List<OrderItemRequest> requests) {
-        List<ProductOrder> items = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO;
-
-        for (OrderItemRequest request : requests) {
-            Product product = getProduct(request.getProductId());
-            validateProductQuantity(product, request.getQuantity());
-
-            ProductOrder item = new ProductOrder();
-            item.setOrder(order);
-            item.setProduct(product);
-            item.setPrice(product.getPrice());
-            item.setQuantity(request.getQuantity());
-            items.add(item);
-
-            product.setQuantity(product.getQuantity() - request.getQuantity());
-            product.setSold((product.getSold() == null ? 0 : product.getSold()) + request.getQuantity());
-            productRepository.save(product);
-
-            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));
+        if (order.getStatus().equals(OrderStatus.CANCELLED.toString())) {
+            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
         }
 
-        productOrderRepository.saveAll(items);
-        return total;
-    }
-
-    private void restoreStock(Order order) {
-        List<ProductOrder> currentItems = productOrderRepository.findByOrderId(order.getId());
-        for (ProductOrder item : currentItems) {
-            Product product = item.getProduct();
-            product.setQuantity(product.getQuantity() + item.getQuantity());
-            product.setSold(Math.max(0, (product.getSold() == null ? 0 : product.getSold()) - item.getQuantity()));
-            productRepository.save(product);
+        if (order.getStatus().equals(OrderStatus.SHIPPING.toString())
+                || order.getStatus().equals(OrderStatus.COMPLETED.toString())) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_CANCEL);
         }
-    }
 
-    private void validateProductQuantity(Product product, Integer quantity) {
-        if (quantity == null || quantity <= 0 || product.getQuantity() == null || product.getQuantity() < quantity) {
-            throw new AppException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+        List<ProductOrder> productOrders =
+                productOrderRepository.findByOrderId(order.getId());
+
+        for (ProductOrder productOrder : productOrders) {
+            int updatedRows = productRepository.restoreStockAndDecreaseSold(
+                    productOrder.getProduct().getId(),
+                    productOrder.getQuantity()
+            );
+
+            if (updatedRows == 0) {
+                throw new AppException(ErrorCode.INVALID_REQUEST);
+            }
         }
+
+        order.setStatus(OrderStatus.CANCELLED.toString());
+
+        orderRepository.save(order);
     }
 
-    private ProductDetailDto toProductDetailDto(Product product) {
-        List<ProductImg> images = productImgRepository.findByProductId(product.getId());
-        List<ProductFilter> filters = productFilterRepository.findByProductId(product.getId());
+    private OrderAdminDto convertToOrderAdminDto(Order order) {
+        OrderAdminDto dto = new OrderAdminDto();
 
-        ProductDetailDto dto = new ProductDetailDto();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setQuantity(product.getQuantity());
-        dto.setSold(product.getSold());
-        dto.setView(product.getView());
-        dto.setAvatar(cloudinaryService.getImageUrl(product.getAvatar()));
-        dto.setImgs(images.stream().map(ProductImg::getSrc).map(cloudinaryService::getImageUrl).toList());
-        dto.setFilters(filters.stream().map(f -> f.getFilter().getName()).toList());
+        dto.setId(order.getId());
+
+        if (order.getUser() != null) {
+            dto.setUserId(order.getUser().getId());
+            dto.setUsername(order.getUser().getUsername());
+            dto.setFullName(order.getUser().getFullName());
+            dto.setEmail(order.getUser().getEmail());
+        }
+
+        dto.setStatus(order.getStatus());
+        dto.setPaymentMethod(order.getPaymentMethod());
+        dto.setPaymentStatus(order.getPaymentStatus());
+
+        dto.setShippingAddress(order.getShippingAddress());
+        dto.setPhone(order.getUser().getPhone());
+
+        dto.setCreatedDate(order.getCreatedDate());
+
+        if (order.getProductOrders() != null) {
+            dto.setProducts(
+                    order.getProductOrders()
+                            .stream()
+                            .map(this::convertToOrderAdminItemDto)
+                            .toList()
+            );
+        }
+
         return dto;
     }
 
-    private OrderDto toDto(Order order) {
-        List<ProductOrder> items = productOrderRepository.findByOrderId(order.getId());
-        List<OrderItemDto> itemDtos = items.stream().map(item -> {
-            OrderItemDto dto = new OrderItemDto();
-            dto.setId(item.getId());
-            dto.setProductId(item.getProduct().getId());
-            dto.setProductName(item.getProduct().getName());
-            dto.setProductAvatar(cloudinaryService.getImageUrl(item.getProduct().getAvatar()));
-            dto.setPrice(item.getPrice());
-            dto.setQuantity(item.getQuantity());
-            dto.setProduct(toProductDetailDto(item.getProduct()));
-            dto.setSubTotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            return dto;
-        }).toList();
+    private OrderAdminItemDto convertToOrderAdminItemDto(ProductOrder productOrder) {
+        OrderAdminItemDto dto = new OrderAdminItemDto();
 
-        OrderDto dto = new OrderDto();
-        dto.setId(order.getId());
-        dto.setUserId(order.getUser().getId());
-        dto.setUsername(order.getUser().getUsername());
-        dto.setStatus(order.getStatus());
-        dto.setTotalPrice(order.getTotalPrice());
-        dto.setShippingAddress(order.getShippingAddress());
-        dto.setPaymentMethod(order.getPaymentMethod());
-        dto.setCreatedDate(order.getCreatedDate());
-        dto.setItems(itemDtos);
+        dto.setId(productOrder.getId());
+        dto.setPrice(productOrder.getPrice());
+        dto.setQuantity(productOrder.getQuantity());
+
+        if (productOrder.getProduct() != null) {
+            Product product = productOrder.getProduct();
+
+            dto.setProductId(product.getId());
+            dto.setProductName(product.getName());
+
+            if (product.getAvatar() != null && !product.getAvatar().isBlank()) {
+                dto.setProductAvatar(cloudinaryService.getImageUrl(product.getAvatar()));
+            }
+        }
+
         return dto;
     }
 }

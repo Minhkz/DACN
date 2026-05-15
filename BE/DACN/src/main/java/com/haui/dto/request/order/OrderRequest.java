@@ -10,8 +10,6 @@ import java.util.List;
 
 @Data
 public class OrderRequest {
-    @NotNull(message = "userId is required")
-    private Integer userId;
 
     @NotBlank(message = "shippingAddress is required")
     private String shippingAddress;
@@ -19,9 +17,8 @@ public class OrderRequest {
     @NotBlank(message = "paymentMethod is required")
     private String paymentMethod;
 
-    private Integer status;
 
     @Valid
-    @NotEmpty(message = "items must not be empty")
-    private List<OrderItemRequest> items;
+    @NotEmpty(message = "products must not be empty")
+    private List<OrderItemRequest> products;
 }

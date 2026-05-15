@@ -18,7 +18,6 @@ export default function CartItem({
   onUpdateQty,
   onRemove,
 }: CartItemProps) {
-  // ✅ Fix: normalize field name — API có thể trả về `quantity` thay vì `qty`
   const qty: number =
     typeof item.qty === "number" && !isNaN(item.qty)
       ? item.qty
