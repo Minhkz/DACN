@@ -9,11 +9,13 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public abstract class ProductOrderMapper {
+    @Autowired
     protected CloudinaryService cloudinaryService;
 
 

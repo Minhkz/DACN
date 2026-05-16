@@ -185,15 +185,7 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(dtos, pageable, userPage.getTotalElements());
     }
 
-    @Override
-    public void updateAddress(Integer userId, String address) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setAddress(address.trim());
-
-        userRepository.save(user);
-    }
 
 
     private UserDetailDto transfer(User user) {
@@ -210,4 +202,6 @@ public class UserServiceImpl implements UserService {
         dto.setFullName(user.getFullName());
         return dto;
     }
+
+
 }

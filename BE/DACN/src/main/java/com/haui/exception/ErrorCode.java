@@ -47,6 +47,31 @@ public enum ErrorCode {
 
     INVALID_QUANTITY("400", "Số lượng không hợp lệ", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_ENOUGH("400", "Sản phẩm không đủ số lượng", HttpStatus.BAD_REQUEST),
+
+    FULL_NAME_REQUIRED("400", "Họ tên không được để trống",  HttpStatus.BAD_REQUEST),
+    FULL_NAME_INVALID("400", "Họ tên phải từ 8 đến 30 ký tự",  HttpStatus.BAD_REQUEST),
+
+    PHONE_REQUIRED("400", "Số điện thoại không được để trống",   HttpStatus.BAD_REQUEST),
+    PHONE_INVALID("400", "Số điện thoại không hợp lệ", HttpStatus.BAD_REQUEST),
+
+    ADDRESS_REQUIRED("400", "Địa chỉ không được để trống",   HttpStatus.BAD_REQUEST),
+    ADDRESS_INVALID("400", "Địa chỉ phải có ít nhất 5 ký tự",  HttpStatus.BAD_REQUEST),
+
+    CURRENT_PASSWORD_REQUIRED("400", "Vui lòng nhập mật khẩu hiện tại",   HttpStatus.BAD_REQUEST),
+    PASSWORD_INCORRECT("400", "Mật khẩu hiện tại không đúng",  HttpStatus.BAD_REQUEST),
+
+    NEW_PASSWORD_REQUIRED("400", "Vui lòng nhập mật khẩu mới",    HttpStatus.BAD_REQUEST),
+    CONFIRM_PASSWORD_REQUIRED("400", "Vui lòng xác nhận mật khẩu mới",    HttpStatus.BAD_REQUEST),
+
+    PASSWORD_INVALID_LENGTH("400", "Mật khẩu mới phải từ 6 đến 16 ký tự",   HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID("400", "Mật khẩu phải có chữ hoa, ký tự đặc biệt và không chứa khoảng trắng",    HttpStatus.BAD_REQUEST),
+    PASSWORD_CONFIRM_NOT_MATCH("400", "Xác nhận mật khẩu không khớp",  HttpStatus.BAD_REQUEST),
+    NEW_PASSWORD_SAME_OLD_PASSWORD("400", "Mật khẩu mới không được trùng mật khẩu cũ", HttpStatus.BAD_REQUEST),
+
+    FILE_TYPE_INVALID("400", "Chỉ hỗ trợ ảnh JPEG hoặc PNG",  HttpStatus.BAD_REQUEST),
+    FILE_SIZE_TOO_LARGE("400", "Dung lượng ảnh tối đa 1MB",   HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED("500", "Upload ảnh thất bại",  HttpStatus.INTERNAL_SERVER_ERROR),
+
     INVALID_REQUEST("400", "Yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST);
 
     private final String code;
