@@ -1,5 +1,6 @@
 package com.haui.service;
 
+import com.haui.dto.request.profile.UserUpdateProfileRequest;
 import com.haui.dto.response.product.ProductDetailDto;
 import com.haui.dto.response.user.UserDetailDto;
 import com.haui.dto.response.user.UserDto;
@@ -24,5 +25,7 @@ public interface UserService {
 
     Page<UserDetailDto> search(String keyword, int page, int size, List<String> sort);
 
-    void updateAddress(Integer userId, String address);
+
+
+
 }

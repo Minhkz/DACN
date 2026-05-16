@@ -1,8 +1,10 @@
 package com.haui.controller.client;
 
 
-import com.haui.dto.request.order.OrderCancelRequest;
+import com.haui.dto.request.order.client.OrderCancelRequest;
 import com.haui.dto.request.order.OrderRequest;
+import com.haui.dto.request.order.client.OrderDetailRequest;
+import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.ResponseResult;
 import com.haui.dto.response.order.OrderDto;
 import com.haui.middleware.annotation.CurrentUserId;
@@ -11,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,13 +38,22 @@ public class OrderController {
     }
 
     @GetMapping("/me")
-    public ResponseResult<List<OrderDto>> getMyOrders(
-            @CurrentUserId Integer userId
+    public ResponseResult<PageResponse<OrderDto>> getMyOrders(
+            @CurrentUserId Integer userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) List<String> sort
     ) {
 
-        return ResponseResult.success(
-                orderService.findByUserId(userId)
-        );
+        Page<OrderDto> result = orderService.getOrders(userId, page, size, sort);
+
+        return ResponseResult.success(PageResponse.from(result));
+    }
+
+    @PostMapping("/detail")
+    public ResponseResult<OrderDto> detail(@CurrentUserId Integer userId,
+                                                         @RequestBody @Valid OrderDetailRequest request){
+        return ResponseResult.success(orderService.findById(userId, request));
     }
 
     @DeleteMapping
@@ -50,7 +62,7 @@ public class OrderController {
             @RequestBody @Valid OrderCancelRequest request
 
     ) {
-
+        orderService.cancel(userId, request);
         return ResponseResult.success();
     }
 

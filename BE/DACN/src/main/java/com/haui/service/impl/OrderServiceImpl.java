@@ -1,9 +1,10 @@
 package com.haui.service.impl;
 
-import com.haui.dto.request.order.OrderCancelRequest;
+import com.haui.dto.request.order.client.OrderCancelRequest;
 import com.haui.dto.request.order.OrderItemRequest;
 import com.haui.dto.request.order.OrderRequest;
 import com.haui.dto.request.order.admin.OrderStatusUpdateRequest;
+import com.haui.dto.request.order.client.OrderDetailRequest;
 import com.haui.dto.request.order.client.OrderUpdateRequest;
 import com.haui.dto.response.order.OrderDto;
 import com.haui.dto.response.order.admin.OrderAdminDto;
@@ -28,7 +29,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,9 +116,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> findByUserId(Integer userId) {
-        return List.of();
+    public OrderDto findById(Integer userId, OrderDetailRequest request) {
+        Order order = orderRepository.findAdminDetailById(request.getOrderId()).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        return orderMapper.toDto(order);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -185,6 +187,16 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.CANCELLED.toString());
 
         orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderDto> getOrders(int userId, int page, int size, List<String> sort) {
+        Pageable pageable = PageableUtil.buildPageable(page, size, sort);
+
+        Page<Order> orderPage = orderRepository.findByUserId(userId, pageable);
+
+        return orderPage.map(orderMapper::toDto);
     }
 
     private OrderAdminDto convertToOrderAdminDto(Order order) {

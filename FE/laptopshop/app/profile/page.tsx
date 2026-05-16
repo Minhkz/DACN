@@ -1,6 +1,6 @@
+import Footer from "@/component/Footer/Footer";
 import Header from "@/component/Header/Header";
-import UserProfile from "@/component/Profile/Profile";
-import UserProfileLight from "@/component/Profile/Profile";
+import UserProfile from "@/component/Profile/UserProfile";
 import React from "react";
 
 const page = () => {
@@ -8,6 +8,7 @@ const page = () => {
     <>
       <Header />
       <UserProfile />
+      <Footer />
     </>
   );
 };

@@ -41,4 +41,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     WHERE o.id = :orderId
 """)
     Optional<Order> findAdminDetailById(Integer orderId);
+
+    Page<Order> findByUserId(Integer userId, Pageable pageable);
 }
