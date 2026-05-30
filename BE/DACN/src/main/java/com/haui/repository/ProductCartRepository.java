@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface ProductCartRepository extends JpaRepository<ProductCart, Integer> {
     boolean existsByCartIdAndProductId(Integer cartId, Integer productId);
 
-    Optional<ProductCart> findByCartId(Integer cartId);
+    List<ProductCart> findByCartId(Integer cartId);
 
 
     Optional<ProductCart> findByCartIdAndProductId(Integer cartId, Integer productId);
@@ -25,4 +25,15 @@ public interface ProductCartRepository extends JpaRepository<ProductCart, Intege
     @Modifying
     @Query("DELETE FROM ProductCart pc WHERE pc.cart.id = :cartId")
     void deleteAllByCartId(@Param("cartId") Integer cartId);
+
+    @Query("""
+        SELECT pc
+        FROM ProductCart pc
+        JOIN FETCH pc.product p
+        JOIN FETCH pc.cart c
+        WHERE c.id IN :cartIds
+    """)
+    List<ProductCart> findByCartIdsWithProduct(
+            @Param("cartIds") List<Integer> cartIds
+    );
 }

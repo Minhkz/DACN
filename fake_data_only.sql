@@ -3,12 +3,8 @@ USE laptopshop;
 INSERT INTO `users` (`id`,
                `username`, `password`, `email`, `full_name`, `address`, `phone`, `avatar`, `role_id`)
 VALUES (1,'Mikzzz1','$2a$10$qOdTgskl8AVbOl5pB41/Vuv06sA6IzY7mjV0K2irHpnQCJ3ciR2BK','minhluky6@gmail.com','Nhật Minh','Hà Nội','0914762528',NULL,2),
-       (2,'Mikz','$2a$10$Y3Okrz697jQl8jlHjmTxLO1A2hYf7GUAKnPjVGyWFvuCt3EVSuSzm','minhluky1@gmail.com','Đặng Nhật Minh','Nam Định','0385096603','nhom6/users/2/avatar_1774796481333',1),
-       (3,'Mikzzz2','$2a$10$2xIdVK6uKlmUE35Ac4Zx7uZkmjDiONMeVHwO.PRK8/k47fh3ebo7e','minhluky9@gmail.com','Nhật Minh','Hà Nội','0914762528',NULL,2),
-       (4,'Vanh','$2a$10$djmpkLmYe65tAjJpIF.6Z.L7r/vTg5/FPp0i0vcpCDH2C6BdlGcMK','Vanhluky@gmail.com','Đặng Nhật Minh','Nam Hồng','1234567892',NULL,2),
-       (5,'VanhDz','$2a$10$zqVMjwpxpwN7IgS/hh9Jzu68n23.0CRKKKUnSodbjp8qXuHkuu3lW','minhluky10@gmail.com','Đặng Việt Anh','Nam Định','0914762528',NULL,2),
-       (6,'caocao','$2a$10$6DmTlC4t4dwRrXS8tgpmP.Qu4ad3lPVEgzy4KC4xFtmPMPXF7ClRW','caobanh123456@gmail.com','Nguyễn Cao','Hà Nội','0978917563',NULL,2),
-       (7,'user','$2a$10$0l/jyPEpVnN4IGFFldAPzuetJ8QSRdJfa8OEm5P1u/IfMUSj/f2Pa','user@gmail.com','Minh Đặng Nhật','Xuân Phương','0385096604',NULL,2);
+       (2,'Mikz','$2a$10$Y3Okrz697jQl8jlHjmTxLO1A2hYf7GUAKnPjVGyWFvuCt3EVSuSzm','minhluky1@gmail.com','Đặng Nhật Minh','Nam Định','0385096603','nhom6/users/2/avatar_1774796481333',1);
+       
 
 
 INSERT INTO `filters` (`id`, `name`, `type`)

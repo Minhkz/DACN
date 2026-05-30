@@ -129,6 +129,69 @@ CREATE TABLE refresh_token(
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE product_views (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NULL,
+    product_id INT NOT NULL,
+    session_id VARCHAR(255),
+    ip_address VARCHAR(100),
+    viewed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_product_views_product_id (product_id),
+    INDEX idx_product_views_user_id (user_id),
+    INDEX idx_product_views_viewed_at (viewed_at),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+CREATE TABLE cart_events (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NULL,
+    product_id INT NOT NULL,
+    cart_id INT NULL,
+    quantity INT NOT NULL,
+    action_type VARCHAR(50) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_cart_events_product_id (product_id),
+    INDEX idx_cart_events_user_id (user_id),
+    INDEX idx_cart_events_cart_id (cart_id),
+    INDEX idx_cart_events_action_type (action_type),
+    INDEX idx_cart_events_created_at (created_at),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE SET NULL
+);
+
+CREATE TABLE chat_messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_chat_messages_user_id (user_id),
+    INDEX idx_chat_messages_created_at (created_at),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE product_vectors (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    content TEXT NOT NULL,
+    embedding_json LONGTEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL,
+
+    UNIQUE KEY uk_product_vectors_product_id (product_id),
+    INDEX idx_product_vectors_product_id (product_id),
+
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 INSERT INTO roles 	(name) VALUES
 					('ADMIN'),
 					('USER');
