@@ -66,6 +66,6 @@ body {
 /* xl ≥ 1280px */
 @media (min-width: 1280px) {
   .container-global {
-    max-width: 1398px;
+    max-width: 1375px;
   }
 }

@@ -6,6 +6,7 @@ import com.haui.entity.Cart;
 import com.haui.entity.Product;
 import com.haui.entity.ProductCart;
 import com.haui.entity.User;
+import com.haui.event.CartEventMessage;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
 import com.haui.mapper.CartMapper;
@@ -15,19 +16,21 @@ import com.haui.repository.ProductCartRepository;
 import com.haui.repository.ProductRepository;
 import com.haui.repository.UserRepository;
 import com.haui.service.CartService;
+import com.haui.service.kafka.KafkaProducerService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CartServiceImpl implements CartService {
-
+    KafkaProducerService kafkaProducerService;
     CartRepository cartRepository;
     UserRepository userRepository;
     CartMapper cartMapper;
@@ -90,9 +93,20 @@ public class CartServiceImpl implements CartService {
                             productCart.setCart(cart);
                             productCart.setProduct(product);
                             productCart.setQuantity(quantity);
+                            productCart.setPrice(product.getPrice());
                             productCartRepository.save(productCart);
                         }
                 );
+        kafkaProducerService.sendCartEvent(
+                CartEventMessage.builder()
+                        .userId(userId)
+                        .cartId(cart.getId())
+                        .productId(productId)
+                        .quantity(quantity)
+                        .actionType("ADD_TO_CART")
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        );
     }
 
     @Override
