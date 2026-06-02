@@ -1,7 +1,9 @@
 "use client";
+
 import Article from "@/component/Article/Article";
 import Brand from "@/component/Brand/Brand";
 import Banner from "@/component/Carousel/Banner";
+import ChatbotWidget from "@/component/chatbot/ChatbotWidget";
 import Footer from "@/component/Footer/Footer";
 import Header from "@/component/Header/Header";
 import TetSalePortal from "@/component/Portal/TetSalePortal";
@@ -13,9 +15,11 @@ export default function Home() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setOpen(true);
     }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -27,6 +31,8 @@ export default function Home() {
       <MainProduct />
       <Article />
       <Footer />
+
+      <ChatbotWidget />
     </>
   );
 }

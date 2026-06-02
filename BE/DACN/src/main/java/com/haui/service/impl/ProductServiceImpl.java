@@ -17,6 +17,7 @@ import com.haui.entity.Filter;
 import com.haui.entity.Product;
 import com.haui.entity.ProductFilter;
 import com.haui.entity.ProductImg;
+import com.haui.event.ProductIndexEvent;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
 import com.haui.mapper.ProductMapper;
@@ -26,6 +27,7 @@ import com.haui.repository.ProductImgRepository;
 import com.haui.repository.ProductRepository;
 import com.haui.service.ProductService;
 import com.haui.service.cloudinary.CloudinaryService;
+import com.haui.service.kafka.KafkaProducerService;
 import com.haui.utils.PageableUtil;
 import com.haui.utils.SpecificationUtil;
 import jakarta.persistence.criteria.Join;
@@ -41,9 +43,12 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +65,8 @@ public class ProductServiceImpl implements ProductService {
     ProductMapper productMapper;
     ApplicationEventPublisher eventPublisher;
     CloudinaryService cloudinaryService;
+    KafkaProducerService kafkaProducerService;
+
     private void validateLogic(ProductRequest request, Boolean isCreated){
         if(isCreated){
             if(productRepository.existsByName(request.getName())){
@@ -95,7 +102,6 @@ public class ProductServiceImpl implements ProductService {
 
         Product entity = productMapper.toCreate(request);
 
-
         productRepository.save(entity);
 
         // save filters
@@ -110,7 +116,6 @@ public class ProductServiceImpl implements ProductService {
             List<ProductFilter> productFilters = new ArrayList<>();
 
             for (Filter filter : filters) {
-
                 ProductFilter pf = new ProductFilter();
                 pf.setProduct(entity);
                 pf.setFilter(filter);
@@ -123,8 +128,8 @@ public class ProductServiceImpl implements ProductService {
 
         // upload avatar
         MultipartFile file = request.getAvatar();
-        if (file != null && !file.isEmpty()) {
 
+        if (file != null && !file.isEmpty()) {
             eventPublisher.publishEvent(
                     new UploadProductAvatarEvent(
                             file.getBytes(),
@@ -150,6 +155,8 @@ public class ProductServiceImpl implements ProductService {
             );
         }
 
+        publishProductIndexAfterCommit(entity.getId(), "INDEX");
+
         return productMapper.toDto(entity);
     }
 
@@ -172,12 +179,11 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.save(product);
 
-
         // update avatar
         if (request.getAvatar() != null) {
             MultipartFile avatar = request.getAvatar();
-            if (avatar != null && !avatar.isEmpty()) {
 
+            if (avatar != null && !avatar.isEmpty()) {
                 eventPublisher.publishEvent(
                         new UpdateProductAvatarEvent(
                                 avatar.getBytes(),
@@ -188,33 +194,31 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-
         // update images
         if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<String> oldPublicIds = productImgRepository.findByProductId(id).stream()
+            List<String> oldPublicIds = productImgRepository.findByProductId(id)
+                    .stream()
                     .map(ProductImg::getSrc)
                     .toList();
+
             productImgRepository.deleteByProductId(id);
 
-            if (request.getImages() != null && !request.getImages().isEmpty()) {
+            List<byte[]> imageBytes = new ArrayList<>();
 
-                List<byte[]> imageBytes = new ArrayList<>();
-
-                for (MultipartFile img : request.getImages()) {
-                    imageBytes.add(img.getBytes());
-                }
-
-                eventPublisher.publishEvent(
-                        new UpdateProductImagesEvent(
-                                imageBytes,
-                                id,
-                                oldPublicIds
-                        )
-                );
+            for (MultipartFile img : request.getImages()) {
+                imageBytes.add(img.getBytes());
             }
+
+            eventPublisher.publishEvent(
+                    new UpdateProductImagesEvent(
+                            imageBytes,
+                            id,
+                            oldPublicIds
+                    )
+            );
         }
 
-
+        publishProductIndexAfterCommit(product.getId(), "INDEX");
 
         return productMapper.toDto(product);
     }
@@ -227,7 +231,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        // lấy images trước khi delete
         List<ProductImg> images = productImgRepository.findByProductId(id);
 
         List<String> publicIds = images.stream()
@@ -245,6 +248,8 @@ public class ProductServiceImpl implements ProductService {
         eventPublisher.publishEvent(
                 new DeleteProductImagesAvatarEvent(publicIds)
         );
+
+        publishProductIndexAfterCommit(id, "DELETE");
     }
 
     @Override
@@ -502,5 +507,20 @@ public class ProductServiceImpl implements ProductService {
         };
     }
 
-
+    private void publishProductIndexAfterCommit(Integer productId, String action) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        kafkaProducerService.sendProductIndexEvent(
+                                ProductIndexEvent.builder()
+                                        .productId(productId)
+                                        .action(action)
+                                        .createdAt(LocalDateTime.now())
+                                        .build()
+                        );
+                    }
+                }
+        );
+    }
 }
