@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import CardProduct from "../CardProduct/CardProduct";
-import styles from "./SeriesProduct.module.css";
 import { ProductDetailDto } from "@/types/product/ProductDetailDto";
 import { getProductByType } from "@/services/product/ProductApi";
 import { Spin } from "antd";
@@ -27,68 +26,118 @@ const SeriesProduct = (props: SeriesProductProps) => {
   });
 
   return (
-    <section className="mb-12 " style={{ marginBottom: "36px" }}>
+    <section style={{ marginBottom: 36 }}>
       {/* ===== SERIES TABS ===== */}
       {props.series && (
         <div
-          className="flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide"
-          style={{ marginBottom: "21px" }}
+          className="
+            flex gap-6 overflow-x-auto whitespace-nowrap
+            [-ms-overflow-style:none] [scrollbar-width:none]
+            [&::-webkit-scrollbar]:hidden
+          "
+          style={{ marginBottom: 21 }}
         >
           {props.series.map((item, index) => (
-            <div
+            <button
+              type="button"
               key={index}
               onClick={() => setActiveIndex(index)}
               className={`
-                text-sm
-                font-semibold
-                cursor-pointer
-                pb-1
-                shrink-0
-                transition
+                shrink-0 border-b-2 text-sm font-semibold
+                transition-all duration-200
                 ${
                   activeIndex === index
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600"
+                    ? "border-[#0156ff] text-[#0156ff]"
+                    : "border-transparent text-gray-600 hover:border-[#0156ff] hover:text-[#0156ff]"
                 }
               `}
+              style={{
+                paddingBottom: 4,
+              }}
             >
               {item}
-            </div>
+            </button>
           ))}
         </div>
       )}
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="flex gap-6">
-        {/* Banner (desktop only) */}
+        {/* ===== BANNER ===== */}
         <div
-          className={`
-            hidden xl:flex
-            w-[233px] h-[360px]
-            items-center justify-center
-            p-4 text-white font-semibold shrink-0
-            ${styles.gamingBorder}
-          `}
-          style={{
-            ["--banner-bg" as any]: `url(${props.banner.src})`,
-          }}
+          className="
+            group relative hidden h-[360px] w-[233px] shrink-0 cursor-pointer
+            overflow-hidden rounded-xl xl:flex
+          "
         >
-          <span className={styles.bannerTitle}>{props.banner.title}</span>
+          {/* RGB border */}
+          <div
+            className="
+              absolute inset-[-40%]
+              animate-[spin_5s_linear_infinite]
+              bg-[conic-gradient(from_0deg,#ff004c,#00f0ff,#7cff00,#ff004c)]
+            "
+          />
+
+          {/* Background image */}
+          <div
+            className="
+              absolute inset-[2px] rounded-[10px]
+              bg-cover bg-center bg-no-repeat
+              transition-transform duration-500
+              group-hover:scale-105
+            "
+            style={{
+              backgroundImage: `url(${props.banner.src})`,
+            }}
+          />
+
+          {/* Overlay */}
+          <div className="absolute inset-[2px] rounded-[10px] bg-black/25" />
+
+          {/* Title */}
+          <div
+            className="
+              relative z-10 flex h-full w-full items-center justify-center
+              text-center text-xl font-semibold leading-[1.4] text-white
+              drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]
+            "
+            style={{
+              paddingLeft: 16,
+              paddingRight: 16,
+            }}
+          >
+            {props.banner.title}
+          </div>
         </div>
 
-        {/* Products */}
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* ===== PRODUCTS HORIZONTAL SCROLL ===== */}
+        <div className="min-w-0 flex-1">
           {isLoading ? (
-            <div className="col-span-4 flex justify-center items-center h-[200px]">
+            <div className="flex h-[360px] items-center justify-center">
               <Spin size="large" />
             </div>
           ) : products.length > 0 ? (
-            products.map((product) => (
-              <CardProduct key={product.id} product={product} />
-            ))
+            <div
+              className="
+                flex gap-6 overflow-x-auto overflow-y-hidden
+                scroll-smooth
+                [-ms-overflow-style:none] [scrollbar-width:none]
+                [&::-webkit-scrollbar]:hidden
+              "
+              style={{
+                paddingBottom: 10,
+              }}
+            >
+              {products.map((product) => (
+                <div key={product.id} className="shrink-0">
+                  <CardProduct product={product} />
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="col-span-4 flex justify-center items-center h-[200px]">
-              <p className="text-gray-500">Không có sản phẩm</p>
+            <div className="flex h-[360px] items-center justify-center">
+              <p className="text-sm text-gray-500">Không có sản phẩm</p>
             </div>
           )}
         </div>

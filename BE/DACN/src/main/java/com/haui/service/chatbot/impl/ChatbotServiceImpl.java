@@ -7,6 +7,7 @@ import com.haui.entity.ProductVector;
 import com.haui.event.ChatbotMessageEvent;
 import com.haui.repository.ProductVectorRepository;
 import com.haui.service.chatbot.ChatbotService;
+import com.haui.service.cloudinary.CloudinaryService;
 import com.haui.service.kafka.KafkaProducerService;
 import com.haui.utils.VectorUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class ChatbotServiceImpl implements ChatbotService {
     private final EmbeddingModel embeddingModel;
     private final ProductVectorRepository productVectorRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final CloudinaryService cloudinaryService;
 
     @Value("${app.analytics.rag-top-k:3}")
     private int topK;
@@ -76,10 +76,16 @@ public class ChatbotServiceImpl implements ChatbotService {
             Câu hỏi khách hàng:
             %s
 
-            Hãy trả lời bằng tiếng Việt, ngắn gọn, dễ hiểu.
+            Hãy trả lời bằng tiếng Việt, ngắn gọn, dễ hiểu, tối đa 3 câu.
         """.formatted(context, question);
 
-        String answer = chatModel.call(prompt);
+        String answer;
+
+        try {
+            answer = chatModel.call(prompt);
+        } catch (Exception e) {
+            answer = buildFallbackAnswer(products);
+        }
 
         kafkaProducerService.sendChatbotMessageEvent(
                 ChatbotMessageEvent.builder()
@@ -90,11 +96,13 @@ public class ChatbotServiceImpl implements ChatbotService {
                         .build()
         );
 
+        Map<String, String> imageUrlCache = new HashMap<>();
+
         List<ChatProductDto> productDtos = products.stream()
                 .map(product -> ChatProductDto.builder()
                         .id(product.getId())
                         .name(product.getName())
-                        .avatar(product.getAvatar())
+                        .avatar(convertWithCache(product.getAvatar(), imageUrlCache))
                         .price(product.getPrice())
                         .build())
                 .toList();
@@ -121,5 +129,32 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
 
         return builder.toString();
+    }
+
+    private String buildFallbackAnswer(List<Product> products) {
+        if (products.isEmpty()) {
+            return "Hiện chưa tìm thấy sản phẩm phù hợp với yêu cầu của bạn.";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Mình tìm thấy một số sản phẩm có thể phù hợp:\n");
+
+        for (Product product : products) {
+            builder.append("- ")
+                    .append(product.getName())
+                    .append(" - Giá: ")
+                    .append(product.getPrice())
+                    .append(" VNĐ.\n");
+        }
+
+        return builder.toString();
+    }
+
+    private String convertWithCache(String avatar, Map<String, String> cache) {
+        if (avatar == null || avatar.isBlank()) {
+            return null;
+        }
+
+        return cache.computeIfAbsent(avatar, cloudinaryService::getImageUrl);
     }
 }
