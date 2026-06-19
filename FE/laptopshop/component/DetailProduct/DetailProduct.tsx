@@ -8,7 +8,6 @@ import { detail as detailProduct } from "@/services/product/ProductApi";
 import { StarOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 import ProductReview from "./ProductReview";
-import styles from "./DetailProduct.module.css";
 import Image from "next/image";
 import { me } from "@/services/user/UserService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -42,12 +41,24 @@ export default function DetailProduct({
   const [quantity, setQuantity] = useState(1);
   const [showReview, setShowReview] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const isAdding = pendingProductIds.includes(id);
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+
+    // Xử lý kiểm tra kích thước màn hình cho responsive padding
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      setMounted(false);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const {
@@ -160,14 +171,47 @@ export default function DetailProduct({
   const modalContent = (
     <div
       onClick={handleBackdropClick}
-      className={styles.backdrop}
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/45 backdrop-blur-[8px] animate-fade-in"
       aria-modal="true"
       role="dialog"
+      style={{ padding: "24px" }}
     >
-      <div className={styles.modal}>
+      {/* Khai báo animation keyframes nội bộ */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUpScale {
+          from {
+            opacity: 0;
+            transform: scale(0.96) translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-up {
+          animation: slideUpScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+      `}</style>
+
+      <div className="relative w-full max-w-[860px] rounded-[24px] bg-white overflow-hidden max-h-[90vh] flex flex-col shadow-2xl animate-slide-up">
+        {/* Nút đóng */}
         <button
           onClick={onClose}
-          className={styles.closeButton}
+          className="absolute top-4 right-4 w-[34px] h-[34px] rounded-full border border-slate-200 bg-white text-slate-500 cursor-pointer text-xl flex items-center justify-center shadow-sm transition-all duration-300 ease-out hover:bg-slate-50 hover:text-slate-800 hover:rotate-90 hover:border-slate-300 z-10"
           aria-label="Đóng"
           type="button"
         >
@@ -175,50 +219,76 @@ export default function DetailProduct({
         </button>
 
         {loading ? (
-          <div className={styles.stateBox}>
+          <div
+            className="text-center text-slate-400 text-sm"
+            style={{ padding: "48px" }}
+          >
             <Spin />
           </div>
         ) : isError ? (
-          <div className={styles.errorBox}>
+          <div
+            className="text-center text-red-500 text-sm font-medium"
+            style={{ padding: "48px" }}
+          >
             Không thể tải chi tiết sản phẩm.
           </div>
         ) : !product ? (
-          <div className={styles.stateBox}>Không có dữ liệu sản phẩm.</div>
+          <div
+            className="text-center text-slate-400 text-sm"
+            style={{ padding: "48px" }}
+          >
+            Không có dữ liệu sản phẩm.
+          </div>
         ) : (
-          <div className={styles.modalBody}>
-            <div className={styles.content}>
-              <div className={styles.leftPanel}>
-                <div className={styles.mainImageWrapper}>
+          <div className="flex flex-col overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 overflow-auto">
+              {/* Cột ảnh sản phẩm bên trái */}
+              <div
+                className="bg-slate-50/50 border-r border-slate-100/80 md:border-r md:border-b-0 border-b"
+                style={{ padding: "24px" }}
+              >
+                <div className="aspect-square rounded-2xl overflow-hidden border border-slate-100 bg-white flex items-center justify-center shadow-sm">
                   {selectedImage ? (
                     <img
                       src={selectedImage}
                       alt={product.name}
-                      className={styles.mainImage}
+                      className="w-full h-full object-contain transition-transform duration-500 ease-out hover:scale-[1.03]"
                     />
                   ) : (
-                    <div className={styles.stateBox}>
+                    <div
+                      className="text-center text-slate-400 text-sm"
+                      style={{ padding: "48px" }}
+                    >
                       Không có ảnh sản phẩm.
                     </div>
                   )}
                 </div>
 
                 {allImages.length > 1 && (
-                  <div className={styles.thumbnailList}>
+                  <div
+                    className="flex overflow-x-auto no-scrollbar"
+                    style={{
+                      marginTop: "12px",
+                      paddingBottom: "4px",
+                      gap: "8px",
+                    }}
+                  >
                     {allImages.map((img, index) => (
                       <button
                         key={`${img}-${index}`}
                         type="button"
                         onClick={() => setSelectedImage(img)}
-                        className={`${styles.thumbnailButton} ${
+                        className={`w-16 h-16 shrink-0 rounded-xl overflow-hidden border bg-white transition-all duration-300 ${
                           selectedImage === img
-                            ? styles.thumbnailButtonActive
-                            : ""
+                            ? "border-[#0156ff] opacity-100 shadow-[0_4px_12px_rgba(1,86,255,0.15)]"
+                            : "border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-300"
                         }`}
+                        style={{ padding: 0 }}
                       >
                         <img
                           src={img}
                           alt={`${product.name}-${index + 1}`}
-                          className={styles.thumbnailImage}
+                          className="w-full h-full object-contain"
                         />
                       </button>
                     ))}
@@ -226,40 +296,70 @@ export default function DetailProduct({
                 )}
               </div>
 
-              <div className={styles.rightPanel}>
-                <h2 className={styles.productName}>{product.name}</h2>
+              {/* Cột thông tin sản phẩm bên phải */}
+              <div
+                className="flex flex-col"
+                style={{ padding: "28px 24px 24px" }}
+              >
+                <h2
+                  className="text-2xl font-extrabold text-slate-900 leading-tight tracking-tight"
+                  style={{ margin: "0 0 8px 0" }}
+                >
+                  {product.name}
+                </h2>
 
-                <p className={styles.productDescription}>
+                <p
+                  className="text-sm text-slate-500 leading-relaxed"
+                  style={{ margin: "0 0 16px 0" }}
+                >
                   {product.description || "Chưa có mô tả sản phẩm."}
                 </p>
 
-                <div className={styles.priceSection}>
-                  <p className={styles.price}>{formatPrice(product.price)}</p>
-                  <p className={styles.stock}>
+                <div
+                  className="border-t border-slate-100"
+                  style={{ paddingTop: "16px", marginBottom: "20px" }}
+                >
+                  <p
+                    className="text-3xl font-extrabold text-[#0156ff] tracking-tight"
+                    style={{ margin: "0 0 4px 0" }}
+                  >
+                    {formatPrice(product.price)}
+                  </p>
+                  <p
+                    className="text-xs font-bold text-emerald-600"
+                    style={{ margin: 0 }}
+                  >
                     Còn {product.quantity} sản phẩm
                   </p>
                 </div>
 
-                <div className={styles.quantitySection}>
-                  <p className={styles.quantityLabel}>Số lượng</p>
+                <div className="flex flex-col" style={{ marginBottom: "20px" }}>
+                  <p
+                    className="text-xs font-bold text-slate-600"
+                    style={{ margin: "0 0 8px 0" }}
+                  >
+                    Số lượng
+                  </p>
 
-                  <div className={styles.quantityControl}>
+                  <div className="inline-flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 self-start">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className={`${styles.quantityButton} ${styles.quantityButtonMinus}`}
+                      className="w-10 h-10 border-none bg-transparent cursor-pointer text-xl text-slate-500 flex items-center justify-center transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed border-r border-slate-200"
                     >
                       −
                     </button>
 
-                    <span className={styles.quantityValue}>{quantity}</span>
+                    <span className="w-12 text-center text-base font-bold text-slate-900 select-none">
+                      {quantity}
+                    </span>
 
                     <button
                       type="button"
                       onClick={() =>
                         setQuantity((q) => Math.min(q + 1, product.quantity))
                       }
-                      className={`${styles.quantityButton} ${styles.quantityButtonPlus}`}
+                      className="w-10 h-10 border-none bg-transparent cursor-pointer text-xl text-slate-500 flex items-center justify-center transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed border-l border-slate-200"
                       disabled={product.quantity <= 0}
                     >
                       +
@@ -267,10 +367,11 @@ export default function DetailProduct({
                   </div>
                 </div>
 
-                <div className={styles.actionGroup}>
+                {/* Các nút hành động */}
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    className={styles.outlineButton}
+                    className="h-11 rounded-xl border-2 border-[#0156ff] bg-transparent text-[#0156ff] text-sm font-bold cursor-pointer transition-all duration-300 hover:bg-blue-50/50 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={product.quantity <= 0 || isAdding}
                     onClick={handleAddToCart}
                   >
@@ -279,7 +380,7 @@ export default function DetailProduct({
 
                   <button
                     type="button"
-                    className={styles.primaryButton}
+                    className="h-11 rounded-xl border-none bg-gradient-to-r from-[#0156ff] to-[#004ee6] text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(1,86,255,0.2)] hover:shadow-[0_6px_16px_rgba(1,86,255,0.3)] transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={product.quantity <= 0}
                   >
                     <Image
@@ -294,15 +395,19 @@ export default function DetailProduct({
 
                 <button
                   type="button"
-                  className={styles.reviewToggle}
+                  className="h-10 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center justify-center transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 self-start"
                   onClick={() => setShowReview((prev) => !prev)}
+                  style={{ marginTop: "16px", padding: "0 14px", gap: "6px" }}
                 >
                   <StarOutlined />
                   <span>{showReview ? "Ẩn đánh giá" : "Xem đánh giá"}</span>
                 </button>
 
                 {showReview && (
-                  <div className={styles.reviewSection}>
+                  <div
+                    className="border-t border-slate-100 bg-white"
+                    style={{ padding: isMobile ? "16px 0 0 0" : "24px 0 0 0" }}
+                  >
                     <ProductReview productId={id} userId={userId} />
                   </div>
                 )}

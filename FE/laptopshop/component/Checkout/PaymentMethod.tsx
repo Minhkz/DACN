@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type PaymentMethodId = "cod" | "banking" | "ewallet";
+export type PaymentMethodId = "cod" | "banking" | "vnpay";
 
 interface PaymentOption {
   id: PaymentMethodId;
@@ -69,9 +69,9 @@ const paymentOptions: PaymentOption[] = [
     ),
   },
   {
-    id: "ewallet",
-    label: "Ví điện tử",
-    description: "MoMo, ZaloPay, VNPAY",
+    id: "vnpay",
+    label: "VNPay",
+    description: "Thanh toán qua VNPay",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <rect

@@ -32,15 +32,16 @@ export default function CartItem({
 
   return (
     <div
+      className="cart-item-card"
       style={{
         opacity: isPending ? 0.55 : 1,
         pointerEvents: isPending ? "none" : "auto",
-        transition: "opacity 0.25s ease, box-shadow 0.2s ease",
+        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         background: "#ffffff",
-        border: "1px solid #dbe7ff",
-        borderRadius: "18px",
+        border: "1px solid #f1f5f9",
+        borderRadius: "16px",
         padding: "20px 24px",
-        boxShadow: "0 4px 24px rgba(15, 23, 42, 0.06)",
+        boxShadow: "0 4px 20px -2px rgba(15, 23, 42, 0.04)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -64,7 +65,8 @@ export default function CartItem({
 
       <style>{`
         @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        .cart-item-remove:hover { background: #fee2e2 !important; border-color: #fca5a5 !important; }
+        .cart-item-card:hover { border-color: #dbe7ff !important; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important; }
+        .cart-item-remove:hover { background: #fef2f2 !important; border-color: #fca5a5 !important; color: #dc2626 !important; }
         .cart-item-qty-btn:hover:not(:disabled) { background: #eff6ff !important; color: #0156FF !important; }
       `}</style>
 
@@ -81,9 +83,9 @@ export default function CartItem({
           style={{
             width: "110px",
             height: "110px",
-            borderRadius: "14px",
-            background: "#f8faff",
-            border: "1px solid #e6eef8",
+            borderRadius: "12px",
+            background: "#f8fafc",
+            border: "1px solid #f1f5f9",
             overflow: "hidden",
             display: "flex",
             alignItems: "center",
@@ -108,7 +110,7 @@ export default function CartItem({
             style={{
               margin: 0,
               color: "#0f172a",
-              fontSize: "17px",
+              fontSize: "16px",
               fontWeight: 700,
               lineHeight: 1.4,
               display: "-webkit-box",
@@ -122,14 +124,16 @@ export default function CartItem({
 
           <p
             style={{
-              margin: "8px 0 0",
+              margin: "6px 0 0 0",
               color: "#64748b",
               fontSize: "13px",
               lineHeight: 1.5,
             }}
           >
             Đơn giá:{" "}
-            <strong style={{ color: "#0156FF", fontSize: "15px" }}>
+            <strong
+              style={{ color: "#0156FF", fontSize: "14px", marginLeft: "4px" }}
+            >
               {currency(price)}
             </strong>
           </p>
@@ -138,21 +142,22 @@ export default function CartItem({
           <div
             style={{
               marginTop: "10px",
+              padding: "4px 12px",
               display: "inline-flex",
               alignItems: "center",
-              gap: "5px",
-              padding: "4px 10px",
-              background: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: "20px",
-              color: "#15803d",
+              gap: "6px",
+              background: "#ecfdf5",
+              border: "1px solid #d1fae5",
+              borderRadius: "9999px",
+              color: "#047857",
               fontSize: "12px",
               fontWeight: 600,
             }}
           >
-            <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-              <circle cx="4" cy="4" r="4" fill="#22c55e" />
-            </svg>
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+              style={{ display: "inline-block" }}
+            />
             Còn hàng
           </div>
         </div>
@@ -162,7 +167,7 @@ export default function CartItem({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "16px",
+            gap: "20px",
             flexWrap: "wrap",
             marginLeft: "auto",
           }}
@@ -172,11 +177,11 @@ export default function CartItem({
             style={{
               display: "flex",
               alignItems: "center",
-              border: "1.5px solid #dbe7ff",
+              border: "1px solid #e2e8f0",
               borderRadius: "12px",
               overflow: "hidden",
-              background: "#f8fbff",
-              height: "44px",
+              background: "#f8fafc",
+              height: "40px",
             }}
           >
             <button
@@ -184,15 +189,15 @@ export default function CartItem({
               onClick={() => onUpdateQty(item.productId, qty - 1)}
               disabled={qty <= 1}
               style={{
-                width: "44px",
-                height: "44px",
+                width: "40px",
+                height: "40px",
                 border: "none",
-                borderRight: "1.5px solid #dbe7ff",
+                borderRight: "1px solid #e2e8f0",
                 background: "transparent",
                 cursor: qty <= 1 ? "not-allowed" : "pointer",
                 color: qty <= 1 ? "#cbd5e1" : "#475569",
-                fontSize: "20px",
-                fontWeight: 300,
+                fontSize: "18px",
+                fontWeight: 400,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -205,11 +210,11 @@ export default function CartItem({
 
             <span
               style={{
-                minWidth: "46px",
+                minWidth: "40px",
                 textAlign: "center",
                 color: "#0f172a",
                 fontWeight: 700,
-                fontSize: "16px",
+                fontSize: "15px",
                 userSelect: "none",
               }}
             >
@@ -220,15 +225,15 @@ export default function CartItem({
               className="cart-item-qty-btn"
               onClick={() => onUpdateQty(item.productId, qty + 1)}
               style={{
-                width: "44px",
-                height: "44px",
+                width: "40px",
+                height: "40px",
                 border: "none",
-                borderLeft: "1.5px solid #dbe7ff",
+                borderLeft: "1px solid #e2e8f0",
                 background: "transparent",
                 cursor: "pointer",
                 color: "#475569",
-                fontSize: "20px",
-                fontWeight: 300,
+                fontSize: "18px",
+                fontWeight: 400,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -243,16 +248,16 @@ export default function CartItem({
           {/* Tạm tính */}
           <div
             style={{
-              minWidth: "130px",
+              minWidth: "120px",
               textAlign: "right",
             }}
           >
             <div
               style={{
                 color: "#0f172a",
-                fontSize: "20px",
-                fontWeight: 700,
-                letterSpacing: "-0.3px",
+                fontSize: "18px",
+                fontWeight: 800,
+                letterSpacing: "-0.025em",
               }}
             >
               {currency(lineTotal)}
@@ -260,9 +265,11 @@ export default function CartItem({
             <div
               style={{
                 color: "#94a3b8",
-                fontSize: "12px",
-                marginTop: "3px",
-                fontWeight: 500,
+                fontSize: "11px",
+                marginTop: "4px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
               }}
             >
               Tạm tính
@@ -277,7 +284,7 @@ export default function CartItem({
               width: "40px",
               height: "40px",
               borderRadius: "10px",
-              border: "1.5px solid #fecaca",
+              border: "1px solid #fee2e2",
               background: "#fff5f5",
               color: "#ef4444",
               cursor: "pointer",
@@ -285,7 +292,7 @@ export default function CartItem({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transition: "background 0.15s, border-color 0.15s",
+              transition: "all 0.2s ease",
               flexShrink: 0,
             }}
             title="Xóa sản phẩm"

@@ -1,6 +1,8 @@
 package com.haui.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +21,16 @@ import java.time.Duration;
 public class RedisConfig {
 
     @Bean
-    public GenericJackson2JsonRedisSerializer redisJsonSerializer(ObjectMapper objectMapper) {
-        return new GenericJackson2JsonRedisSerializer(objectMapper);
+    public GenericJackson2JsonRedisSerializer redisJsonSerializer() {
+        ObjectMapper redisObjectMapper = new ObjectMapper();
+        redisObjectMapper.registerModule(new JavaTimeModule());
+        redisObjectMapper.activateDefaultTyping(
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(Object.class)
+                        .build(),
+                ObjectMapper.DefaultTyping.NON_FINAL
+        );
+        return new GenericJackson2JsonRedisSerializer(redisObjectMapper);
     }
 
     @Bean
@@ -30,12 +40,10 @@ public class RedisConfig {
     ) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
-
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(redisJsonSerializer);
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(redisJsonSerializer);
-
         template.afterPropertiesSet();
         return template;
     }

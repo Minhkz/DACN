@@ -9,6 +9,7 @@ import {
 
 import { UserProfileTab } from "./types";
 import UserDetailType from "@/types/user/UserDetailType";
+import Image from "next/image";
 
 type Props = {
   user?: UserDetailType;
@@ -66,10 +67,12 @@ export default function Sidebar({
             style={{ marginRight: "16px" }}
           >
             {user?.avatar ? (
-              <img
+              <Image
                 src={user.avatar}
                 alt={user.fullName || user.username}
                 className="w-full h-full object-cover"
+                width={56}
+                height={56}
               />
             ) : (
               avatarLetter

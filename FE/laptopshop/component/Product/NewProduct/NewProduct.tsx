@@ -20,25 +20,31 @@ const NewProduct = () => {
   const skeletonItems = Array.from({ length: 6 });
 
   return (
-    <section className="container-global">
+    <section className="container-global mx-auto max-w-7xl">
       {/* Header */}
       <div
         className="flex items-center justify-between"
         style={{
-          marginTop: 24,
-          marginBottom: 14,
+          marginTop: "24px",
+          marginBottom: "16px",
         }}
       >
-        <h2 className="text-[22px] font-bold text-black">Sản phẩm mới</h2>
+        <h2
+          className="text-2xl font-extrabold text-slate-900 tracking-tight"
+          style={{ margin: 0 }}
+        >
+          Sản phẩm mới
+        </h2>
 
         <button
           type="button"
           onClick={() => setOpenAll(true)}
           className="
-            text-[13px] font-normal text-[#0156FF]
-            transition-all duration-200
-            hover:underline hover:opacity-80
+            text-xs font-bold text-[#0156FF]
+            border border-blue-100 bg-blue-50/50 hover:bg-blue-50
+            transition-all duration-300 rounded-xl cursor-pointer
           "
+          style={{ padding: "8px 16px" }}
         >
           Xem tất cả
         </button>
@@ -55,9 +61,9 @@ const NewProduct = () => {
           {skeletonItems.map((_, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-gray-100 bg-white"
+              className="rounded-2xl border border-slate-100 bg-white shadow-sm animate-pulse"
               style={{
-                padding: 14,
+                padding: "16px",
               }}
             >
               <Skeleton.Image
@@ -69,7 +75,7 @@ const NewProduct = () => {
                 }}
               />
 
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: "12px" }}>
                 <Skeleton
                   active
                   paragraph={{
@@ -105,8 +111,8 @@ const NewProduct = () => {
               <div
                 key={product.id}
                 style={{
-                  paddingLeft: 4,
-                  paddingRight: 4,
+                  paddingLeft: "8px",
+                  paddingRight: "8px",
                 }}
               >
                 <CardProduct product={product} />
@@ -120,15 +126,15 @@ const NewProduct = () => {
       <div
         className="
           flex items-center justify-center gap-4
-          rounded-xl bg-[#F5F7FF]
+          rounded-2xl bg-slate-50/80 border border-slate-100/50
         "
         style={{
-          height: 70,
-          marginTop: 12,
-          paddingLeft: 16,
-          paddingRight: 16,
-          paddingTop: 12,
-          paddingBottom: 12,
+          minHeight: "72px",
+          marginTop: "20px",
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          paddingTop: "12px",
+          paddingBottom: "12px",
         }}
       >
         <div className="shrink-0">
@@ -143,15 +149,15 @@ const NewProduct = () => {
           className="shrink-0"
         />
 
-        <div className="text-[18px] font-normal text-[#272560]">
+        <div className="text-base font-semibold text-slate-800 tracking-tight flex items-center flex-wrap justify-center">
           Sở hữu ngay hôm nay, trả góp không lãi suất lên đến 6 tháng.
           <span
             className="
-              cursor-pointer underline transition-opacity duration-200
-              hover:opacity-75
+              cursor-pointer underline text-[#0156FF] hover:text-[#004ee6] transition-colors
             "
+            onClick={() => setOpenAll(true)}
             style={{
-              marginLeft: 4,
+              marginLeft: "6px",
             }}
           >
             Tìm hiểu thêm

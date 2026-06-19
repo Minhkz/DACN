@@ -51,7 +51,7 @@ const getNewProducts = async (size?: number): Promise<ProductDetailDto[]> => {
 };
 
 const detail = async (id: number): Promise<ProductDetailDto> => {
-  const res = await axios.get(`${BASE_URL}/products/${id}`);
+  const res = await axios.get(`${BASE_URL}/products/${id}/tracking`);
   return res.data.data;
 };
 const getProductPageByType = async (

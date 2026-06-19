@@ -75,6 +75,10 @@ public class SecurityConfig {
                                 "/api/v1/filters/**",
                                 "/api/v1/products/**"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/payment/vnpay/return",
+                                "/api/v1/payment/vnpay/ipn"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 

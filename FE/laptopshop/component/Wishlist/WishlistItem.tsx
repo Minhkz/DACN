@@ -23,15 +23,13 @@ const WishlistCard = ({
   onAddToCart,
 }: Props) => {
   const [openDetail, setOpenDetail] = useState(false);
+
   return (
     <div
+      className="relative bg-white border rounded-[22px] shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
       style={{
-        background: "#ffffff",
-        border: isSelected ? "1px solid #7fb0ff" : "1px solid #dbe7ff",
-        borderRadius: "18px",
         padding: "20px",
-        boxShadow: "0 16px 40px rgba(15, 23, 42, 0.05)",
-        transition: "opacity 0.2s",
+        border: isSelected ? "1.5px solid #0156ff" : "1.5px solid #f1f5f9",
       }}
     >
       {/* Header */}
@@ -45,12 +43,13 @@ const WishlistCard = ({
         }}
       >
         <label
+          className="select-none"
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "10px",
-            color: "#475569",
-            fontSize: "13px",
+            gap: "8px",
+            color: "#64748b",
+            fontSize: "12px",
             cursor: "pointer",
           }}
         >
@@ -58,22 +57,20 @@ const WishlistCard = ({
             type="checkbox"
             checked={isSelected}
             onChange={() => onToggleSelect(item.productId)}
-            style={{ width: "16px", height: "16px", accentColor: "#0156FF" }}
+            style={{
+              width: "16px",
+              height: "16px",
+              accentColor: "#0156FF",
+              cursor: "pointer",
+            }}
           />
           Chọn sản phẩm
         </label>
+
         <button
           onClick={() => onRemove(item.productId)}
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "10px",
-            border: "1px solid #fecaca",
-            background: "#fff5f5",
-            color: "#dc2626",
-            cursor: "pointer",
-            fontSize: "18px",
-          }}
+          className="w-8 h-8 rounded-lg border border-rose-100 bg-rose-50 text-rose-500 cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-rose-500 hover:text-white hover:border-transparent active:scale-95"
+          style={{ padding: 0 }}
           title="Xóa khỏi wishlist"
         >
           ×
@@ -82,15 +79,9 @@ const WishlistCard = ({
 
       {/* Ảnh */}
       <div
+        className="relative rounded-[16px] bg-slate-50/50 border border-slate-100/50 overflow-hidden flex items-center justify-center transition-transform duration-300 hover:scale-[1.01]"
         style={{
           height: "190px",
-          borderRadius: "16px",
-          background: "#f8fbff",
-          border: "1px solid #e6eef8",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           padding: "16px",
           marginBottom: "18px",
         }}
@@ -98,68 +89,64 @@ const WishlistCard = ({
         <img
           src={item.avatar}
           alt={item.productName}
-          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          className="w-full h-full object-contain"
           onError={(e) => {
             e.currentTarget.src = "/img/banner.png";
           }}
         />
       </div>
 
-      {/* Badge */}
+      {/* Badge trạng thái */}
       <div
+        className="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg"
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "8px 12px",
-          background: "#eff8f1",
-          border: "1px solid #d0f0d7",
-          borderRadius: "12px",
-          color: "#15803d",
-          fontSize: "12px",
-          fontWeight: 700,
+          padding: "6px 12px",
           marginBottom: "14px",
+          gap: "5px",
         }}
       >
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
         In stock
       </div>
 
-      {/* Tên */}
+      {/* Tên sản phẩm */}
       <h3
+        className="text-slate-800 text-sm font-bold leading-relaxed line-clamp-2 hover:text-[#0156ff] transition-colors cursor-pointer"
+        onClick={() => setOpenDetail(true)}
         style={{
           margin: 0,
-          color: "#0f172a",
-          fontSize: "17px",
-          fontWeight: 700,
-          lineHeight: 1.55,
-          minHeight: "80px",
+          minHeight: "44px",
         }}
       >
         {item.productName}
       </h3>
 
-      {/* Giá */}
+      {/* Giá tiền */}
       <div
+        className="border-t border-slate-100"
         style={{
           paddingTop: "16px",
           marginTop: "16px",
-          borderTop: "1px solid #e2e8f0",
         }}
       >
-        <div style={{ color: "#0f172a", fontSize: "22px", fontWeight: 700 }}>
+        <div
+          className="text-xl font-extrabold text-slate-900 tracking-tight"
+          style={{ margin: 0 }}
+        >
           {formatCurrency(item.price)}
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Nút hành động */}
       <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
         <Button
           style={{
             flex: 1,
-            height: "46px",
-            borderRadius: "12px",
+            height: "40px",
+            borderRadius: "10px",
             border: "1px solid #cbd5e1",
             color: "#334155",
-            fontSize: "14px",
+            fontSize: "12px",
             fontWeight: 700,
             textDecoration: "none",
             display: "flex",
@@ -167,28 +154,20 @@ const WishlistCard = ({
             justifyContent: "center",
             background: "#ffffff",
           }}
+          className="hover:border-slate-400 hover:bg-slate-50 transition-all duration-300 active:scale-[0.98]"
           onClick={() => setOpenDetail(true)}
         >
           Chi tiết
         </Button>
+
         <button
           onClick={() => onAddToCart(item.productId)}
-          style={{
-            flex: 1,
-            height: "46px",
-            border: "none",
-            borderRadius: "12px",
-            background: "#0156FF",
-            color: "#ffffff",
-            fontSize: "14px",
-            fontWeight: 700,
-            cursor: "pointer",
-            boxShadow: "0 14px 30px rgba(1, 86, 255, 0.18)",
-          }}
+          className="flex-1 h-10 border-none rounded-xl bg-gradient-to-r from-[#0156ff] to-[#004ee6] text-white font-bold text-xs shadow-[0_4px_12px_rgba(1,86,255,0.15)] hover:shadow-[0_6px_16px_rgba(1,86,255,0.25)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer active:scale-[0.98]"
         >
           Thêm giỏ
         </button>
       </div>
+
       <DetailProduct
         open={openDetail}
         onClose={() => setOpenDetail(false)}

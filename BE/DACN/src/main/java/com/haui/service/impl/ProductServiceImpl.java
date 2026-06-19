@@ -18,6 +18,7 @@ import com.haui.entity.Product;
 import com.haui.entity.ProductFilter;
 import com.haui.entity.ProductImg;
 import com.haui.event.ProductIndexEvent;
+import com.haui.event.ProductViewEvent;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
 import com.haui.mapper.ProductMapper;

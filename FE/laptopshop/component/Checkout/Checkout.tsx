@@ -11,6 +11,8 @@ import { clearCartProducts, fetchCart } from "@/store/slices/cartSlice";
 import { OrderRequest } from "@/types/order/order";
 import orderService from "@/services/order/OrderService";
 import { notify } from "@/utils/notify";
+import { createVNPayPayment } from "@/services/pay/PayService";
+import { useCreateVNPayPayment } from "@/hook/useCreateVNPayPayment";
 
 const currency = (value: number) => `${value.toLocaleString("vi-VN")}₫`;
 
@@ -50,16 +52,16 @@ export default function Checkout() {
       imageUrl: item.avatar,
     })) ?? [];
 
+  const { mutateAsync: createVNPayPaymentAsync } = useCreateVNPayPayment();
+
   const handlePlaceOrder = async () => {
     if (!cart || cart.items.length === 0) {
-      notify(
-        "info",
-        "Giỏ hàng đang trống. Vui lòng thêm sản phẩm trước khi đặt hàng.",
-      );
+      notify("info", "Giỏ hàng đang trống. Vui lòng thêm sản phẩm.");
       return;
     }
+
     if (!shippingAddress.trim()) {
-      notify("info", "Vui lòng nhập địa chỉ giao hàng trước khi đặt hàng.");
+      notify("info", "Vui lòng nhập địa chỉ giao hàng.");
       return;
     }
 
@@ -77,13 +79,34 @@ export default function Checkout() {
 
       const order = await orderService.create(payload);
 
-      await dispatch(clearCartProducts());
+      switch (paymentMethod) {
+        case "cod": {
+          await dispatch(clearCartProducts());
 
-      router.push(`/cart`);
-      notify("success", "Đặt hàng thành công!");
-    } catch (error) {
-      console.error("Create order error:", error);
-      notify("error", "Đặt hàng thất bại. Vui lòng thử lại.");
+          notify("success", "Đặt hàng thành công!");
+
+          router.push(`/cart`);
+
+          return;
+        }
+
+        case "vnpay": {
+          const result = await createVNPayPaymentAsync({
+            amount: total,
+            orderInfo: `Thanh toán đơn hàng #${order.id}`,
+            orderId: order.id,
+          });
+
+          window.location.href = result.paymentUrl;
+
+          return;
+        }
+
+        default:
+          notify("error", "Phương thức thanh toán không hợp lệ.");
+      }
+    } catch (error: any) {
+      notify("error", error.response?.data?.message ?? "Đặt hàng thất bại");
     } finally {
       setOrdering(false);
     }
