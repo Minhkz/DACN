@@ -8,7 +8,7 @@ import { detail as detailProduct } from "@/services/product/ProductApi";
 import { StarOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 import ProductReview from "./ProductReview";
-import Image from "next/image";
+import ProductSuggestions from "./ProductSuggestions";
 import { me } from "@/services/user/UserService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addToCart, createCart } from "@/store/slices/cartSlice";
@@ -37,13 +37,21 @@ export default function DetailProduct({
 
   const { cart, pendingProductIds } = useAppSelector((state) => state.cart);
 
+  const [activeId, setActiveId] = useState(id); // Sử dụng activeId thay vì id để hỗ trợ chuyển đổi sản phẩm
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showReview, setShowReview] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const isAdding = pendingProductIds.includes(id);
+  const isAdding = pendingProductIds.includes(activeId);
+
+  // Đồng bộ activeId khi prop id thay đổi từ bên ngoài
+  useEffect(() => {
+    if (open) {
+      setActiveId(id);
+    }
+  }, [id, open]);
 
   useEffect(() => {
     setMounted(true);
@@ -66,9 +74,9 @@ export default function DetailProduct({
     isLoading: loading,
     isError,
   } = useQuery<ProductDetailDto>({
-    queryKey: ["product-detail", id],
-    queryFn: () => detailProduct(id),
-    enabled: open && !!id,
+    queryKey: ["product-detail", activeId],
+    queryFn: () => detailProduct(activeId),
+    enabled: open && !!activeId,
   });
 
   const { data: profile } = useQuery({
@@ -241,7 +249,7 @@ export default function DetailProduct({
           </div>
         ) : (
           <div className="flex flex-col overflow-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2">
               {/* Cột ảnh sản phẩm bên trái */}
               <div
                 className="bg-slate-50/50 border-r border-slate-100/80 md:border-r md:border-b-0 border-b"
@@ -368,30 +376,22 @@ export default function DetailProduct({
                 </div>
 
                 {/* Các nút hành động */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-3">
                   <button
                     type="button"
-                    className="h-11 rounded-xl border-2 border-[#0156ff] bg-transparent text-[#0156ff] text-sm font-bold cursor-pointer transition-all duration-300 hover:bg-blue-50/50 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full h-11 rounded-xl border-none bg-gradient-to-r from-[#0156ff] to-[#004ee6] text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(1,86,255,0.2)] hover:shadow-[0_6px_16px_rgba(1,86,255,0.3)] transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={product.quantity <= 0 || isAdding}
                     onClick={handleAddToCart}
                   >
-                    {isAdding ? "Đang thêm..." : "Thêm vào giỏ"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="h-11 rounded-xl border-none bg-gradient-to-r from-[#0156ff] to-[#004ee6] text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(1,86,255,0.2)] hover:shadow-[0_6px_16px_rgba(1,86,255,0.3)] transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-                    disabled={product.quantity <= 0}
-                  >
-                    <Image
-                      src="/logo/vnpay.png"
-                      alt="vnpay"
-                      width={28}
-                      height={28}
-                    />
-                    Thanh toán
+                    {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
                   </button>
                 </div>
+
+                {/* Component gợi ý sản phẩm nằm TRÊN phần đánh giá */}
+                <ProductSuggestions
+                  currentId={activeId}
+                  onSelectProduct={(newId) => setActiveId(newId)}
+                />
 
                 <button
                   type="button"
@@ -408,7 +408,7 @@ export default function DetailProduct({
                     className="border-t border-slate-100 bg-white"
                     style={{ padding: isMobile ? "16px 0 0 0" : "24px 0 0 0" }}
                   >
-                    <ProductReview productId={id} userId={userId} />
+                    <ProductReview productId={activeId} userId={userId} />
                   </div>
                 )}
               </div>

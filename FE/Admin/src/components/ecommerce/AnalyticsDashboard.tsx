@@ -181,14 +181,14 @@ const AnalyticsDashboard = () => {
             ]}
           />
 
-          <button
+          {/* <button
             onClick={refetchAll}
             className="flex cursor-pointer items-center gap-2 rounded-xl bg-slate-900 text-sm font-bold text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition-all duration-300 hover:bg-slate-800 hover:shadow-[0_6px_20px_rgba(15,23,42,0.2)] active:scale-[0.98]"
             style={{ padding: '10px 16px' }}
           >
             <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
             Làm mới
-          </button>
+          </button> */}
         </div>
       </div>
 
