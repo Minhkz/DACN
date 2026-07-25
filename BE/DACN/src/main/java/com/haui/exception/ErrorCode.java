@@ -72,7 +72,11 @@ public enum ErrorCode {
     FILE_SIZE_TOO_LARGE("400", "Dung lượng ảnh tối đa 1MB",   HttpStatus.BAD_REQUEST),
     FILE_UPLOAD_FAILED("500", "Upload ảnh thất bại",  HttpStatus.INTERNAL_SERVER_ERROR),
 
-    INVALID_REQUEST("400", "Yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST);
+    INVALID_REQUEST("400", "Yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST),
+
+    PRODUCT_CATEGORY_NOT_FOUND("404", "Sản phẩm chưa được gán category",  HttpStatus.NOT_FOUND),
+    PRODUCT_VECTOR_NOT_FOUND("404", "Không có vector cho sản phẩm",  HttpStatus.NOT_FOUND);
+
 
     private final String code;
     private final String message;

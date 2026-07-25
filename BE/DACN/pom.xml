@@ -24,7 +24,7 @@
 		<spring-ai.version>1.0.0</spring-ai.version>
 	</properties>
 
-	<!-- FIX 2: Spring AI BOM để quản lý version tự động -->
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

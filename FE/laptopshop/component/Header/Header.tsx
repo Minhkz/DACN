@@ -248,30 +248,35 @@ const Header = () => {
               onMouseEnter={() => setAccountOpen(true)}
               onMouseLeave={() => setAccountOpen(false)}
             >
-              <Link href={isLoggedIn ? "/profile" : "/signin"}>
+              {/* Avatar User */}
+              <Link
+                href={isLoggedIn ? "/profile" : "/signin"}
+                className="block"
+              >
                 <Image
                   src={data?.avatar || "/icon/Ellipse.png"}
                   alt="User"
                   width={36}
                   height={36}
-                  className="rounded-full"
+                  className="rounded-full ring-2 ring-transparent hover:ring-[#0156ff]/35 transition-all duration-300"
                 />
               </Link>
 
+              {/* Popover Dropdown (Đã sửa lỗi đóng nhanh bằng delay-150 và paddingTop) */}
               <div
-                className={`absolute z-50 transition-all duration-150 ${
+                className={`absolute z-50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   accountOpen
-                    ? "opacity-100 translate-y-0 pointer-events-auto"
-                    : "opacity-0 -translate-y-1 pointer-events-none"
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                    : "opacity-0 -translate-y-2 scale-95 pointer-events-none delay-150"
                 }`}
-                style={{ right: "-12px", top: "calc(100% + 10px)" }}
+                style={{ right: "-12px", top: "100%", paddingTop: "10px" }}
               >
-                {/* Mũi tên caret */}
+                {/* Mũi tên caret (Đã dịch tọa độ để tương thích với paddingTop mới) */}
                 <div
-                  className="absolute bg-white border-l border-t border-gray-200"
+                  className="absolute bg-white border-l border-t border-slate-100"
                   style={{
-                    top: "-5px",
-                    right: "18px",
+                    top: "5px",
+                    right: "24px",
                     width: "10px",
                     height: "10px",
                     transform: "rotate(45deg)",
@@ -279,23 +284,22 @@ const Header = () => {
                 />
 
                 <ul
-                  className="bg-white border border-gray-200 rounded-xl overflow-hidden"
-                  style={{ width: "220px", padding: "4px 0" }}
+                  className="bg-white border border-slate-100 rounded-2xl shadow-[0_10px_30px_rgba(15,23,42,0.08)] overflow-hidden"
+                  style={{ width: "220px", padding: "6px 0" }}
                 >
                   {/* My Wish List */}
-                  <li className="border-b border-gray-100">
+                  <li className="border-b border-slate-50">
                     <Link
                       href="/wishlist"
-                      className="flex items-center justify-between text-gray-700 hover:bg-gray-50 transition-colors"
-                      style={{ padding: "10px 16px", fontSize: "14px" }}
+                      className="flex items-center justify-between text-slate-600 hover:text-[#0156ff] hover:bg-slate-50/50 transition-colors font-medium"
+                      style={{ padding: "11px 16px", fontSize: "13.5px" }}
                     >
                       <span>My Wish List</span>
                       <span
-                        className="text-gray-400 font-medium"
+                        className="bg-blue-50 text-[#0156ff] font-bold"
                         style={{
-                          fontSize: "11px",
-                          padding: "1px 7px",
-                          background: "#f3f4f6",
+                          fontSize: "10px",
+                          padding: "2px 8px",
                           borderRadius: "99px",
                         }}
                       >
@@ -305,18 +309,17 @@ const Header = () => {
                   </li>
 
                   {/* Compare */}
-                  <li className="border-b border-gray-100">
+                  <li className="border-b border-slate-50">
                     <div
-                      className="flex items-center justify-between text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                      style={{ padding: "10px 16px", fontSize: "14px" }}
+                      className="flex items-center justify-between text-slate-600 hover:text-[#0156ff] hover:bg-slate-50/50 transition-colors cursor-pointer font-medium"
+                      style={{ padding: "11px 16px", fontSize: "13.5px" }}
                     >
                       <span>Compare</span>
                       <span
-                        className="text-gray-400 font-medium"
+                        className="bg-slate-50 text-slate-400 font-bold"
                         style={{
-                          fontSize: "11px",
-                          padding: "1px 7px",
-                          background: "#f3f4f6",
+                          fontSize: "10px",
+                          padding: "2px 8px",
                           borderRadius: "99px",
                         }}
                       >
@@ -327,15 +330,18 @@ const Header = () => {
 
                   {/* Auth actions */}
                   {isLoading ? (
-                    <li style={{ padding: "10px 16px" }}>
+                    <li
+                      className="flex justify-center"
+                      style={{ padding: "12px 16px" }}
+                    >
                       <Spin size="small" />
                     </li>
                   ) : !isLoggedIn ? (
                     <li>
                       <Link
                         href="/signin"
-                        className="flex items-center text-gray-700 hover:bg-gray-50 transition-colors"
-                        style={{ padding: "10px 16px", fontSize: "14px" }}
+                        className="flex items-center text-slate-700 hover:text-[#0156ff] hover:bg-slate-50/50 transition-colors font-semibold"
+                        style={{ padding: "11px 16px", fontSize: "13.5px" }}
                       >
                         Đăng nhập
                       </Link>
@@ -346,8 +352,8 @@ const Header = () => {
                         type="button"
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="flex items-center gap-2.5 w-full text-red-500 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                        style={{ padding: "10px 16px", fontSize: "14px" }}
+                        className="flex items-center gap-2.5 w-full text-rose-500 hover:bg-rose-50/60 transition-colors font-semibold disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                        style={{ padding: "11px 16px", fontSize: "13.5px" }}
                       >
                         <svg
                           className="shrink-0"
@@ -358,7 +364,9 @@ const Header = () => {
                         >
                           <path d="M15.1007 19.247C14.6865 19.247 14.3507 18.9112 14.3507 18.497L14.3507 14.245H12.8507V18.497C12.8507 19.7396 13.8581 20.747 15.1007 20.747H18.5007C19.7434 20.747 20.7507 19.7396 20.7507 18.497L20.7507 5.49609C20.7507 4.25345 19.7433 3.24609 18.5007 3.24609H15.1007C13.8581 3.24609 12.8507 4.25345 12.8507 5.49609V9.74501L14.3507 9.74501V5.49609C14.3507 5.08188 14.6865 4.74609 15.1007 4.74609L18.5007 4.74609C18.9149 4.74609 19.2507 5.08188 19.2507 5.49609L19.2507 18.497C19.2507 18.9112 18.9149 19.247 18.5007 19.247H15.1007ZM3.25073 11.9984C3.25073 12.2144 3.34204 12.4091 3.48817 12.546L8.09483 17.1556C8.38763 17.4485 8.86251 17.4487 9.15549 17.1559C9.44848 16.8631 9.44863 16.3882 9.15583 16.0952L5.81116 12.7484L16.0007 12.7484C16.4149 12.7484 16.7507 12.4127 16.7507 11.9984C16.7507 11.5842 16.4149 11.2484 16.0007 11.2484L5.81528 11.2484L9.15585 7.90554C9.44864 7.61255 9.44847 7.13767 9.15547 6.84488C8.86248 6.55209 8.3876 6.55226 8.09481 6.84525L3.52309 11.4202C3.35673 11.5577 3.25073 11.7657 3.25073 11.9984Z" />
                         </svg>
-                        {isSigningOut ? <Spin size="small" /> : "Đăng xuất"}
+                        <span>
+                          {isSigningOut ? "Đang đăng xuất..." : "Đăng xuất"}
+                        </span>
                       </button>
                     </li>
                   )}

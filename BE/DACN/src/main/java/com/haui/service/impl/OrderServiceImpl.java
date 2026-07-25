@@ -14,6 +14,7 @@ import com.haui.entity.Product;
 import com.haui.entity.ProductOrder;
 import com.haui.entity.User;
 import com.haui.enums.OrderStatus;
+import com.haui.enums.PaymentStatus;
 import com.haui.exception.AppException;
 import com.haui.exception.ErrorCode;
 import com.haui.mapper.OrderMapper;
@@ -197,6 +198,29 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orderPage = orderRepository.findByUserId(userId, pageable);
 
         return orderPage.map(orderMapper::toDto);
+    }
+
+    @Override
+    @Transactional(rollbackFor =  Exception.class)
+    public void markPaid(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.setPaymentStatus(PaymentStatus.PAID.name());
+
+        orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor =  Exception.class)
+    public void markPaymentFailed(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.setStatus(PaymentStatus.FAILED.name());
+
+        orderRepository.save(order);
+
     }
 
     private OrderAdminDto convertToOrderAdminDto(Order order) {

@@ -137,16 +137,20 @@ const AnalyticsDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" style={{ padding: '24px' }}>
+    <div className="min-h-screen bg-[#f8fafc]/80" style={{ padding: '24px' }}>
+      {/* ===== Top Header Row ===== */}
       <div
         className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '28px' }}
       >
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
             Dashboard Analytics
           </h1>
-          <p className="text-sm text-slate-500" style={{ marginTop: '6px' }}>
+          <p
+            className="text-sm leading-relaxed text-slate-500"
+            style={{ marginTop: '6px' }}
+          >
             Theo dõi lượt xem sản phẩm, hành vi thêm giỏ hàng và giỏ hàng bị bỏ
             quên.
           </p>
@@ -177,20 +181,21 @@ const AnalyticsDashboard = () => {
             ]}
           />
 
-          <button
+          {/* <button
             onClick={refetchAll}
-            className="flex items-center gap-2 rounded-xl bg-slate-900 text-sm font-medium text-white hover:bg-slate-800"
-            style={{ padding: '10px 14px' }}
+            className="flex cursor-pointer items-center gap-2 rounded-xl bg-slate-900 text-sm font-bold text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition-all duration-300 hover:bg-slate-800 hover:shadow-[0_6px_20px_rgba(15,23,42,0.2)] active:scale-[0.98]"
+            style={{ padding: '10px 16px' }}
           >
             <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
             Làm mới
-          </button>
+          </button> */}
         </div>
       </div>
 
+      {/* ===== Stats Cards Row ===== */}
       <div
         className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '28px' }}
       >
         <CircleStatCard
           title="Tổng lượt xem"
@@ -230,9 +235,10 @@ const AnalyticsDashboard = () => {
         />
       </div>
 
+      {/* ===== Charts Section 1 ===== */}
       <div
         className="grid grid-cols-1 gap-6 xl:grid-cols-3"
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '28px' }}
       >
         <div className="xl:col-span-2">
           <ChartCard title="Top sản phẩm được xem nhiều">
@@ -252,9 +258,10 @@ const AnalyticsDashboard = () => {
         </ChartCard>
       </div>
 
+      {/* ===== Charts Section 2 ===== */}
       <div
         className="grid grid-cols-1 gap-6 xl:grid-cols-2"
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '28px' }}
       >
         <ChartCard title="Top sản phẩm được thêm vào giỏ">
           <BarChartView
@@ -279,6 +286,7 @@ const AnalyticsDashboard = () => {
         </ChartCard>
       </div>
 
+      {/* ===== Bottom Abandoned Table ===== */}
       <AbandonedCartSection
         data={abandonedCarts}
         isLoading={abandonedCartsQuery.isLoading}

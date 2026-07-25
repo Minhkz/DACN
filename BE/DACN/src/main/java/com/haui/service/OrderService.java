@@ -28,4 +28,8 @@ public interface OrderService {
     void cancel(Integer userId, OrderCancelRequest request);
 
     Page<OrderDto> getOrders(int userId, int page, int size, List<String> sort);
+
+    void markPaid(Integer orderId);
+
+    void markPaymentFailed(Integer orderId);
 }

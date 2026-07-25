@@ -42,6 +42,9 @@ const orderService = {
 
     return res.data.data;
   },
+  updateStatus: async (orderId: number, status: string): Promise<void> => {
+    await clientApi.patch(`/orders/${orderId}`, { status });
+  },
 };
 
 export default orderService;

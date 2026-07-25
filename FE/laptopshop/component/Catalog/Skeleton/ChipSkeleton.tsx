@@ -1,75 +1,94 @@
+"use client";
+
 import React from "react";
 
 function Pulse({ className = "" }: { className?: string }) {
   return (
-    <div className={`animate-pulse rounded bg-neutral-200 ${className}`} />
+    <div className={`animate-pulse rounded bg-slate-200/85 ${className}`} />
   );
 }
 
 function FilterRowSkeleton() {
   return (
-    <div className="flex items-center justify-between py-5">
-      <Pulse className="h-6 w-28" />
-      <Pulse className="h-4 w-4 rounded-sm" />
+    <div
+      className="flex items-center justify-between"
+      style={{ paddingTop: "20px", paddingBottom: "20px" }}
+    >
+      <Pulse className="h-6 w-28 rounded-lg" />
+      <Pulse className="h-4 w-4 rounded-md" />
     </div>
   );
 }
 
 export default function FilterSidebarSkeleton() {
   return (
-    <aside className="w-full max-w-[320px] overflow-hidden rounded-[24px] border border-neutral-200 bg-white">
+    <aside className="w-full max-w-[320px] overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm">
       {/* Header */}
-      <div className="px-5 py-6">
-        <Pulse className="h-8 w-24" />
+      <div
+        style={{
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          paddingTop: "24px",
+          paddingBottom: "24px",
+        }}
+      >
+        <Pulse className="h-8 w-24 rounded-lg" />
       </div>
 
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
       {/* Khoảng giá */}
-      <div className="px-5 py-6">
-        <div className="mb-5">
-          <Pulse className="h-7 w-28" />
+      <div
+        style={{
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          paddingTop: "24px",
+          paddingBottom: "24px",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <Pulse className="h-7 w-28 rounded-lg" />
         </div>
 
         <div className="flex items-center gap-3">
-          <Pulse className="h-12 flex-1 rounded-2xl border border-neutral-200 bg-neutral-100" />
-          <Pulse className="h-4 w-3" />
-          <Pulse className="h-12 flex-1 rounded-2xl border border-neutral-200 bg-neutral-100" />
+          <Pulse className="h-12 flex-1 rounded-xl border border-slate-100 bg-slate-50/50" />
+          <Pulse className="h-4 w-3 rounded" />
+          <Pulse className="h-12 flex-1 rounded-xl border border-slate-100 bg-slate-50/50" />
         </div>
       </div>
 
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
       {/* Accordion rows */}
-      <div className="px-5">
+      <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
         <FilterRowSkeleton />
       </div>
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
-      <div className="px-5">
+      <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
         <FilterRowSkeleton />
       </div>
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
-      <div className="px-5">
+      <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
         <FilterRowSkeleton />
       </div>
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
-      <div className="px-5">
+      <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
         <FilterRowSkeleton />
       </div>
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
-      <div className="px-5">
+      <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
         <FilterRowSkeleton />
       </div>
 
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-slate-100" />
 
       {/* Button */}
-      <div className="p-5">
-        <Pulse className="h-12 w-full rounded-2xl bg-neutral-300" />
+      <div style={{ padding: "20px" }}>
+        <Pulse className="h-12 w-full rounded-xl bg-slate-300" />
       </div>
     </aside>
   );

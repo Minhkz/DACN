@@ -55,8 +55,8 @@ public class FilterController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) List<String> sort
     ){
-        Page<FilterDto> result = filterService.getAll(page, size, sort);
-        return ResponseResult.success(PageResponse.from(result));
+        PageResponse<FilterDto> result = filterService.getAll(page, size, sort);
+        return ResponseResult.success(result);
     }
 
     @GetMapping("/{id}")

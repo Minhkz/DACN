@@ -1,6 +1,7 @@
 package com.haui.service.impl;
 
 import com.haui.dto.request.filter.FilterRequest;
+import com.haui.dto.response.PageResponse;
 import com.haui.dto.response.filter.FilterDto;
 import com.haui.entity.Filter;
 import com.haui.exception.AppException;
@@ -93,16 +94,19 @@ public class FilterServiceImpl implements FilterService {
 
     @Override
     @Cacheable(key = "{#page, #size, #sort}")
-    public Page<FilterDto> getAll(int page, int size, List<String> sort) {
+    public PageResponse<FilterDto> getAll(int page, int size, List<String> sort) {
         Pageable pageable = PageableUtil.buildPageable(page, size, sort);
 
         Page<Filter> filterPage = filterRepository.findAll(pageable);
-        List<Filter>  filters = filterPage.getContent();
+        List<Filter> filters = filterPage.getContent();
 
         if (filters.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, filterPage.getTotalElements());
+            Page<FilterDto> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, filterPage.getTotalElements());
+            return PageResponse.from(emptyPage);
         }
-        return new PageImpl<>(filterMapper.toDto(filters), pageable, filterPage.getTotalElements());
+
+        Page<FilterDto> dtoPage = new PageImpl<>(filterMapper.toDto(filters), pageable, filterPage.getTotalElements());
+        return PageResponse.from(dtoPage);
     }
 
 
