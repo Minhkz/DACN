@@ -44,7 +44,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:1010", "http://localhost:3000", "https://dacn-lac.vercel.app"));
+        config.setAllowedOrigins(List.of("http://localhost:1010", "http://localhost:3000", "https://dacn-lac.vercel.app", "https://dacn-fe.onrender.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));
