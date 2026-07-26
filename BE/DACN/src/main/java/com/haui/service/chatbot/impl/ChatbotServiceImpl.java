@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,10 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = "app.ai.enabled",
+        havingValue = "true"
+)
 public class ChatbotServiceImpl implements ChatbotService {
 
     private final ChatModel chatModel;
