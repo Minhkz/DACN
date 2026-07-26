@@ -8,11 +8,16 @@ import com.haui.service.ai.ProductEmbeddingService;
 import com.haui.utils.VectorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = "app.ai.enabled",
+        havingValue = "true"
+)
 public class ProductEmbeddingServiceImpl implements ProductEmbeddingService {
 
     private final ProductRepository productRepository;
