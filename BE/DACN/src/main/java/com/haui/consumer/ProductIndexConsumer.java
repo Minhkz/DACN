@@ -3,11 +3,16 @@ package com.haui.consumer;
 import com.haui.event.ProductIndexEvent;
 import com.haui.service.ai.ProductEmbeddingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = "app.ai.enabled",
+        havingValue = "true"
+)
 public class ProductIndexConsumer {
 
     private final ProductEmbeddingService productEmbeddingService;
