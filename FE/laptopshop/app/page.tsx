@@ -6,32 +6,18 @@ import Banner from "@/component/Carousel/Banner";
 import ChatbotWidget from "@/component/chatbot/ChatbotWidget";
 import Footer from "@/component/Footer/Footer";
 import Header from "@/component/Header/Header";
-import TetSalePortal from "@/component/Portal/TetSalePortal";
 import MainProduct from "@/component/Product/MainProduct/MainProduct";
 import NewProduct from "@/component/Product/NewProduct/NewProduct";
-import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setOpen(true);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <>
-      <TetSalePortal open={open} onClose={() => setOpen(false)} />
       <Header />
       <Banner />
       <NewProduct />
       <MainProduct />
       <Article />
       <Footer />
-
       <ChatbotWidget />
     </>
   );

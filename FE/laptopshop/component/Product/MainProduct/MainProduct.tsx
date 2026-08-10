@@ -7,7 +7,13 @@ const MainProduct = () => {
   return (
     <div
       className="container-global mx-auto max-w-7xl flex flex-col"
-      style={{ marginTop: "24px", marginBottom: "48px", gap: "28px" }}
+      style={{
+        marginTop: "16px",
+        marginBottom: "48px",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        gap: "28px",
+      }}
     >
       {/* ===== Category 1: Custom Builds ===== */}
       <SeriesProduct
@@ -19,8 +25,8 @@ const MainProduct = () => {
       />
 
       <div
-        className="border-b border-slate-100/50"
-        style={{ margin: "12px 0" }}
+        className="border-b border-slate-100"
+        style={{ margin: "4px 0", padding: "0" }}
       />
 
       {/* ===== Category 2: MSI Laptops ===== */}
@@ -39,8 +45,8 @@ const MainProduct = () => {
       />
 
       <div
-        className="border-b border-slate-100/50"
-        style={{ margin: "12px 0" }}
+        className="border-b border-slate-100"
+        style={{ margin: "4px 0", padding: "0" }}
       />
 
       {/* ===== Category 3: MSI Desktops ===== */}
@@ -59,8 +65,8 @@ const MainProduct = () => {
       />
 
       <div
-        className="border-b border-slate-100/50"
-        style={{ margin: "12px 0" }}
+        className="border-b border-slate-100"
+        style={{ margin: "4px 0", padding: "0" }}
       />
 
       {/* ===== Category 4: MSI Monitors ===== */}
@@ -75,4 +81,4 @@ const MainProduct = () => {
   );
 };
 
-export default MainProduct;
+export default React.memo(MainProduct);
