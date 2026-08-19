@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { serverApi } from './lib/axios/server';
 
 const adminPaths = ['/', '/users', '/products', '/filters'];
 const authPaths = ['/signin', '/signup'];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const accessToken = req.cookies.get('accessToken')?.value;
+  const accessToken = req.cookies.get('admin_accessToken')?.value;
 
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
   const isAdminPath = adminPaths.some((path) =>
@@ -23,11 +22,25 @@ export async function proxy(req: NextRequest) {
     }
 
     try {
-      const response = await serverApi.get('/profile/me');
-      const currentUser = response.data.data;
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/profile/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          cache: 'no-store',
+        }
+      );
 
-      if (currentUser.roleId !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/error-401', req.url));
+      if (!response.ok) {
+        throw new Error(`Auth check failed with status ${response.status}`);
+      }
+
+      const resData = await response.json();
+      const currentUser = resData.data;
+
+      if (currentUser?.roleId !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/signin', req.url));
       }
     } catch (error: any) {
       const status = error?.response?.status ?? 'unknown';
@@ -41,8 +54,8 @@ export async function proxy(req: NextRequest) {
       url.searchParams.set('status', String(status));
 
       const response = NextResponse.redirect(url);
-      response.cookies.delete('accessToken');
-      response.cookies.delete('refreshToken');
+      response.cookies.delete('admin_accessToken');
+      response.cookies.delete('admin_refreshToken');
       return response;
     }
   }
