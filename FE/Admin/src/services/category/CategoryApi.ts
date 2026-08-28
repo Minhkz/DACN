@@ -7,7 +7,7 @@ import axios from 'axios';
 const getAll = async (
   page: number,
   size: number
-): Promise<PaginationResponse<CategoryType[]>> => {
+): Promise<PaginationResponse<CategoryType>> => {
   const res = await clientApi.get('/filters', {
     params: {
       page,

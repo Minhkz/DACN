@@ -19,7 +19,7 @@ const Category = () => {
   const [pageSize, setPageSize] = useState(3);
 
   const { data, isLoading, isFetching, error, isError } = useQuery<
-    PaginationResponse<CategoryType[]>,
+    PaginationResponse<CategoryType>,
     Error
   >({
     queryKey: ['categories', page, pageSize],

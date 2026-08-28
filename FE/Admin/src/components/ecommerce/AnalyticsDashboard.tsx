@@ -145,7 +145,7 @@ const AnalyticsDashboard = () => {
       >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Dashboard Analytics
+            Phân tích hành vi người dùng
           </h1>
           <p
             className="text-sm leading-relaxed text-slate-500"

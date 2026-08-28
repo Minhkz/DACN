@@ -10,7 +10,7 @@ import axios from 'axios';
 const getAll = async (
   page: number,
   size: number
-): Promise<PaginationResponse<UserDetailType[]>> => {
+): Promise<PaginationResponse<UserDetailType>> => {
   const res = await clientApi.get('/users', {
     params: {
       page,

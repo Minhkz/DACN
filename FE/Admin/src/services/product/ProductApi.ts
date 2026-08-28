@@ -6,7 +6,7 @@ import { ProductDto } from '@/types/product/ProductDto';
 const getAll = async (
   page: number,
   size: number
-): Promise<PaginationResponse<ProductDetailDto[]>> => {
+): Promise<PaginationResponse<ProductDetailDto>> => {
   const res = await clientApi.get('/products', {
     params: {
       page,

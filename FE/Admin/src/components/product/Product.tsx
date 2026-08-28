@@ -19,7 +19,7 @@ const Product = () => {
   const [pageSize, setPageSize] = useState(3);
 
   const { data, isLoading, isFetching, error, isError } = useQuery<
-    PaginationResponse<ProductDetailDto[]>,
+    PaginationResponse<ProductDetailDto>,
     Error
   >({
     queryKey: ['products', page, pageSize],

@@ -28,7 +28,13 @@ const brandLogos = [
   { src: "/logo/gigabyte.png", alt: "Gigabyte" },
 ];
 
-const MegaMenu = ({ item, open, onMouseEnter, onMouseLeave, onClose }: Props) => {
+const MegaMenu = ({
+  item,
+  open,
+  onMouseEnter,
+  onMouseLeave,
+  onClose,
+}: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -231,7 +237,11 @@ const MegaMenu = ({ item, open, onMouseEnter, onMouseLeave, onClose }: Props) =>
                   <Spin size="small" />
                   <p
                     className="text-[11px] text-slate-400 font-medium"
-                    style={{ marginTop: "6px", margin: "6px 0 0 0", padding: "0" }}
+                    style={{
+                      marginTop: "6px",
+                      margin: "6px 0 0 0",
+                      padding: "0",
+                    }}
                   >
                     Đang tải sản phẩm...
                   </p>
@@ -314,7 +324,10 @@ const MegaMenu = ({ item, open, onMouseEnter, onMouseLeave, onClose }: Props) =>
                     margin: "0",
                   }}
                 >
-                  <PackageOpen className="w-7 h-7 text-slate-300" style={{ marginBottom: "4px" }} />
+                  <PackageOpen
+                    className="w-7 h-7 text-slate-300"
+                    style={{ marginBottom: "4px" }}
+                  />
                   <p
                     className="text-slate-500 text-xs font-semibold"
                     style={{ margin: "0 0 2px 0", padding: "0" }}

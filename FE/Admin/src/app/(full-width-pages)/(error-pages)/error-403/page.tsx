@@ -25,7 +25,7 @@ export default function UnauthorizedPage() {
         {/* Nội dung lỗi */}
         <div>
           <h1 className="text-7xl font-extrabold tracking-tight text-gray-900">
-            401
+            403
           </h1>
           <h2 className="mt-4 text-2xl font-bold text-gray-900 sm:text-3xl">
             Không có quyền truy cập!

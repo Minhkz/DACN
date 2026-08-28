@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/proxy/:path*',
-        destination: 'http://localhost:8080/api/v1/:path*',
+        destination: 'http://localhost:8000/api/v1/:path*',
       },
     ];
   },

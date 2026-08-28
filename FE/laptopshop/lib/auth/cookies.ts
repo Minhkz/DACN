@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 
-export const ACCESS_TOKEN_COOKIE = 'accessToken';
-export const REFRESH_TOKEN_COOKIE = 'refreshToken';
+export const ACCESS_TOKEN_COOKIE = 'user_accessToken';
+export const REFRESH_TOKEN_COOKIE = 'user_refreshToken';
 
 const isProd = process.env.NODE_ENV === 'production';
 
