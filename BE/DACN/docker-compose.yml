@@ -5,8 +5,25 @@ networks:
 volumes:
   redis_data:
   kafka_data:
+  ollama_data:
 
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-ai
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: redis-cache
@@ -63,6 +80,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/laptopshop
@@ -71,7 +90,7 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SPRING_AI_OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - SPRING_AI_OLLAMA_BASE_URL=http://ollama:11434
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
